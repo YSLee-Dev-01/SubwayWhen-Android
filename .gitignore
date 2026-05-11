@@ -1,15 +1,48 @@
+# ===== Gradle =====
+.gradle/
+build/
+**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# ===== Android Studio / IntelliJ IDEA =====
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
+.idea/
+!.idea/codeStyles/
+!.idea/dictionaries/
+!.idea/inspectionProfiles/
+/.idea/caches/
+/.idea/libraries/
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# ===== Local configs (secrets, SDK path, etc.) =====
 local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Native build =====
+.externalNativeBuild/
+.cxx/
+
+# ===== ProGuard =====
+proguard/
+
+# ===== Test results =====
+/captures/
+*.hprof
+
+# ===== Kotlin / Java =====
+*.class
+*.jar
+*.war
+*.aar
+out/
