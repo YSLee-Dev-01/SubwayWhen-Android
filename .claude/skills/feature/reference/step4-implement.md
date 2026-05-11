@@ -2,8 +2,8 @@
 
 ## Step 4-1. 구현 준비
 
-spec.md, plan.md, tasks.md 를 모두 읽고 전체 구현 범위를 파악한다.
-이미 `[x]` 로 표시된 Task 는 건너뛰고 미완료 Task 부터 시작한다.
+spec.md, plan.md, tasks.md 를 모두 읽고 미완료 Task 목록을 파악한다.
+이미 `[x]` 로 표시된 Task 는 건너뛴다.
 
 ```
 📋 구현할 Task 목록:
@@ -12,26 +12,47 @@ spec.md, plan.md, tasks.md 를 모두 읽고 전체 구현 범위를 파악한�
 구현을 시작하려면 '확인' 을 입력하세요.
 ```
 
-## Step 4-2. Task 순차 구현
+## Step 4-2. Task별 SubAgent 순차 구현
 
-'확인' 입력 후 Task 를 하나씩 순차적으로 구현한다.
+'확인' 입력 후 미완료 Task를 하나씩 SubAgent로 구현한다.
 
-각 Task 마다 아래 사이클을 반복한다:
+각 Task마다 아래 사이클을 반복한다:
 
-1. Task 구현
-   - 신규 TCA Feature 파일 생성이 필요한 경우: `/create-feature {Name}` 를 먼저 실행한다
-2. 빌드 확인 — 실패 시 즉시 수정 (2회 시도 후에도 실패하면 사용자에게 보고하고 대기)
-3. 테스트 실행 — 실패 시 즉시 수정 (2회 시도 후에도 실패하면 사용자에게 보고하고 대기)
-   - 해당 Task 에 테스트 작성이 포함된 경우: 해당 테스트 클래스만 실행
-   - 기존 코드를 수정한 경우: 관련 테스트 클래스 실행
-   - 위 두 경우가 아니면 생략
-4. `tasks.md` 에서 해당 Task 를 `[x]` 로 업데이트
-5. 인간 확인 요청:
+### 1. Task SubAgent 실행
+
+Agent 도구를 model: "sonnet" 으로 아래 내용으로 실행한다:
+
+```
+역할: Android 개발자
+목표: 아래 Task를 구현한다.
+
+## 컨텍스트 파일
+- `.claude/specs/features/$ARGUMENTS/spec.md`
+- `.claude/specs/features/$ARGUMENTS/plan.md`
+- `.claude/specs/features/$ARGUMENTS/tasks.md`
+- `.claude/CLAUDE.md` 및 관련 rules 파일
+
+## 수행할 Task
+[해당 Task 번호 및 내용 전달]
+
+## 구현 규칙
+- CLAUDE.md 의 코딩 컨벤션을 따른다
+- 신규 파일 생성이 필요한 경우 plan.md 의 파일 경로를 따른다
+- 코드 작성 후 빌드를 확인한다 (실패 시 2회까지 수정 시도)
+- 해당 Task에 테스트 작성이 포함된 경우, 또는 기존 코드를 수정한 경우 관련 테스트를 실행한다
+- 구현 완료 후 변경된 파일 목록, 빌드 결과, 테스트 결과를 반환한다
+```
+
+### 2. SubAgent 완료 후 tasks.md 업데이트
+
+해당 Task를 `tasks.md` 에서 `[x]` 로 업데이트한다.
+
+### 3. 인간 확인 요청
 
 ```
 [인간 확인 요청 - 반드시 대기]
 ✅ Task N 완료
-📝 변경 파일: [파일 목록]
+📝 변경 파일: [SubAgent가 반환한 파일 목록]
 🔨 빌드: 성공
 🧪 테스트: 통과 / 생략
 
@@ -39,7 +60,7 @@ spec.md, plan.md, tasks.md 를 모두 읽고 전체 구현 범위를 파악한�
 계속하려면 '확인', 수정이 필요하면 내용을 알려주세요.
 ```
 
-'확인' 입력 전까지 다음 Task 를 절대 시작하지 않는다.
+'확인' 입력 전까지 다음 Task SubAgent를 절대 실행하지 않는다.
 
 ## Step 4-3. 문서 업데이트
 

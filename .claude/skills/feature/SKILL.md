@@ -6,6 +6,7 @@ allowed-tools:
   - Read
   - Write
   - Edit
+  - Agent
   - Bash(mkdir -p *)
   - Bash(xcodebuild build *)
   - Bash(xcodebuild test *)
