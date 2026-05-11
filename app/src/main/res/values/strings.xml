@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">SubwayWhen</string>
+
+    <!-- common -->
+    <string name="common_cancel">취소</string>
+    <string name="common_confirm">확인</string>
+    <string name="common_close">닫기</string>
+    <string name="common_save">저장</string>
+    <string name="common_yes">네</string>
+    <string name="common_no">아니오</string>
+
+    <!-- tutorial -->
+    <string name="tutorial_header_title">지하철 민실씨를 \n설치해주셔서 감사합니다.</string>
+
+    <string name="tutorial_page_0_title">환영합니다 👏</string>
+    <string name="tutorial_page_0_button">지하철 민실씨 알아보기</string>
+
+    <string name="tutorial_page_1_title">홈화면의 + 버튼이나, 검색 버튼을 이용하여 선호하는 지하철역을 추가할 수 있어요.</string>
+    <string name="tutorial_page_1_button">다음 1/5</string>
+
+    <string name="tutorial_page_2_title">지하철역을 추가할 때 원하지 않는 행선지는 제외 할 수 있어요.</string>
+    <string name="tutorial_page_2_button">다음 2/5</string>
+
+    <string name="tutorial_page_3_title">상세화면에서는 제외했던 행선지를 포함해서 일회성으로 확인할 수 있어요.</string>
+    <string name="tutorial_page_3_button">다음 3/5</string>
+
+    <string name="tutorial_page_4_title">출퇴근 시간에 맞춰서 알림을 받고, 해당 그룹으로 이동할 수 있어요.</string>
+    <string name="tutorial_page_4_button">다음 4/5</string>
+
+    <string name="tutorial_page_5_title">지하철 민원 접수 시 원하는 메시지를 직접 보낼 수 있어요.</string>
+    <string name="tutorial_page_5_button">다음 5/5</string>
+
+    <string name="tutorial_page_6_title">버튼을 눌러 민실씨를 바로 사용해 보세요!</string>
+    <string name="tutorial_page_6_button">시작하기</string>
 </resources>
