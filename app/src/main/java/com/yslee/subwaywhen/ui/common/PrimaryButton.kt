@@ -31,6 +31,7 @@ fun PrimaryButton(
     containerColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    contentColor: Color = Color.White,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -58,7 +59,7 @@ fun PrimaryButton(
         Text(
             text = text,
             fontSize = Dimens.fontSizeMedium,
-            color = Color.White,
+            color = contentColor,
             textAlign = TextAlign.Center,
         )
     }

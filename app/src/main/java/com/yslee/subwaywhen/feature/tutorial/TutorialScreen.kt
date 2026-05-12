@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
@@ -64,19 +65,25 @@ fun TutorialScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .statusBarsPadding(),
     ) {
         Text(
             text = stringResource(R.string.tutorial_header_title),
-            fontSize = Dimens.fontSizeMedium,
-            fontWeight = FontWeight.Bold,
+            fontSize = Dimens.fontSizeMainTitle,
+            fontWeight = FontWeight.ExtraBold,
             color = headerTextColor,
-            modifier = Modifier.padding(horizontal = Dimens.paddingLR, vertical = 16.dp),
+            modifier = Modifier.padding(
+                start = Dimens.paddingLR,
+                top = 48.dp,
+                end = Dimens.paddingLR,
+                bottom = 16.dp,
+            ),
         )
 
         HorizontalPager(
             state = pagerState,
-            userScrollEnabled = false,
+            userScrollEnabled = !isLastPage,
             modifier = Modifier.fillMaxSize(),
         ) { pageIndex ->
             val page = pages[pageIndex]

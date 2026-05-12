@@ -7,6 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,7 +76,8 @@ fun TutorialFirstPageContent(onNextClick: () -> Unit) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR, vertical = 16.dp)
+                .navigationBarsPadding()
+                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = 16.dp)
                 .alpha(animatedAlpha),
         )
     }

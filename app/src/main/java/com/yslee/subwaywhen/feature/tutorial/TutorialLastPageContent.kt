@@ -7,6 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import androidx.compose.material3.MaterialTheme
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.MainColorDark
@@ -75,11 +77,13 @@ fun TutorialLastPageContent(
         PrimaryButton(
             text = stringResource(buttonLabelRes),
             containerColor = if (isSystemInDarkTheme()) MainColorDark else MainColorLight,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             onClick = onFinishClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR, vertical = 16.dp)
+                .navigationBarsPadding()
+                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = 16.dp)
                 .alpha(animatedButtonAlpha),
         )
     }
