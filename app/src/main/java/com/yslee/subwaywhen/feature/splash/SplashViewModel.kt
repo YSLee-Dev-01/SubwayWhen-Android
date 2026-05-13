@@ -36,8 +36,9 @@ class SplashViewModel @Inject constructor(
             val seen = repository.isTutorialSeen()
                 .catch { emit(true) }
                 .first()
-            if (seen) _effect.emit(SplashEffect.NavigateToHome)
-            else _effect.emit(SplashEffect.NavigateToTutorial)
+            _effect.emit(SplashEffect.NavigateToTutorial)
+//            if (seen) _effect.emit(SplashEffect.NavigateToHome)
+//            else _effect.emit(SplashEffect.NavigateToTutorial)
             _isReady.value = true
         }
     }

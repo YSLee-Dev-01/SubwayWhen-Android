@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,10 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import androidx.compose.material3.MaterialTheme
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.MainColorDark
@@ -65,14 +64,24 @@ fun TutorialLastPageContent(
         }
     }
 
+    // iOS: animationIcon → top.leading.trailing.equalToSuperview() + bottom.inset(110)
+    // (contentView already has 20pt leading/trailing insets from the collection view layout)
+    // Button is overlaid inside the animationIcon at bottom-16pt
     Box(modifier = Modifier.fillMaxSize()) {
-        LottieAnimation(
-            composition = composition,
-            progress = { progress },
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = lottieOffsetY),
-        )
+                .padding(horizontal = Dimens.paddingLR)
+                .padding(bottom = 110.dp),
+        ) {
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = lottieOffsetY),
+            )
+        }
 
         PrimaryButton(
             text = stringResource(buttonLabelRes),
@@ -83,7 +92,7 @@ fun TutorialLastPageContent(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = 16.dp)
+                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, top = 20.dp, bottom = 16.dp)
                 .alpha(animatedButtonAlpha),
         )
     }

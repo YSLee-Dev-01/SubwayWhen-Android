@@ -77,7 +77,7 @@ fun TutorialScreen(
                 start = Dimens.paddingLR,
                 top = 48.dp,
                 end = Dimens.paddingLR,
-                bottom = 16.dp,
+                bottom = 20.dp,
             ),
         )
 
