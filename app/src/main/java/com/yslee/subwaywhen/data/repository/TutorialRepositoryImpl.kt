@@ -1,6 +1,6 @@
 package com.yslee.subwaywhen.data.repository
 
-import com.yslee.subwaywhen.data.local.SettingLocalDataSource
+import com.yslee.subwaywhen.core.FixInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -8,13 +8,13 @@ import javax.inject.Singleton
 
 @Singleton
 class TutorialRepositoryImpl @Inject constructor(
-    private val dataSource: SettingLocalDataSource
+    private val fixInfo: FixInfo
 ) : TutorialRepository {
 
     override fun isTutorialSeen(): Flow<Boolean> =
-        dataSource.getSaveSetting().map { it.tutorialSuccess }
+        fixInfo.saveSetting.map { it.tutorialSuccess }
 
     override suspend fun markTutorialSeen() {
-        dataSource.updateTutorialSeen(true)
+        fixInfo.updateSaveSetting(fixInfo.saveSetting.value.copy(tutorialSuccess = true))
     }
 }
