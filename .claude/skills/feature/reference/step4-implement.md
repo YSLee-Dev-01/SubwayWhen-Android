@@ -44,9 +44,20 @@ spec.md, plan.md, tasks.md 를 모두 읽고 미완료 Task 목록을 파악한�
 - CLAUDE.md 의 코딩 컨벤션을 따른다
 - 신규 파일 생성이 필요한 경우 plan.md 의 파일 경로를 따른다
 - 코드 작성 후 빌드를 확인한다 (실패 시 2회까지 수정 시도)
--  2번을 초과하여 빌드가 실패된 경우 Task를 중단하고 사용자에게 보고한다.
+- 2번을 초과하여 빌드가 실패된 경우 Task를 중단하고 사용자에게 보고한다.
 - 해당 Task에 테스트 작성이 포함된 경우, 또는 기존 코드를 수정한 경우 관련 테스트를 실행한다
 - 구현 완료 후 변경된 파일 목록, 빌드 결과, 테스트 결과를 반환한다
+
+## iOS → Compose 포팅 시 주의사항
+
+iOS 원본을 Android Compose로 포팅할 때 자주 발생하는 함정:
+
+- **`FontWeight.Heavy` 없음** → `FontWeight.ExtraBold` (800) 사용
+- **하드코딩 색상 금지** — `Color.White` / `Color.Black` / `Color.Gray` 대신 `MaterialTheme.colorScheme.*` 사용 (`surface`, `onSurface`, `onSurfaceVariant`, `error` 등)
+- **애니메이션 duration** — `tween(durationMillis = 250)` 대신 `tween(durationMillis = Dimens.animationDurationMs)` 사용
+- **Dimens 토큰** — 2회 이상 반복되는 여백·크기는 `Dimens.kt`에 추가 후 참조
+- **버튼 콜백 누락 주의** — iOS Button/TapGesture 핸들러가 있으면 AOS에도 반드시 콜백 파라미터로 노출해야 한다
+- **문자열 suffix/prefix** — iOS에서 `"\(value)\(Strings.X.suffix)"` 패턴을 사용하면 AOS도 동일하게 구성한다
 ```
 
 ---
