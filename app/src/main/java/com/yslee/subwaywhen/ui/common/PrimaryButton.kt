@@ -37,7 +37,7 @@ fun PrimaryButton(
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
         targetValue = if (isPressed) Dimens.animationScale else 1f,
-        animationSpec = tween(durationMillis = (Dimens.animationSpeed * 1000).toInt()),
+        animationSpec = tween(durationMillis = Dimens.animationDurationMs),
         label = "buttonScale",
     )
 
