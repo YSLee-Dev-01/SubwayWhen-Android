@@ -48,7 +48,7 @@ fun TutorialFirstPageContent(onNextClick: () -> Unit) {
     var contentAlpha by remember { mutableFloatStateOf(0f) }
     val animatedAlpha by animateFloatAsState(
         targetValue = contentAlpha,
-        animationSpec = tween(durationMillis = 250),
+        animationSpec = tween(durationMillis = Dimens.animationDurationMs),
         label = "fadeIn",
     )
 
@@ -93,7 +93,7 @@ fun TutorialFirstPageContent(onNextClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = 16.dp)
+                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = Dimens.paddingInner)
                 .alpha(animatedAlpha),
         )
     }

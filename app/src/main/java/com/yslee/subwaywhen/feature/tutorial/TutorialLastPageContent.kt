@@ -46,14 +46,14 @@ fun TutorialLastPageContent(
 
     val lottieOffsetY by animateDpAsState(
         targetValue = if (animationFinished) 0.dp else (-110).dp,
-        animationSpec = tween(durationMillis = 250),
+        animationSpec = tween(durationMillis = Dimens.animationDurationMs),
         label = "lottieSlide",
     )
 
     var buttonAlpha by remember { mutableFloatStateOf(0f) }
     val animatedButtonAlpha by animateFloatAsState(
         targetValue = buttonAlpha,
-        animationSpec = tween(durationMillis = 250),
+        animationSpec = tween(durationMillis = Dimens.animationDurationMs),
         label = "buttonFadeIn",
     )
 
@@ -92,7 +92,7 @@ fun TutorialLastPageContent(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, top = 20.dp, bottom = 16.dp)
+                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, top = 20.dp, bottom = Dimens.paddingInner)
                 .alpha(animatedButtonAlpha),
         )
     }

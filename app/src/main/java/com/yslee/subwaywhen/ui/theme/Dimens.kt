@@ -7,6 +7,7 @@ object Dimens {
     val cornerRadius = 15.dp
     val paddingLR = 20.dp
     val paddingTB = 7.5.dp
+    val paddingInner = 16.dp
 
     const val animationDurationMs = 250
     const val animationScale = 0.94f

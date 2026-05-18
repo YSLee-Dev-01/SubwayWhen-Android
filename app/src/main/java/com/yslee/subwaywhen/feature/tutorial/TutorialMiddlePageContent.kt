@@ -38,7 +38,7 @@ fun TutorialMiddlePageContent(
                 text = stringResource(page.titleRes),
                 fontSize = Dimens.fontSizeLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(Dimens.paddingInner),
             )
         }
 
@@ -56,7 +56,7 @@ fun TutorialMiddlePageContent(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(Dimens.paddingInner),
             )
         }
 
@@ -69,7 +69,7 @@ fun TutorialMiddlePageContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = 16.dp),
+                .padding(start = Dimens.paddingLR, end = Dimens.paddingLR, bottom = Dimens.paddingInner),
         )
     }
 }
