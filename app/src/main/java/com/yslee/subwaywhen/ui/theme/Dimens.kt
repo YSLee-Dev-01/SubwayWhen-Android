@@ -6,10 +6,12 @@ import androidx.compose.ui.unit.sp
 object Dimens {
     val cornerRadius = 15.dp
     val paddingLR = 20.dp
-    val paddingTB = 13.dp
+    val paddingTB = 7.5.dp
 
-    const val animationSpeed = 0.25f
+    const val animationDurationMs = 250
     const val animationScale = 0.94f
+
+    val titleOffsetY = 7.5.dp
 
     val fontSizeSuperSmall = 9.sp
     val fontSizeMediumSmall = 11.sp
