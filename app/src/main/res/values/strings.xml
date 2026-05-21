@@ -9,6 +9,16 @@
     <string name="common_yes">네</string>
     <string name="common_no">아니오</string>
 
+    <!-- tab -->
+    <string name="tab_home">홈</string>
+    <string name="tab_search">검색</string>
+    <string name="tab_setting">설정</string>
+
+    <!-- tab placeholder -->
+    <string name="home_placeholder_title">홈</string>
+    <string name="search_placeholder_title">검색</string>
+    <string name="setting_placeholder_title">설정</string>
+
     <!-- tutorial -->
     <string name="tutorial_header_title">지하철 민실씨를 \n설치해주셔서 감사합니다.</string>
 

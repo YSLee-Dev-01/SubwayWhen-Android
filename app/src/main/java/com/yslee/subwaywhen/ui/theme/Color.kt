@@ -18,3 +18,11 @@ val MainColorDark = Color(0xFF161616)
 
 // iOS AppIconColor (sRGB): red=0.149, green=0.231, blue=0.400 → #263B66
 val AppIconColor = Color(0xFF263B66)
+
+// Tab bar: selected item pill indicator
+val TabIndicatorLight = Color(0xFFEBEBF0)  // iOS systemGray6 근사값
+val TabIndicatorDark = Color(0xFF3A3A3C)   // iOS systemGray5 dark 근사값
+
+// Tab bar: unselected icon
+val TabIconUnselectedLight = Color(0xFF8E8E93)  // iOS systemGray
+val TabIconUnselectedDark = Color(0xFFAEAEB2)   // iOS systemGray2 dark
