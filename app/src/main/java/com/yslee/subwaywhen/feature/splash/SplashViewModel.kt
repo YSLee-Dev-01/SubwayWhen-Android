@@ -23,7 +23,7 @@ class SplashViewModel @Inject constructor(
     private val repository: TutorialRepository
 ) : ViewModel() {
 
-    private val _effect = MutableSharedFlow<SplashEffect>()
+    private val _effect = MutableSharedFlow<SplashEffect>(replay = 1)
     val effect: SharedFlow<SplashEffect> = _effect
 
     private val _isReady = MutableStateFlow(false)

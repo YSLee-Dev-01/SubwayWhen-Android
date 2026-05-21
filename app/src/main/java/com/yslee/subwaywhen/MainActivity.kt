@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SubwayWhenTheme {
-                AppNavHost()
+                AppNavHost(splashViewModel = splashViewModel)
             }
         }
     }
