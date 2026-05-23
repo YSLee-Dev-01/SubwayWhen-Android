@@ -13,6 +13,6 @@ sealed class TabRoute(val route: String, val labelRes: Int, val icon: ImageVecto
     object Setting : TabRoute("tab_setting", R.string.tab_setting, Icons.Filled.Settings)
 
     companion object {
-        val all = listOf(Home, Search, Setting)
+        val all by lazy { listOf(Home, Search, Setting) }
     }
 }
