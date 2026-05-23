@@ -1,9 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinx.serialization)
+}
+
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
 
 android {
@@ -22,6 +28,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "LIVE_TOKEN", "\"${localProperties["LIVE_TOKEN"] ?: ""}\"")
+        buildConfigField("String", "SEOUL_TOKEN", "\"${localProperties["SEOUL_TOKEN"] ?: ""}\"")
+        buildConfigField("String", "KORAIL_TOKEN", "\"${localProperties["KORAIL_TOKEN"] ?: ""}\"")
+        buildConfigField("String", "KAKAO_TOKEN", "\"${localProperties["KAKAO_TOKEN"] ?: ""}\"")
+        buildConfigField("String", "REALTIME_TOKEN", "\"${localProperties["REALTIME_TOKEN"] ?: ""}\"")
     }
 
     buildTypes {
@@ -42,6 +54,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     testOptions {
         unitTests.all {
