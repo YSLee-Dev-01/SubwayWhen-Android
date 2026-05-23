@@ -1,16 +1,24 @@
 package com.yslee.subwaywhen.navigation
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +36,9 @@ import com.yslee.subwaywhen.ui.theme.TabIconUnselectedLight
 import com.yslee.subwaywhen.ui.theme.TabIndicatorDark
 import com.yslee.subwaywhen.ui.theme.TabIndicatorLight
 
+private val TabBarShape = RoundedCornerShape(28.dp)
+private val TabItemShape = RoundedCornerShape(20.dp)
+
 @Composable
 fun RootScaffold() {
     val childNavController = rememberNavController()
@@ -38,50 +49,51 @@ fun RootScaffold() {
     val indicatorColor = if (isDark) TabIndicatorDark else TabIndicatorLight
     val unselectedIconColor = if (isDark) TabIconUnselectedDark else TabIconUnselectedLight
 
-    Scaffold(
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.dp,
-            ) {
-                TabRoute.all.forEach { tab ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            childNavController.navigate(tab.route) {
-                                popUpTo(TabRoute.Home.route) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = tab.icon,
-                                contentDescription = stringResource(tab.labelRes),
-                            )
-                        },
-                        label = null,
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = AppIconColor,
-                            unselectedIconColor = unselectedIconColor,
-                            indicatorColor = indicatorColor,
-                        ),
-                    )
-                }
-            }
-        },
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         NavHost(
             navController = childNavController,
             startDestination = TabRoute.Home.route,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier.fillMaxSize(),
         ) {
             composable(TabRoute.Home.route) { HomeScreen() }
             composable(TabRoute.Search.route) { SearchScreen() }
             composable(TabRoute.Setting.route) { SettingScreen() }
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 10.dp)
+                .shadow(elevation = 8.dp, shape = TabBarShape)
+                .background(MaterialTheme.colorScheme.surface, TabBarShape)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TabRoute.all.forEach { tab ->
+                val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+                Box(
+                    modifier = Modifier
+                        .clip(TabItemShape)
+                        .background(if (selected) indicatorColor else Color.Transparent)
+                        .clickable {
+                            childNavController.navigate(tab.route) {
+                                popUpTo(TabRoute.Home.route) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        .padding(horizontal = 19.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = tab.icon,
+                        contentDescription = stringResource(tab.labelRes),
+                        tint = if (selected) AppIconColor else unselectedIconColor,
+                    )
+                }
+            }
         }
     }
 }
