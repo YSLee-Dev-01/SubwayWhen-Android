@@ -46,3 +46,6 @@ proguard/
 *.war
 *.aar
 out/
+
+# Firebase
+app/google-services.json

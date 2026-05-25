@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.google.services)
 }
 
 val localProperties = Properties().apply {
@@ -64,6 +65,9 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
