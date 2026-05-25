@@ -13,6 +13,7 @@ object Dimens {
     const val animationScale = 0.94f
 
     val titleOffsetY = 7.5.dp
+    val searchSectionGap = 15.dp
 
     val fontSizeSuperSmall = 9.sp
     val fontSizeMediumSmall = 11.sp

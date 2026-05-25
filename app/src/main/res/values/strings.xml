@@ -19,6 +19,18 @@
     <string name="search_placeholder_title">검색</string>
     <string name="setting_placeholder_title">설정</string>
 
+    <!-- search -->
+    <string name="search_textfield_placeholder">🔍 지하철역을 검색하세요.</string>
+    <string name="search_textfield_active_placeholder">지하철역을 검색하세요.</string>
+    <string name="search_close">닫기</string>
+    <string name="search_result_loading">지하철역을 찾는 중이에요 🔍</string>
+    <string name="search_result_input_required">지하철역을 입력해주세요.</string>
+    <string name="search_result_count">총 %1$d개의 검색 결과</string>
+    <string name="search_result_empty_query">💬</string>
+    <string name="search_result_no_match">검색된 지하철역이 없어요.</string>
+    <string name="search_word_recommend_title">자주 검색되는 지하철역</string>
+    <string name="search_query_recommend_title">혹시 이 역을 찾으셨나요?</string>
+
     <!-- tutorial -->
     <string name="tutorial_header_title">지하철 민실씨를 \n설치해주셔서 감사합니다.</string>
 
