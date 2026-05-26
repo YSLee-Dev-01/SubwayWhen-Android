@@ -3,6 +3,7 @@ package com.yslee.subwaywhen.feature.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yslee.subwaywhen.data.repository.SearchRepository
+import com.yslee.subwaywhen.data.repository.SearchRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _internal = MutableStateFlow(SearchUiState())
+    private val _internal = MutableStateFlow(SearchUiState(recommendStations = SearchRepositoryImpl.DEFAULT_RECOMMEND))
 
     val uiState: StateFlow<SearchUiState> = _internal.asStateFlow()
     private val _effect = MutableSharedFlow<SearchEffect>()
