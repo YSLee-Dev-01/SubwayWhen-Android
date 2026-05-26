@@ -1,5 +1,9 @@
 package com.yslee.subwaywhen.feature.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +41,7 @@ private fun SearchScreenContent(
     uiState: SearchUiState,
     onIntent: (SearchIntent) -> Unit,
 ) {
-    CommonTopBarScreen(title = stringResource(R.string.tab_search)) {
+    CommonTopBarScreen(title = stringResource(R.string.tab_search), bottomPadding = Dimens.tabBarBottomPadding) {
         Column(
             verticalArrangement = Arrangement.spacedBy(Dimens.searchSectionGap),
             modifier = Modifier
@@ -52,7 +56,11 @@ private fun SearchScreenContent(
                 onExitSearchMode = { onIntent(SearchIntent.ExitSearchMode) },
             )
 
-            if (uiState.isSearchMode) {
+            AnimatedVisibility(
+                visible = uiState.isSearchMode,
+                enter = fadeIn(tween(300)),
+                exit = fadeOut(tween(200)),
+            ) {
                 SearchResultSection(
                     query = uiState.searchQuery,
                     isLoading = uiState.isSearchLoading,
@@ -61,7 +69,11 @@ private fun SearchScreenContent(
                 )
             }
 
-            if (uiState.filteredQueryRecommendList.isNotEmpty()) {
+            AnimatedVisibility(
+                visible = uiState.filteredQueryRecommendList.isNotEmpty() && !uiState.isSearchLoading,
+                enter = fadeIn(tween(300)),
+                exit = fadeOut(tween(200)),
+            ) {
                 SearchQueryRecommendSection(
                     items = uiState.filteredQueryRecommendList,
                     onItemClick = { onIntent(SearchIntent.QueryRecommendStationTapped(it)) },
