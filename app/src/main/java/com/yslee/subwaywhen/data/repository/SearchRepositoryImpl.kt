@@ -22,18 +22,11 @@ class SearchRepositoryImpl @Inject constructor(
     }
 
     override suspend fun recommendStations(): List<String> {
-        return firebaseDataSource.getSearchDefaultList() ?: DEFAULT_RECOMMEND
+        return firebaseDataSource.getSearchDefaultList() ?: SearchRepository.DEFAULT_RECOMMEND
     }
 
     override suspend fun searchQueryRecommendList(): List<SearchQueryRecommendData> {
         return firebaseDataSource.getSearchQueryRecommendList() ?: emptyList()
     }
 
-    companion object {
-        val DEFAULT_RECOMMEND = listOf(
-            "강남", "교대", "선릉", "삼성", "을지로3가",
-            "종각", "홍대입구", "잠실", "명동", "여의도",
-            "가산디지털단지", "판교"
-        )
-    }
 }
