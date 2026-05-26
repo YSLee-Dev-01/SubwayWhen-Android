@@ -1,10 +1,12 @@
 package com.yslee.subwaywhen.feature.search.component
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,8 +19,11 @@ import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.R
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchQueryRecommendData
 import com.yslee.subwaywhen.ui.common.AnimatedTapBox
+import com.yslee.subwaywhen.ui.common.subwayLineColor
+import com.yslee.subwaywhen.ui.common.subwayLineDisplayName
 import com.yslee.subwaywhen.ui.common.AnimatedTapBoxAlignment
 import com.yslee.subwaywhen.ui.common.MainBgCard
+import com.yslee.subwaywhen.ui.common.StationLineCircle
 import com.yslee.subwaywhen.ui.theme.Dimens
 
 /**
@@ -43,32 +48,34 @@ fun SearchQueryRecommendSection(
                     .padding(bottom = 10.dp),
             )
 
-            items.forEach { item ->
-                AnimatedTapBox(
-                    bgColor = Color.Gray.copy(alpha = 0.1f),
-                    pressedColor = Color.Gray.copy(alpha = 0.01f),
-                    alignment = AnimatedTapBoxAlignment.Leading,
-                    onClick = { onItemClick(item) },
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 5.dp),
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items.forEach { item ->
+                    AnimatedTapBox(
+                        bgColor = Color.Gray.copy(alpha = 0.1f),
+                        pressedColor = Color.Gray.copy(alpha = 0.01f),
+                        alignment = AnimatedTapBoxAlignment.Leading,
+                        horizontalPadding = 10.dp,
+                        onClick = { onItemClick(item) },
                     ) {
-                        Text(
-                            text = item.line,
-                            fontSize = Dimens.fontSizeSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(
-                            text = item.stationName,
-                            fontSize = Dimens.fontSizeMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            StationLineCircle(
+                                title = subwayLineDisplayName(item.line),
+                                lineColor = subwayLineColor(item.line),
+                                size = Dimens.stationLineCircleSize,
+                                isFilled = true,
+                                fontSize = Dimens.fontSizeSmall,
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = item.stationName,
+                                fontSize = Dimens.fontSizeMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                     }
                 }
             }

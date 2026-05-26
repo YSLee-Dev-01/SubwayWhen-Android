@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.search.component
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,34 +46,36 @@ fun SearchWordRecommendSection(
                     .padding(bottom = 15.dp),
             )
 
-            stations.chunked(2).forEach { pair ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp),
-                ) {
-                    pair.forEach { name ->
-                        Box(modifier = Modifier.weight(1f)) {
-                            AnimatedTapBox(
-                                bgColor = Color.Gray.copy(alpha = 0.1f),
-                                pressedColor = Color.Gray.copy(alpha = 0.01f),
-                                alignment = AnimatedTapBoxAlignment.Center,
-                                verticalPadding = 15.dp,
-                                onClick = { onItemClick(name) },
-                            ) {
-                                Text(
-                                    text = name,
-                                    fontSize = Dimens.fontSizeSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                    textAlign = TextAlign.Center,
-                                )
+            Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                stations.chunked(2).forEach { pair ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        pair.forEach { name ->
+                            Box(modifier = Modifier.weight(1f)) {
+                                AnimatedTapBox(
+                                    bgColor = Color.Gray.copy(alpha = 0.1f),
+                                    pressedColor = Color.Gray.copy(alpha = 0.01f),
+                                    alignment = AnimatedTapBoxAlignment.Center,
+                                    verticalPadding = 15.dp,
+                                    horizontalPadding = 10.dp,
+                                    onClick = { onItemClick(name) },
+                                ) {
+                                    Text(
+                                        text = name,
+                                        fontSize = Dimens.fontSizeSmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
                             }
                         }
-                    }
-                    // 홀수 마지막 아이템인 경우 빈 공간 채우기
-                    if (pair.size == 1) {
-                        Spacer(modifier = Modifier.weight(1f))
+                        // 홀수 마지막 아이템인 경우 빈 공간 채우기
+                        if (pair.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
