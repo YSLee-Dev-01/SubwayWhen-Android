@@ -2,8 +2,9 @@ package com.yslee.subwaywhen.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import com.yslee.subwaywhen.data.repository.SearchRepository
-import com.yslee.subwaywhen.data.repository.SearchRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +26,12 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val repository: SearchRepository
+    private val repository: SearchRepository,
+    private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _internal = MutableStateFlow(SearchUiState(recommendStations = SearchRepositoryImpl.DEFAULT_RECOMMEND))
+    private val _internal = MutableStateFlow(SearchUiState(recommendStations = SearchRepository.DEFAULT_RECOMMEND))
 
     val uiState: StateFlow<SearchUiState> = _internal.asStateFlow()
     private val _effect = MutableSharedFlow<SearchEffect>()
@@ -95,14 +97,26 @@ class SearchViewModel @Inject constructor(
                     it.copy(
                         isSearchMode = true,
                         searchQuery = intent.item.stationName,
-                        isSearchLoading = true
+                        isSearchLoading = true,
                     )
                 }
                 _searchQuery.value = intent.item.stationName
             }
 
             is SearchIntent.ResultStationTapped -> {
-                // TODO: 다음 spec에서 상세 화면으로 이동 처리
+                _internal.update { it.copy(selectedStation = intent.item) }
+            }
+
+            is SearchIntent.ModalDismissed -> {
+                _internal.update { it.copy(selectedStation = null) }
+            }
+
+            is SearchIntent.SaveCompleted -> {
+                _internal.update { it.copy(selectedStation = null, isSaveCompletedModalVisible = true) }
+            }
+
+            is SearchIntent.SaveCompletedDismissed -> {
+                _internal.update { it.copy(isSaveCompletedModalVisible = false) }
             }
         }
     }
@@ -115,6 +129,9 @@ class SearchViewModel @Inject constructor(
             return
         }
 
+        analytics.logEvent("SerachVC_Search") {
+            param("Search_Station", query)
+        }
         val filtered = _internal.value.nowQueryRecommendList.filter { it.queryName == query }
         val result = repository.searchStations(query)
         _internal.update {

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,14 +14,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.yslee.subwaywhen.R
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.feature.search.component.SearchQueryRecommendSection
 import com.yslee.subwaywhen.feature.search.component.SearchResultSection
 import com.yslee.subwaywhen.feature.search.component.SearchTextField
 import com.yslee.subwaywhen.feature.search.component.SearchWordRecommendSection
+import com.yslee.subwaywhen.feature.search.modal.SaveStationModal
+import com.yslee.subwaywhen.feature.search.modal.component.SaveCompletedModal
 import com.yslee.subwaywhen.ui.common.CommonTopBarScreen
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
@@ -33,6 +41,7 @@ fun SearchScreen(
     SearchScreenContent(
         uiState = uiState,
         onIntent = viewModel::onIntent,
+        onSaveCompleted = { viewModel.onIntent(SearchIntent.SaveCompleted) },
     )
 }
 
@@ -40,54 +49,81 @@ fun SearchScreen(
 private fun SearchScreenContent(
     uiState: SearchUiState,
     onIntent: (SearchIntent) -> Unit,
+    onSaveCompleted: () -> Unit,
 ) {
-    CommonTopBarScreen(title = stringResource(R.string.tab_search), bottomPadding = Dimens.tabBarBottomPadding) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(Dimens.searchSectionGap),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = Dimens.searchSectionGap),
-        ) {
-            SearchTextField(
-                isSearchMode = uiState.isSearchMode,
-                query = uiState.searchQuery,
-                onQueryChange = { onIntent(SearchIntent.QueryChanged(it)) },
-                onEnterSearchMode = { onIntent(SearchIntent.EnterSearchMode) },
-                onExitSearchMode = { onIntent(SearchIntent.ExitSearchMode) },
+    Box(modifier = Modifier.fillMaxSize()) {
+        CommonTopBarScreen(title = stringResource(R.string.tab_search), bottomPadding = Dimens.tabBarBottomPadding) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.searchSectionGap),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = Dimens.searchSectionGap),
+            ) {
+                SearchTextField(
+                    isSearchMode = uiState.isSearchMode,
+                    query = uiState.searchQuery,
+                    onQueryChange = { onIntent(SearchIntent.QueryChanged(it)) },
+                    onEnterSearchMode = { onIntent(SearchIntent.EnterSearchMode) },
+                    onExitSearchMode = { onIntent(SearchIntent.ExitSearchMode) },
+                )
+
+                AnimatedVisibility(
+                    visible = uiState.isSearchMode,
+                    enter = fadeIn(tween(300)),
+                    exit = fadeOut(tween(200)),
+                ) {
+                    SearchResultSection(
+                        query = uiState.searchQuery,
+                        isLoading = uiState.isSearchLoading,
+                        result = uiState.searchResult,
+                        onItemClick = { onIntent(SearchIntent.ResultStationTapped(it)) },
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = uiState.filteredQueryRecommendList.isNotEmpty() && !uiState.isSearchLoading,
+                    enter = fadeIn(tween(300)),
+                    exit = fadeOut(tween(200)),
+                ) {
+                    SearchQueryRecommendSection(
+                        items = uiState.filteredQueryRecommendList,
+                        onItemClick = { onIntent(SearchIntent.QueryRecommendStationTapped(it)) },
+                    )
+                }
+
+                // TODO: SearchVicinitySection — 다음 spec
+
+                if (uiState.searchQuery.isEmpty()) {
+                    SearchWordRecommendSection(
+                        stations = uiState.recommendStations,
+                        onItemClick = { onIntent(SearchIntent.RecommendStationTapped(it)) },
+                    )
+                }
+            }
+        }
+
+        if (uiState.selectedStation != null) {
+            SaveStationModal(
+                station = uiState.selectedStation,
+                onDismiss = { onIntent(SearchIntent.ModalDismissed) },
+                onSaveCompleted = onSaveCompleted,
+            )
+        }
+
+        if (uiState.isSaveCompletedModalVisible) {
+            SaveCompletedModal(
+                onConfirm = { onIntent(SearchIntent.SaveCompletedDismissed) },
             )
 
-            AnimatedVisibility(
-                visible = uiState.isSearchMode,
-                enter = fadeIn(tween(300)),
-                exit = fadeOut(tween(200)),
-            ) {
-                SearchResultSection(
-                    query = uiState.searchQuery,
-                    isLoading = uiState.isSearchLoading,
-                    result = uiState.searchResult,
-                    onItemClick = { onIntent(SearchIntent.ResultStationTapped(it)) },
-                )
-            }
-
-            AnimatedVisibility(
-                visible = uiState.filteredQueryRecommendList.isNotEmpty() && !uiState.isSearchLoading,
-                enter = fadeIn(tween(300)),
-                exit = fadeOut(tween(200)),
-            ) {
-                SearchQueryRecommendSection(
-                    items = uiState.filteredQueryRecommendList,
-                    onItemClick = { onIntent(SearchIntent.QueryRecommendStationTapped(it)) },
-                )
-            }
-
-            // TODO: SearchVicinitySection — 다음 spec
-
-            if (uiState.searchQuery.isEmpty()) {
-                SearchWordRecommendSection(
-                    stations = uiState.recommendStations,
-                    onItemClick = { onIntent(SearchIntent.RecommendStationTapped(it)) },
-                )
-            }
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.congratulations))
+            val progress by animateLottieCompositionAsState(composition, iterations = 1)
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(10f),
+            )
         }
     }
 }
@@ -102,6 +138,7 @@ private fun SearchScreenNonSearchModePreview() {
                 recommendStations = listOf("강남", "교대", "선릉", "삼성", "을지로3가", "종각", "홍대입구", "잠실", "명동", "여의도", "가산디지털단지", "판교"),
             ),
             onIntent = {},
+            onSaveCompleted = {},
         )
     }
 }
@@ -122,6 +159,7 @@ private fun SearchScreenSearchWithResultPreview() {
                 recommendStations = listOf("강남", "교대", "선릉", "삼성"),
             ),
             onIntent = {},
+            onSaveCompleted = {},
         )
     }
 }
@@ -139,6 +177,7 @@ private fun SearchScreenSearchNoResultPreview() {
                 recommendStations = listOf("강남", "교대", "선릉", "삼성"),
             ),
             onIntent = {},
+            onSaveCompleted = {},
         )
     }
 }
@@ -156,6 +195,7 @@ private fun SearchScreenSearchLoadingPreview() {
                 recommendStations = listOf("강남", "교대", "선릉", "삼성"),
             ),
             onIntent = {},
+            onSaveCompleted = {},
         )
     }
 }
