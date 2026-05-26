@@ -16,6 +16,8 @@ object Dimens {
     val searchSectionGap = 15.dp
     val stationLineCircleSize = 61.dp
     val tabBarBottomPadding = 80.dp
+    val disposableButtonWidth = 60.dp
+    val disposableButtonHeight = 30.dp
 
     val fontSizeSuperSmall = 9.sp
     val fontSizeMediumSmall = 11.sp

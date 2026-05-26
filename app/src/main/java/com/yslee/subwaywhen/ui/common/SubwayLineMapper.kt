@@ -62,3 +62,47 @@ fun subwayLineColor(line: String): Color? = when (line) {
     "GTX-A" -> Color(0xFF9A6292)
     else -> null
 }
+
+/**
+ * iOS SubwayLineData.upDownText(isUp:) 포팅.
+ * 2호선만 "내선"/"외선", 그 외는 "상행"/"하행" 반환.
+ */
+fun subwayLineUpDownText(line: String, isUp: Boolean): String =
+    if (line == "02호선") {
+        if (isUp) "내선" else "외선"
+    } else {
+        if (isUp) "상행" else "하행"
+    }
+
+/**
+ * iOS SubwayLineData.lineCode 포팅.
+ * 서울 Metro 실시간 API 노선 코드. 미지원 노선은 "" 반환.
+ */
+fun subwayLineCode(line: String): String = when (line) {
+    "01호선" -> "1001"
+    "02호선" -> "1002"
+    "03호선" -> "1003"
+    "04호선" -> "1004"
+    "05호선" -> "1005"
+    "06호선" -> "1006"
+    "07호선" -> "1007"
+    "08호선" -> "1008"
+    "09호선" -> "1009"
+    "경의선" -> "1063"
+    "공항철도" -> "1065"
+    "경춘선" -> "1067"
+    "수인분당선" -> "1075"
+    "신분당선" -> "1077"
+    "우이신설경전철" -> "1092"
+    "GTX-A" -> "1032"
+    "서해선" -> "1093"
+    "경강선" -> "1081"
+    "신림선" -> "1094"
+    else -> ""
+}
+
+/**
+ * 실시간 API 지원 여부.
+ * lineCode가 ""인 노선(김포도시철도, 용인경전철, 의정부경전철, 인천선, 인천2호선 등)은 false.
+ */
+fun subwayLineIsService(line: String): Boolean = subwayLineCode(line).isNotEmpty()
