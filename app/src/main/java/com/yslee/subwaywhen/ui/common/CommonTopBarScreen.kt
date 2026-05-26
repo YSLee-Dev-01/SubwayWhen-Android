@@ -2,9 +2,12 @@ package com.yslee.subwaywhen.ui.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
@@ -35,6 +39,7 @@ fun CommonTopBarScreen(
     backIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     onTrailingClick: (() -> Unit)? = null,
+    bottomPadding: Dp = 0.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -44,7 +49,7 @@ fun CommonTopBarScreen(
         derivedStateOf { scrollState.value >= threshold }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         CommonTopBar(
             title = title,
             isSubTitleVisible = isSubTitleVisible,
@@ -70,6 +75,9 @@ fun CommonTopBarScreen(
                 )
             }
             content()
+            if (bottomPadding > 0.dp) {
+                Spacer(modifier = Modifier.height(bottomPadding))
+            }
         }
     }
 }
