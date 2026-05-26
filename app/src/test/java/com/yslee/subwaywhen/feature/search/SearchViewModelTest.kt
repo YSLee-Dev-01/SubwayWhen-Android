@@ -3,10 +3,11 @@ package com.yslee.subwaywhen.feature.search
 import app.cash.turbine.test
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchQueryRecommendData
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.yslee.subwaywhen.data.repository.SearchRepository
-import com.yslee.subwaywhen.data.repository.SearchRepositoryImpl
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -31,7 +32,7 @@ class SearchViewModelTest : FunSpec({
 
     fun createViewModel(
         fakeStations: List<SearchStationInfo> = emptyList(),
-        fakeRecommendStations: List<String> = SearchRepositoryImpl.DEFAULT_RECOMMEND,
+        fakeRecommendStations: List<String> = SearchRepository.DEFAULT_RECOMMEND,
         fakeQueryRecommendList: List<SearchQueryRecommendData> = emptyList()
     ): SearchViewModel {
         val fakeRepository = object : SearchRepository {
@@ -39,7 +40,7 @@ class SearchViewModelTest : FunSpec({
             override suspend fun recommendStations() = fakeRecommendStations
             override suspend fun searchQueryRecommendList() = fakeQueryRecommendList
         }
-        return SearchViewModel(fakeRepository)
+        return SearchViewModel(fakeRepository, mockk(relaxed = true))
     }
 
     // ── 1. 초기 상태 ────────────────────────────────────────────────────────
@@ -48,7 +49,7 @@ class SearchViewModelTest : FunSpec({
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
-            viewModel.uiState.value.recommendStations shouldBe SearchRepositoryImpl.DEFAULT_RECOMMEND
+            viewModel.uiState.value.recommendStations shouldBe SearchRepository.DEFAULT_RECOMMEND
             viewModel.uiState.value.recommendStations.size shouldBe 12
         }
     }

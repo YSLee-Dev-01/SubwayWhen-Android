@@ -6,6 +6,7 @@ import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchQueryRecommendDa
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStation
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSource
+import com.yslee.subwaywhen.data.repository.SearchRepository
 import com.yslee.subwaywhen.data.remote.loadmodel.LoadModel
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -63,7 +64,7 @@ class SearchRepositoryImplTest : FunSpec({
 
         val result = repository.recommendStations()
 
-        result shouldBe SearchRepositoryImpl.DEFAULT_RECOMMEND
+        result shouldBe SearchRepository.DEFAULT_RECOMMEND
     }
 
     // ── searchQueryRecommendList ───────────────────────────────────────────
