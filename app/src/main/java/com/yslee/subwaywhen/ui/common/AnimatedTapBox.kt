@@ -45,6 +45,7 @@ fun AnimatedTapBox(
     pressedColor: Color,
     alignment: AnimatedTapBoxAlignment = AnimatedTapBoxAlignment.Center,
     verticalPadding: Dp = 10.dp,
+    horizontalPadding: Dp = 0.dp,
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -76,7 +77,7 @@ fun AnimatedTapBox(
                 indication = null,
                 onClick = { scope.launch { delay(100L); onClick() } },
             )
-            .padding(vertical = verticalPadding),
+            .padding(vertical = verticalPadding, horizontal = horizontalPadding),
     ) {
         if (alignment != AnimatedTapBoxAlignment.Leading) {
             Spacer(modifier = Modifier.weight(1f))

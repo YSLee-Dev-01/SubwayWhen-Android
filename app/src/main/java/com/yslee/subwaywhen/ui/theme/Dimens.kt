@@ -14,6 +14,8 @@ object Dimens {
 
     val titleOffsetY = 7.5.dp
     val searchSectionGap = 15.dp
+    val stationLineCircleSize = 61.dp
+    val tabBarBottomPadding = 80.dp
 
     val fontSizeSuperSmall = 9.sp
     val fontSizeMediumSmall = 11.sp
