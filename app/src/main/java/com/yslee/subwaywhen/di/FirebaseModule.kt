@@ -1,5 +1,7 @@
 package com.yslee.subwaywhen.di
 
+import android.content.Context
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.FirebaseDatabase
 import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSource
 import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSourceImpl
@@ -7,6 +9,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -22,5 +25,10 @@ abstract class FirebaseModule {
         @Singleton
         @Provides
         fun provideFirebaseDatabase(): FirebaseDatabase = FirebaseDatabase.getInstance()
+
+        @Singleton
+        @Provides
+        fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics =
+            FirebaseAnalytics.getInstance(context)
     }
 }
