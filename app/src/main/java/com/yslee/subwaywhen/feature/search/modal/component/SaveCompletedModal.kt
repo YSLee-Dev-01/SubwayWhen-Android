@@ -23,7 +23,7 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveCompletedModal(onConfirm: () -> Unit) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.tutorial_success))
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.check_mark))
     val progress by animateLottieCompositionAsState(composition, iterations = 1)
 
     CommonModalBottomSheet(
