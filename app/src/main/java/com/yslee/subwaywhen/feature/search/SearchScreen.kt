@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
@@ -124,18 +123,16 @@ private fun SearchScreenContent(
         }
 
         if (uiState.isSaveCompletedModalVisible) {
-            SaveCompletedModal(
-                onConfirm = { onIntent(SearchIntent.SaveCompletedDismissed) },
-            )
-
             val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.congratulations))
             val progress by animateLottieCompositionAsState(composition, iterations = 1)
             LottieAnimation(
                 composition = composition,
                 progress = { progress },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(10f),
+                modifier = Modifier.fillMaxSize(),
+            )
+
+            SaveCompletedModal(
+                onConfirm = { onIntent(SearchIntent.SaveCompletedDismissed) },
             )
         }
     }
