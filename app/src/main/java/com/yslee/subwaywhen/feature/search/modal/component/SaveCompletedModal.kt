@@ -24,7 +24,7 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 @Composable
 fun SaveCompletedModal(onConfirm: () -> Unit) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.tutorial_success))
-    val progress by animateLottieCompositionAsState(composition, iterations = 1, speed = 2f)
+    val progress by animateLottieCompositionAsState(composition, iterations = 1)
 
     CommonModalBottomSheet(
         mainTitle = "저장 완료",
