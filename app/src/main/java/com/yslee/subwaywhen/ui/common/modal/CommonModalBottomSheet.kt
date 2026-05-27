@@ -18,7 +18,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,6 +48,7 @@ fun CommonModalBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RectangleShape,
         containerColor = Color.Transparent,
         dragHandle = null,
         modifier = modifier.padding(horizontal = Dimens.modalHorizontalMargin),
@@ -59,10 +62,8 @@ fun CommonModalBottomSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp),
-                    ),
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(color = MaterialTheme.colorScheme.surface),
             ) {
                 // Drag handle pill
                 Spacer(modifier = Modifier.height(8.dp))
@@ -110,6 +111,8 @@ fun CommonModalBottomSheet(
                     Spacer(modifier = Modifier.height(Dimens.paddingLR))
                 }
             }
+
+            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }

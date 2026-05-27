@@ -12,16 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
@@ -41,10 +42,8 @@ fun DisposableView(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(Dimens.cornerRadius),
-            )
+            .clip(RoundedCornerShape(Dimens.cornerRadius))
+            .background(color = AppIconColor.copy(alpha = 0.7f))
             .padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingTB),
     ) {
         Text(
