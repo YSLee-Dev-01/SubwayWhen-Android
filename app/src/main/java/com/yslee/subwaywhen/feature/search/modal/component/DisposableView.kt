@@ -49,7 +49,7 @@ fun DisposableView(
     ) {
         Text(
             text = "저장하지 않고 일회성으로 볼 수 있어요.",
-            fontSize = 10.sp,
+            fontSize = 11.5.sp,
             color = Color.White,
             modifier = Modifier.weight(1f),
         )
