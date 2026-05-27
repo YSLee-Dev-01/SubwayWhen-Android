@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -36,12 +38,14 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
+    onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SearchScreenContent(
         uiState = uiState,
         onIntent = viewModel::onIntent,
         onSaveCompleted = { viewModel.onIntent(SearchIntent.SaveCompleted) },
+        onTabBarVisibilityChange = onTabBarVisibilityChange,
     )
 }
 
@@ -50,7 +54,16 @@ private fun SearchScreenContent(
     uiState: SearchUiState,
     onIntent: (SearchIntent) -> Unit,
     onSaveCompleted: () -> Unit,
+    onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
+    val isModalVisible = uiState.selectedStation != null
+    LaunchedEffect(isModalVisible) {
+        onTabBarVisibilityChange(!isModalVisible)
+    }
+    DisposableEffect(Unit) {
+        onDispose { onTabBarVisibilityChange(true) }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         CommonTopBarScreen(title = stringResource(R.string.tab_search), bottomPadding = Dimens.tabBarBottomPadding) {
             Column(

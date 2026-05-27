@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
@@ -48,7 +49,7 @@ fun DisposableView(
     ) {
         Text(
             text = "저장하지 않고 일회성으로 볼 수 있어요.",
-            fontSize = Dimens.fontSizeSuperSmall,
+            fontSize = 10.sp,
             color = Color.White,
             modifier = Modifier.weight(1f),
         )

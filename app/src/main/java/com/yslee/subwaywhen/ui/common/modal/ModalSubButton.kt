@@ -1,6 +1,7 @@
 package com.yslee.subwaywhen.ui.common.modal
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
@@ -31,11 +34,13 @@ fun ModalSubButton(
     textColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    borderColor: Color = Color.Transparent,
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .defaultMinSize(minHeight = Dimens.modalButtonHeight)
+            .border(0.5.dp, borderColor, RoundedCornerShape(Dimens.cornerRadius))
             .background(
                 color = bgColor,
                 shape = RoundedCornerShape(Dimens.cornerRadius),
@@ -49,7 +54,7 @@ fun ModalSubButton(
     ) {
         Text(
             text = text,
-            fontSize = Dimens.fontSizeMedium,
+            fontSize = 13.5.sp,
             color = textColor,
             textAlign = TextAlign.Center,
         )

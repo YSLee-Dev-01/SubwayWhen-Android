@@ -115,7 +115,7 @@ private fun SaveStationModalContent(
             }
         } else null,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimens.paddingInner)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.paddingLR)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StationLineCircle(
                     title = subwayLineDisplayName(station.line),
@@ -136,8 +136,9 @@ private fun SaveStationModalContent(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     ModalSubButton(
                         text = if (uiState.group == SaveStationGroup.ONE) "출근" else "퇴근",
-                        bgColor = MaterialTheme.colorScheme.surfaceVariant,
+                        bgColor = MaterialTheme.colorScheme.surface,
                         textColor = MaterialTheme.colorScheme.onSurface,
+                        borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                         onClick = { onIntent(SaveStationModalIntent.GroupToggled) },
                         modifier = Modifier.weight(1f),
                     )
