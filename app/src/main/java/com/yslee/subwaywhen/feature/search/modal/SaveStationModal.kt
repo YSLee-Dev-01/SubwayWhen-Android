@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -103,9 +104,8 @@ private fun SaveStationModalContent(
         mainTitle = "지하철 역 추가",
         subTitle = "그룹, 제외 행을 선택 후 상/하행 버튼을 누르면 저장할 수 있어요.",
         onDismiss = { onIntent(SaveStationModalIntent.Dismissed) },
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimens.paddingInner)) {
-            if (!isNotService) {
+        topDecoration = if (!isNotService) {
+            {
                 DisposableView(
                     upText = subwayLineUpDownText(station.line, isUp = true),
                     downText = subwayLineUpDownText(station.line, isUp = false),
@@ -113,7 +113,9 @@ private fun SaveStationModalContent(
                     onDownTapped = { onIntent(SaveStationModalIntent.DisposableDownTapped) },
                 )
             }
-
+        } else null,
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.paddingInner)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StationLineCircle(
                     title = subwayLineDisplayName(station.line),
@@ -155,7 +157,9 @@ private fun SaveStationModalContent(
                         ),
                         shape = RoundedCornerShape(Dimens.cornerRadius),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .defaultMinSize(minHeight = Dimens.modalButtonHeight),
                     )
                 }
             }

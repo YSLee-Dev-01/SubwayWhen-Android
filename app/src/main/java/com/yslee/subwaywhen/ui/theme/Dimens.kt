@@ -14,10 +14,13 @@ object Dimens {
 
     val titleOffsetY = 7.5.dp
     val searchSectionGap = 15.dp
-    val stationLineCircleSize = 61.dp
+    val stationLineCircleSize = 70.dp
     val tabBarBottomPadding = 80.dp
     val disposableButtonWidth = 60.dp
     val disposableButtonHeight = 30.dp
+    val modalButtonHeight = 50.dp
+    val modalHorizontalMargin = 10.dp
+    val disposableViewGap = 10.dp
 
     val fontSizeSuperSmall = 9.sp
     val fontSizeMediumSmall = 11.sp
