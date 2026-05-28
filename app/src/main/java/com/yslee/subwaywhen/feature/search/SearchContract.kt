@@ -13,6 +13,7 @@ data class SearchUiState(
     val filteredQueryRecommendList: List<SearchQueryRecommendData> = emptyList(),
     val selectedStation: SearchStationInfo? = null,
     val isSaveCompletedModalVisible: Boolean = false,
+    val vicinityAutoOpen: Boolean = false,
 )
 
 sealed interface SearchIntent {
@@ -26,6 +27,7 @@ sealed interface SearchIntent {
     data object ModalDismissed : SearchIntent
     data object SaveCompleted : SearchIntent
     data object SaveCompletedDismissed : SearchIntent
+    data class VicinityStationSelected(val stationName: String) : SearchIntent
 }
 
 sealed interface SearchEffect

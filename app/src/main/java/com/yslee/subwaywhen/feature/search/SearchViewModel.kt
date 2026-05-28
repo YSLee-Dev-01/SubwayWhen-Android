@@ -118,6 +118,17 @@ class SearchViewModel @Inject constructor(
             is SearchIntent.SaveCompletedDismissed -> {
                 _internal.update { it.copy(isSaveCompletedModalVisible = false) }
             }
+
+            is SearchIntent.VicinityStationSelected -> {
+                _internal.update {
+                    it.copy(
+                        isSearchMode = true,
+                        isSearchLoading = true,
+                        vicinityAutoOpen = true,
+                    )
+                }
+                _searchQuery.value = intent.stationName
+            }
         }
     }
 
@@ -134,8 +145,15 @@ class SearchViewModel @Inject constructor(
         }
         val filtered = _internal.value.nowQueryRecommendList.filter { it.queryName == query }
         val result = repository.searchStations(query)
+        val autoOpen = _internal.value.vicinityAutoOpen
         _internal.update {
-            it.copy(searchResult = result, isSearchLoading = false, filteredQueryRecommendList = filtered)
+            it.copy(
+                searchResult = result,
+                isSearchLoading = false,
+                filteredQueryRecommendList = filtered,
+                selectedStation = if (autoOpen) result.firstOrNull() else it.selectedStation,
+                vicinityAutoOpen = false,
+            )
         }
     }
 }

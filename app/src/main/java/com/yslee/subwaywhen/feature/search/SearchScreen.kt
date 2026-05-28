@@ -29,6 +29,7 @@ import com.yslee.subwaywhen.feature.search.component.SearchQueryRecommendSection
 import com.yslee.subwaywhen.feature.search.component.SearchResultSection
 import com.yslee.subwaywhen.feature.search.component.SearchTextField
 import com.yslee.subwaywhen.feature.search.component.SearchWordRecommendSection
+import com.yslee.subwaywhen.feature.search.vicinity.SearchVicinitySection
 import com.yslee.subwaywhen.feature.search.modal.SaveStationModal
 import com.yslee.subwaywhen.feature.search.modal.component.SaveCompletedModal
 import com.yslee.subwaywhen.ui.common.CommonTopBarScreen
@@ -104,7 +105,15 @@ private fun SearchScreenContent(
                     )
                 }
 
-                // TODO: SearchVicinitySection — 다음 spec
+                AnimatedVisibility(
+                    visible = !uiState.isSearchMode,
+                    enter = fadeIn(tween(150)),
+                    exit = fadeOut(tween(150)),
+                ) {
+                    SearchVicinitySection(
+                        onStationSearch = { name -> onIntent(SearchIntent.VicinityStationSelected(name)) }
+                    )
+                }
 
                 if (uiState.searchQuery.isEmpty()) {
                     SearchWordRecommendSection(
