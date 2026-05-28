@@ -15,6 +15,8 @@ object Dimens {
     val titleOffsetY = 7.5.dp
     val searchSectionGap = 15.dp
     val stationLineCircleSize = 70.dp
+    val vicinityStationCircleSize = 45.dp
+    val vicinityStationCircleSizeLarge = 65.dp
     val tabBarBottomPadding = 80.dp
     val disposableButtonWidth = 60.dp
     val disposableButtonHeight = 30.dp

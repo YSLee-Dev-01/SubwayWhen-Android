@@ -31,6 +31,22 @@
     <string name="search_word_recommend_title">자주 검색되는 지하철역</string>
     <string name="search_query_recommend_title">혹시 이 역을 찾으셨나요?</string>
 
+    <!-- vicinity -->
+    <string name="vicinity_empty">현재 가까운 지하철역이 없어요.</string>
+    <string name="vicinity_location_denied">위치 권한이 설정되어 있지 않아요.</string>
+    <string name="vicinity_title">가까운 지하철역 찾기</string>
+    <string name="vicinity_section_title">가까운 지하철역 찾기</string>
+    <string name="vicinity_subtitle">역을 누르면 실시간 정보를 확인할 수 있어요.</string>
+    <string name="vicinity_section_subtitle">역을 누르면 실시간 정보를 확인할 수 있어요.</string>
+    <string name="vicinity_auth_unknown_title">현재 위치와 가장 가까운 지하철역의\n정보를 확인할 수 있어요.</string>
+    <string name="vicinity_auth_request_button">확인하기</string>
+    <string name="vicinity_go_to_settings">설정으로 이동</string>
+    <string name="vicinity_list_button">목록으로 확인하기</string>
+    <string name="vicinity_list_modal_title">가까운 지하철역</string>
+    <string name="vicinity_refresh_cooldown_title">새로고침 대기 중</string>
+    <string name="vicinity_refresh_cooldown_message">마지막 검색으로부터 5분이 지나야 새로고침할 수 있어요.</string>
+    <string name="vicinity_refresh_cooldown">가까운 지하철역 찾기 기능은 5분에 한번씩 조회할 수 있어요.\n%d초 후에 다시 시도해주세요.</string>
+
     <!-- tutorial -->
     <string name="tutorial_header_title">지하철 민실씨를 \n설치해주셔서 감사합니다.</string>
 
