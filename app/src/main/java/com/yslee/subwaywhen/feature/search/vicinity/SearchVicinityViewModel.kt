@@ -168,22 +168,28 @@ class SearchVicinityViewModel @Inject constructor(
     }
 
     private fun isEmulator(): Boolean =
-        Build.HARDWARE == "ranchu" ||               // 모든 현대 AVD (x86/ARM64, 구글플레이 포함)
-            Build.HARDWARE == "goldfish" ||         // 구형 AVD
-            Build.FINGERPRINT.startsWith("generic") ||
-            Build.FINGERPRINT.startsWith("unknown") ||
-            Build.MODEL.contains("sdk_gphone") ||   // 구글플레이 이미지 (e.g. sdk_gphone64_arm64)
-            Build.MODEL.contains("google_sdk") ||
-            Build.MODEL.contains("Emulator") ||
-            Build.MODEL.contains("Android SDK") ||
-            Build.MANUFACTURER.contains("Genymotion") ||
-            (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+        Build.HARDWARE == "ranchu" ||                               // 모든 현대 AVD (x86/ARM64, 구글플레이 포함)
+            Build.HARDWARE == "goldfish" ||                         // 구형 AVD
+            Build.FINGERPRINT.orEmpty().startsWith("generic") ||
+            Build.FINGERPRINT.orEmpty().startsWith("unknown") ||
+            Build.MODEL.orEmpty().contains("sdk_gphone") ||         // 구글플레이 이미지 (e.g. sdk_gphone64_arm64)
+            Build.MODEL.orEmpty().contains("google_sdk") ||
+            Build.MODEL.orEmpty().contains("Emulator") ||
+            Build.MODEL.orEmpty().contains("Android SDK") ||
+            Build.MANUFACTURER.orEmpty().contains("Genymotion") ||
+            (Build.BRAND.orEmpty().startsWith("generic") && Build.DEVICE.orEmpty().startsWith("generic"))
 
     companion object {
         private val EMULATOR_PREVIEW_STATIONS = listOf(
-            VicinityTransformData(id = "preview_1", name = "강남", line = "2호선", distance = "0.3km"),
-            VicinityTransformData(id = "preview_2", name = "역삼", line = "2호선", distance = "0.8km"),
-            VicinityTransformData(id = "preview_3", name = "교대", line = "2호선", distance = "1.2km"),
+            VicinityTransformData(id = "preview_1", name = "강남",      line = "2호선", distance = "0.3km"),
+            VicinityTransformData(id = "preview_2", name = "역삼",      line = "2호선", distance = "0.8km"),
+            VicinityTransformData(id = "preview_3", name = "교대",      line = "2호선", distance = "1.2km"),
+            VicinityTransformData(id = "preview_4", name = "한성대입구", line = "4호선", distance = "1.5km"),
+            VicinityTransformData(id = "preview_5", name = "신림",      line = "2호선", distance = "1.8km"),
+            VicinityTransformData(id = "preview_6", name = "주안",      line = "1호선", distance = "2.1km"),
+            VicinityTransformData(id = "preview_7", name = "혜화",      line = "4호선", distance = "2.4km"),
+            VicinityTransformData(id = "preview_8", name = "낙성대",    line = "2호선", distance = "2.7km"),
+            VicinityTransformData(id = "preview_9", name = "서초",      line = "2호선", distance = "3.0km"),
         )
     }
 
