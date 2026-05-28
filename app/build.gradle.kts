@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.play.services.location)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
