@@ -6,6 +6,8 @@ import com.yslee.subwaywhen.data.repository.SearchRepository
 import com.yslee.subwaywhen.data.repository.SearchRepositoryImpl
 import com.yslee.subwaywhen.data.repository.TutorialRepository
 import com.yslee.subwaywhen.data.repository.TutorialRepositoryImpl
+import com.yslee.subwaywhen.data.repository.VicinityRepository
+import com.yslee.subwaywhen.data.repository.VicinityRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -30,4 +32,8 @@ abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindSearchRepository(impl: SearchRepositoryImpl): SearchRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindVicinityRepository(impl: VicinityRepositoryImpl): VicinityRepository
 }
