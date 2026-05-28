@@ -9,7 +9,6 @@ import com.yslee.subwaywhen.ui.common.AnimatedTapBox
 import com.yslee.subwaywhen.ui.common.AnimatedTapBoxAlignment
 import com.yslee.subwaywhen.ui.common.StationLineCircle
 import com.yslee.subwaywhen.ui.common.subwayLineColor
-import com.yslee.subwaywhen.ui.common.subwayLineDisplayName
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
@@ -30,7 +29,7 @@ fun VicinityStationRow(
         onClick = onClick,
     ) {
         StationLineCircle(
-            title = subwayLineDisplayName(station.lineColorName),
+            title = station.name,
             lineColor = subwayLineColor(station.lineColorName),
             size = Dimens.vicinityStationCircleSize,
             isFilled = true,

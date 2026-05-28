@@ -44,8 +44,8 @@ fun VicinityStationRowMini(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(
                 modifier = Modifier
-                    .width(4.dp)
-                    .height(24.dp)
+                    .width(Dimens.vicinityMiniBarWidth)
+                    .height(Dimens.vicinityMiniBarHeight)
                     .background(
                         color = lineColor,
                         shape = RoundedCornerShape(3.dp),
