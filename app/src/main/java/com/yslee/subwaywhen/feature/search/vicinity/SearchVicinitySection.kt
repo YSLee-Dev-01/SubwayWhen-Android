@@ -247,25 +247,22 @@ private fun SearchVicinitySectionContent(
                         bgColor = AppIconColor,
                         textColor = Color.White,
                         onClick = { onIntent(VicinityIntent.ListModalOpenTapped) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(Dimens.vicinityListButtonHeight),
                     )
                     Spacer(modifier = Modifier.height(Dimens.paddingTB))
                 }
 
                 else -> {
-                    // 역 선택됨: 선택 항목은 VicinityStationRow, 나머지는 VicinityStationRowMini
+                    // 역 선택됨: 선택된 역은 리스트에서 제거, 나머지만 VicinityStationRowMini로 표시
                     val tappedIdx = state.tappedIndex!!
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         itemsIndexed(state.vicinityStations) { index, station ->
-                            if (index == tappedIdx) {
-                                VicinityStationRow(
-                                    station = station,
-                                    onClick = { onIntent(VicinityIntent.StationTapped(index)) },
-                                )
-                            } else {
+                            if (index != tappedIdx) {
                                 VicinityStationRowMini(
                                     station = station,
                                     onClick = { onIntent(VicinityIntent.StationTapped(index)) },
