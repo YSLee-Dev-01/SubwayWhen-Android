@@ -25,10 +25,13 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +76,29 @@ fun VicinityStationDetailCard(
 ) {
     val lineColor = subwayLineColor(station.lineColorName) ?: MaterialTheme.colorScheme.primary
 
+    // iOS: .scaleEffect(y: loading ? 0.2 : 1) / .opacity(loading ? 0 : 1) 대응
+    // .animation(.easeInOut(duration: 0.3), value: nowLiveDataLoading)
+    val upBarScaleY by animateFloatAsState(
+        targetValue = if (liveLoading.first) 0.2f else 1f,
+        animationSpec = tween(durationMillis = 300),
+        label = "upBarScaleY",
+    )
+    val upCircleAlpha by animateFloatAsState(
+        targetValue = if (liveLoading.first) 0f else 1f,
+        animationSpec = tween(durationMillis = 300),
+        label = "upCircleAlpha",
+    )
+    val downBarScaleY by animateFloatAsState(
+        targetValue = if (liveLoading.second) 0.2f else 1f,
+        animationSpec = tween(durationMillis = 300),
+        label = "downBarScaleY",
+    )
+    val downCircleAlpha by animateFloatAsState(
+        targetValue = if (liveLoading.second) 0f else 1f,
+        animationSpec = tween(durationMillis = 300),
+        label = "downCircleAlpha",
+    )
+
     Column(modifier = modifier.fillMaxWidth()) {
         // ── 회색 둥근 카드 ───────────────────────────────────────────────
         Box(
@@ -106,16 +132,20 @@ fun VicinityStationDetailCard(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
+                                // 빈 원: 로딩 중 fadeout (iOS: .opacity(0))
                                 Box(
                                     modifier = Modifier
                                         .size(12.5.dp)
-                                        .border(1.5.dp, lineColor, CircleShape),
+                                        .border(1.5.dp, lineColor, CircleShape)
+                                        .graphicsLayer { alpha = upCircleAlpha },
                                 )
+                                // 트랙 바: 로딩 중 vertically flatten (iOS: .scaleEffect(y: 0.2))
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(5.dp)
-                                        .background(lineColor),
+                                        .background(lineColor)
+                                        .graphicsLayer { scaleY = upBarScaleY },
                                 )
                             }
                             // 열차 아이콘 (로딩 중 숨김, code 기반 위치)
@@ -169,16 +199,20 @@ fun VicinityStationDetailCard(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
+                                // 트랙 바: 로딩 중 vertically flatten
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(5.dp)
-                                        .background(lineColor),
+                                        .background(lineColor)
+                                        .graphicsLayer { scaleY = downBarScaleY },
                                 )
+                                // 빈 원: 로딩 중 fadeout
                                 Box(
                                     modifier = Modifier
                                         .size(12.5.dp)
-                                        .border(1.5.dp, lineColor, CircleShape),
+                                        .border(1.5.dp, lineColor, CircleShape)
+                                        .graphicsLayer { alpha = downCircleAlpha },
                                 )
                             }
                             if (!liveLoading.second) {

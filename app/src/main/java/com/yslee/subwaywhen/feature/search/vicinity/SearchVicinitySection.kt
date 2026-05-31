@@ -6,6 +6,12 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -270,17 +276,27 @@ private fun SearchVicinitySectionContent(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    VicinityStationDetailCard(
-                        station = state.vicinityStations[tappedIdx],
-                        upArrival = state.upLiveArrival,
-                        downArrival = state.downLiveArrival,
-                        liveLoading = state.liveLoading,
-                        onClose = { onIntent(VicinityIntent.StationTapped(null)) },
-                        onRefresh = { onIntent(VicinityIntent.LiveRefreshTapped) },
-                        onAddStation = { onStationSearch(state.vicinityStations[tappedIdx].name) },
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.paddingTB))
+                    // iOS: .animation(.smooth(duration: 0.3), value: nowTappedStationIndex)
+                    // visible=true: 이 branch 진입 시 enter 애니메이션 재생
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(300)) +
+                            expandVertically(animationSpec = tween(300)),
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            VicinityStationDetailCard(
+                                station = state.vicinityStations[tappedIdx],
+                                upArrival = state.upLiveArrival,
+                                downArrival = state.downLiveArrival,
+                                liveLoading = state.liveLoading,
+                                onClose = { onIntent(VicinityIntent.StationTapped(null)) },
+                                onRefresh = { onIntent(VicinityIntent.LiveRefreshTapped) },
+                                onAddStation = { onStationSearch(state.vicinityStations[tappedIdx].name) },
+                            )
+                            Spacer(modifier = Modifier.height(Dimens.paddingTB))
+                        }
+                    }
                 }
             }
         }
