@@ -125,6 +125,7 @@ class SearchViewModel @Inject constructor(
                         isSearchMode = true,
                         isSearchLoading = true,
                         vicinityAutoOpen = true,
+                        searchQuery = intent.stationName,  // 검색창에 역 이름 표시
                     )
                 }
                 _searchQuery.value = intent.stationName
