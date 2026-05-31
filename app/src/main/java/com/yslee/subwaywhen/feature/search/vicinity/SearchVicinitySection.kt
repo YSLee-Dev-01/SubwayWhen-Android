@@ -32,6 +32,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,10 +70,16 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 @Composable
 fun SearchVicinitySection(
     onStationSearch: (String) -> Unit,
+    onTabBarVisibilityChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val viewModel: SearchVicinityViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // LocationListModal이 열리면 탭바를 숨기고, 닫히면 복원한다
+    LaunchedEffect(state.isLocationModalVisible) {
+        onTabBarVisibilityChange(!state.isLocationModalVisible)
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -234,41 +243,25 @@ private fun SearchVicinitySectionContent(
 
                 state.vicinityStations.isEmpty() -> VicinityEmptyState()
 
-                state.tappedIndex == null -> {
-                    // 역 목록 (미선택): LazyRow + 목록으로 확인하기 버튼
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(0.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        itemsIndexed(state.vicinityStations) { index, station ->
-                            VicinityStationRow(
-                                station = station,
-                                onClick = { onIntent(VicinityIntent.StationTapped(index)) },
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ModalSubButton(
-                        text = stringResource(R.string.vicinity_list_button),
-                        bgColor = AppIconColor,
-                        textColor = Color.White,
-                        onClick = { onIntent(VicinityIntent.ListModalOpenTapped) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(Dimens.vicinityListButtonHeight),
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.paddingTB))
-                }
-
                 else -> {
-                    // 역 선택됨: 선택된 역은 리스트에서 제거, 나머지만 VicinityStationRowMini로 표시
-                    val tappedIdx = state.tappedIndex!!
+                    val tappedIdx = state.tappedIndex
+
+                    // exit 애니메이션 중에도 올바른 역 데이터를 유지하기 위해 마지막 non-null 인덱스 기억
+                    var lastSelectedIdx by remember { mutableIntStateOf(0) }
+                    if (tappedIdx != null) lastSelectedIdx = tappedIdx
+
+                    // 역 목록: 미선택 → full 크기 / 선택 → 선택된 역 제외 mini 크기
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         itemsIndexed(state.vicinityStations) { index, station ->
-                            if (index != tappedIdx) {
+                            if (tappedIdx == null) {
+                                VicinityStationRow(
+                                    station = station,
+                                    onClick = { onIntent(VicinityIntent.StationTapped(index)) },
+                                )
+                            } else if (index != tappedIdx) {
                                 VicinityStationRowMini(
                                     station = station,
                                     onClick = { onIntent(VicinityIntent.StationTapped(index)) },
@@ -276,27 +269,53 @@ private fun SearchVicinitySectionContent(
                             }
                         }
                     }
-                    // iOS: .animation(.smooth(duration: 0.3), value: nowTappedStationIndex)
-                    // visible=true: 이 branch 진입 시 enter 애니메이션 재생
+
+                    // "목록으로 확인하기" 버튼 — 미선택 시만 표시 (fade)
                     AnimatedVisibility(
-                        visible = true,
+                        visible = tappedIdx == null,
+                        enter = fadeIn(animationSpec = tween(200)),
+                        exit = fadeOut(animationSpec = tween(200)),
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ModalSubButton(
+                                text = stringResource(R.string.vicinity_list_button),
+                                bgColor = AppIconColor,
+                                textColor = Color.White,
+                                onClick = { onIntent(VicinityIntent.ListModalOpenTapped) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(Dimens.vicinityListButtonHeight),
+                            )
+                        }
+                    }
+
+                    // 상세 카드:
+                    // - 최초 선택(null → non-null): visible false→true → enter 애니메이션
+                    // - 역 전환(non-null → non-null): visible 유지 → 애니메이션 없이 내용만 갱신
+                    // - 닫기(non-null → null): visible true→false → exit 애니메이션
+                    AnimatedVisibility(
+                        visible = tappedIdx != null,
                         enter = fadeIn(animationSpec = tween(300)) +
                             expandVertically(animationSpec = tween(300)),
+                        exit = fadeOut(animationSpec = tween(200)) +
+                            shrinkVertically(animationSpec = tween(200)),
                     ) {
                         Column {
                             Spacer(modifier = Modifier.height(8.dp))
                             VicinityStationDetailCard(
-                                station = state.vicinityStations[tappedIdx],
+                                station = state.vicinityStations[lastSelectedIdx],
                                 upArrival = state.upLiveArrival,
                                 downArrival = state.downLiveArrival,
                                 liveLoading = state.liveLoading,
                                 onClose = { onIntent(VicinityIntent.StationTapped(null)) },
                                 onRefresh = { onIntent(VicinityIntent.LiveRefreshTapped) },
-                                onAddStation = { onStationSearch(state.vicinityStations[tappedIdx].name) },
+                                onAddStation = { onStationSearch(state.vicinityStations[lastSelectedIdx].name) },
                             )
-                            Spacer(modifier = Modifier.height(Dimens.paddingTB))
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(Dimens.paddingTB))
                 }
             }
         }

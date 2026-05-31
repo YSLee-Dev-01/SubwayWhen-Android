@@ -16,6 +16,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,10 +42,13 @@ fun CommonModalBottomSheet(
     modifier: Modifier = Modifier,
     subTitle: String? = null,
     topDecoration: (@Composable () -> Unit)? = null,
-    confirmButton: (@Composable () -> Unit)? = null,
+    // dismiss: animatedDismiss 콜백. sheetState.hide() 후 onDismiss() 순서로 호출해 슬라이드-다운 애니메이션을 보장한다.
+    confirmButton: (@Composable (() -> Unit) -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val animatedDismiss: () -> Unit = { scope.launch { sheetState.hide(); onDismiss() } }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -105,7 +110,7 @@ fun CommonModalBottomSheet(
 
                     if (confirmButton != null) {
                         Spacer(modifier = Modifier.height(Dimens.paddingLR))
-                        confirmButton()
+                        confirmButton(animatedDismiss)
                     }
 
                     Spacer(modifier = Modifier.height(Dimens.paddingLR))
@@ -126,12 +131,12 @@ private fun CommonModalBottomSheetLightPreview() {
             mainTitle = "알림 설정",
             subTitle = "도착 알림을 설정합니다.",
             onDismiss = {},
-            confirmButton = {
+            confirmButton = { dismiss ->
                 ModalSubButton(
                     text = "확인",
                     bgColor = Color(0xFF2196F3),
                     textColor = Color.White,
-                    onClick = {},
+                    onClick = dismiss,
                     modifier = Modifier.fillMaxWidth(),
                 )
             },

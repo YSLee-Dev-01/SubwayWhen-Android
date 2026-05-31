@@ -57,7 +57,11 @@ private fun SearchScreenContent(
     onSaveCompleted: () -> Unit,
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
-    val isModalVisible = uiState.selectedStation != null
+    // 탭바 숨김: 어떤 모달이 열려 있든 항상 탭바를 숨긴다
+    // - selectedStation: SaveStationModal
+    // - isSaveCompletedModalVisible: SaveCompletedModal
+    // - LocationListModal visibility는 SearchVicinitySection 내부에서 별도 콜백으로 제어
+    val isModalVisible = uiState.selectedStation != null || uiState.isSaveCompletedModalVisible
     LaunchedEffect(isModalVisible) {
         onTabBarVisibilityChange(!isModalVisible)
     }
@@ -111,7 +115,8 @@ private fun SearchScreenContent(
                     exit = fadeOut(tween(150)),
                 ) {
                     SearchVicinitySection(
-                        onStationSearch = { name -> onIntent(SearchIntent.VicinityStationSelected(name)) }
+                        onStationSearch = { name -> onIntent(SearchIntent.VicinityStationSelected(name)) },
+                        onTabBarVisibilityChange = onTabBarVisibilityChange,
                     )
                 }
 

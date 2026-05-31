@@ -6,6 +6,8 @@ import com.yslee.subwaywhen.data.network.NetworkManagerImpl
 import com.yslee.subwaywhen.data.network.TokenProvider
 import com.yslee.subwaywhen.data.remote.loadmodel.LoadModel
 import com.yslee.subwaywhen.data.remote.loadmodel.LoadModelImpl
+import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
+import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModelImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -32,6 +34,10 @@ abstract class NetworkModule {
     @Singleton
     @Binds
     abstract fun bindLoadModel(impl: LoadModelImpl): LoadModel
+
+    @Singleton
+    @Binds
+    abstract fun bindTotalLoadModel(impl: TotalLoadModelImpl): TotalLoadModel
 
     companion object {
         @Singleton

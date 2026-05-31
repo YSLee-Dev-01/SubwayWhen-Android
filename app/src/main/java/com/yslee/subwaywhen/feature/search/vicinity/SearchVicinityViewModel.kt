@@ -195,16 +195,7 @@ class SearchVicinityViewModel @Inject constructor(
 
     private fun loadLiveArrival(station: VicinityTransformData) = viewModelScope.launch {
         _uiState.update { it.copy(liveLoading = Pair(true, true)) }
-        val arrivals = vicinityRepository.loadLiveArrival(station.name)
-        val isNinthLine = station.line.contains("9호선")
-
-        val upArrivals = arrivals.filter { arrival ->
-            if (isNinthLine) arrival.upDown == "하행" else arrival.upDown == "상행"
-        }
-        val downArrivals = arrivals.filter { arrival ->
-            if (isNinthLine) arrival.upDown == "상행" else arrival.upDown == "하행"
-        }
-
+        val (upArrivals, downArrivals) = vicinityRepository.loadLiveArrival(station.name, station.line)
         _uiState.update {
             it.copy(
                 upLiveArrival = upArrivals,
