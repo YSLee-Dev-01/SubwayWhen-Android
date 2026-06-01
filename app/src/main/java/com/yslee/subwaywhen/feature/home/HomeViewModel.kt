@@ -131,7 +131,7 @@ class HomeViewModel @Inject constructor(
             // 해당 카드를 로딩 상태로 전환
             _uiState.update { state ->
                 state.copy(cells = state.cells.map {
-                    if (it.stationIndex == cell.stationIndex && it.updnLine == cell.updnLine) {
+                    if (it.stationIndex == cell.stationIndex && it.updnLine == cell.updnLine && it.subIndex == cell.subIndex) {
                         it.copy(type = HomeCellType.Loading, stateMSG = "시간표 로드 중")
                     } else it
                 })
@@ -162,7 +162,7 @@ class HomeViewModel @Inject constructor(
 
             _uiState.update { state ->
                 state.copy(cells = state.cells.map {
-                    if (it.stationIndex == cell.stationIndex && it.updnLine == cell.updnLine) scheduleCell else it
+                    if (it.stationIndex == cell.stationIndex && it.updnLine == cell.updnLine && it.subIndex == cell.subIndex) scheduleCell else it
                 })
             }
         }

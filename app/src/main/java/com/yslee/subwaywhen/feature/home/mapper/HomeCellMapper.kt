@@ -45,9 +45,10 @@ fun LiveStationModel.toRealCells(index: Int, base: SaveStation): List<HomeCellDa
             )
         )
     }
-    return matched.map { arrival ->
+    return matched.mapIndexed { subIdx, arrival ->
         HomeCellData(
             stationIndex = index,
+            subIndex = subIdx,
             type = HomeCellType.Real,
             stationName = base.stationName,
             updnLine = arrival.upDown,

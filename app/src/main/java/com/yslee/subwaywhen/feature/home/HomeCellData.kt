@@ -6,6 +6,7 @@ package com.yslee.subwaywhen.feature.home
  */
 data class HomeCellData(
     val stationIndex: Int,
+    val subIndex: Int = 0,
     val type: HomeCellType,
     val stationName: String,
     val updnLine: String,
