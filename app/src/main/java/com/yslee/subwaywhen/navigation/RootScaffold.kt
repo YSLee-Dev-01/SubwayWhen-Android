@@ -67,7 +67,21 @@ fun RootScaffold() {
             startDestination = TabRoute.Home.route,
             modifier = Modifier.fillMaxSize(),
         ) {
-            composable(TabRoute.Home.route) { HomeScreen() }
+            composable(TabRoute.Home.route) {
+                HomeScreen(
+                    onNavigateToSearch = {
+                        childNavController.navigate(TabRoute.Search.route) {
+                            popUpTo(TabRoute.Home.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigateToDetail = { _ -> },
+                    onCongestionTap = {},
+                    onReportTap = {},
+                    onEditTap = {},
+                )
+            }
             composable(TabRoute.Search.route) {
                 SearchScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
             }

@@ -71,4 +71,64 @@
 
     <string name="tutorial_page_6_title">버튼을 눌러 민실씨를 바로 사용해 보세요!</string>
     <string name="tutorial_page_6_button">시작하기</string>
+
+    <!-- home -->
+    <string name="home_header_current_traffic">현재 지하철 예상 혼잡도</string>
+    <string name="home_header_report">지하철 민원</string>
+    <string name="home_header_edit">편집</string>
+    <string name="home_live_status_title">실시간 현황</string>
+    <string name="home_group_one">출근</string>
+    <string name="home_group_two">퇴근</string>
+    <string name="home_empty_station">버튼을 눌러서 지하철 역을 추가할 수 있어요!</string>
+    <string name="home_schedule_loading">시간표 로드 중</string>
+    <string name="home_arrival_no_data">정보 없음</string>
+    <string name="home_arrival_soon">곧 도착</string>
+    <string name="home_arrival_now">도착</string>
+    <string name="home_arrival_depart">출발</string>
+    <string name="home_arrival_seconds">%d초</string>
+    <string name="home_arrival_minutes">%d분</string>
+    <string name="home_state_fast">(급)</string>
+    <string name="home_state_itx">(ITX)</string>
+    <string name="home_schedule_prefix">⏱️</string>
+    <string name="home_bound_suffix">행</string>
+
+    <!-- home main title messages by day of week -->
+    <string-array name="home_main_title_sunday">
+        <item>행복하고 즐거운 주말\n좋은 하루 보내세요!</item>
+        <item>행복한 일만 가득한 주말\n행복한 주말 보내세요!</item>
+        <item>여유로운 주말\n재충전하는 시간 되세요!</item>
+    </string-array>
+
+    <string-array name="home_main_title_monday">
+        <item>월요일,\n한 주도 화이팅해봐요!</item>
+        <item>월요일이지만\n좋은 일만 가득하길!</item>
+        <item>월요일,\n오늘도 멋진 하루 만들어봐요!</item>
+    </string-array>
+
+    <string-array name="home_main_title_tuesday">
+        <item>화요일,\n평범하지만 행복한 날로 만들어봐요!</item>
+        <item>화요일,\n어제보다 한 걸음 더!</item>
+        <item>화요일,\n오늘도 잘 하고 있어요!</item>
+    </string-array>
+
+    <string-array name="home_main_title_wednesday">
+        <item>수요일,\n수많은 즐거움이 가득할거에요!</item>
+        <item>수요일,\n벌써 반이나 왔어요!</item>
+    </string-array>
+
+    <string-array name="home_main_title_thursday">
+        <item>목요일,\n거의 다 왔어요, 조금만 더!</item>
+        <item>목요일,\n내일이면 금요일이에요!</item>
+    </string-array>
+
+    <string-array name="home_main_title_friday">
+        <item>금요일,\n행복한 하루 보내세요!</item>
+        <item>금요일,\n즐거운 주말이 기다려요!</item>
+    </string-array>
+
+    <string-array name="home_main_title_saturday">
+        <item>행복하고 즐거운 주말\n좋은 하루 보내세요!</item>
+        <item>행복한 일만 가득한 주말\n행복한 주말 보내세요!</item>
+        <item>여유로운 주말\n재충전하는 시간 되세요!</item>
+    </string-array>
 </resources>
