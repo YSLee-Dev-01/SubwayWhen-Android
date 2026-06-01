@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,6 +74,7 @@ fun HomeScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
                 .padding(horizontal = Dimens.paddingLR),
         ) {
             // 요일 타이틀
@@ -119,7 +121,7 @@ fun HomeScreen(
                         onCardTap = { viewModel.onIntent(HomeIntent.StationTap(cell)) },
                         onScheduleTap = { viewModel.onIntent(HomeIntent.ScheduleTap(cell)) },
                     )
-                    Spacer(modifier = Modifier.height(Dimens.paddingTB))
+                    Spacer(modifier = Modifier.height((Dimens.paddingTB.value + 10f).dp))
                 }
             }
 
