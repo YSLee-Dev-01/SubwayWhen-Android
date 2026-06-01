@@ -1,8 +1,14 @@
 package com.yslee.subwaywhen.data.remote.totalload
 
+import com.yslee.subwaywhen.data.model.SaveStation
+import com.yslee.subwaywhen.data.network.NetworkResult
+import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.KorailHeader
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
+import kotlinx.coroutines.flow.Flow
 
 interface TotalLoadModel {
     suspend fun stationSearch(query: String): List<SearchStationInfo>
@@ -17,4 +23,10 @@ interface TotalLoadModel {
         stationName: String,
         line: String
     ): Pair<List<RealtimeStationArrival>, List<RealtimeStationArrival>>
+
+    fun arrivalDataLoad(stations: List<SaveStation>): Flow<IndexedValue<NetworkResult<LiveStationModel>>>
+
+    suspend fun seoulScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<ScheduleStationModel>
+
+    suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<KorailHeader>
 }

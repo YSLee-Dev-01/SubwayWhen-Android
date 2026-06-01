@@ -1,10 +1,17 @@
 package com.yslee.subwaywhen.data.remote.totalload
 
+import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.network.NetworkResult
+import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.KorailHeader
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
 import com.yslee.subwaywhen.data.remote.loadmodel.LoadModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TotalLoadModelImpl @Inject constructor(
@@ -45,10 +52,40 @@ class TotalLoadModelImpl @Inject constructor(
             is NetworkResult.Success -> result.data.realtimeArrivalList
             is NetworkResult.Failure -> emptyList()
         }
-        val isNinthLine = line.contains("9호선")
-        val up = arrivals.filter { if (isNinthLine) it.upDown == "하행" else it.upDown == "상행" }
-        val down = arrivals.filter { if (isNinthLine) it.upDown == "상행" else it.upDown == "하행" }
+        // 환승역에서 선택한 노선의 데이터만 표시 (iOS: requestModel.line.lineCode == x.subWayId)
+        val lineCode = lineNameToCode(line)
+        val filtered = if (lineCode.isNotEmpty()) arrivals.filter { it.subWayId == lineCode } else arrivals
+        // 2호선은 "내선"/"외선", 9호선은 방향 반전, 그 외는 "상행"/"하행"
+        // iOS: line.upDownText(isUp: true/false) 대응
+        val up   = filtered.filter { it.upDown == upDirectionText(line) }
+        val down = filtered.filter { it.upDown == downDirectionText(line) }
         return Pair(up, down)
+    }
+
+    override fun arrivalDataLoad(stations: List<SaveStation>): Flow<IndexedValue<NetworkResult<LiveStationModel>>> = channelFlow {
+        stations.forEachIndexed { index, station ->
+            launch {
+                val result = loadModel.stationArrivalRequest(station.stationName)
+                send(IndexedValue(index, result))
+            }
+        }
+    }
+
+    override suspend fun seoulScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<ScheduleStationModel> {
+        return loadModel.seoulStationScheduleLoad(
+            stationCode = station.stationCode,
+            weekDay = weekDay,
+            upDown = station.updnLine,
+            stationLine = station.lineCode
+        )
+    }
+
+    override suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<KorailHeader> {
+        return loadModel.korailScheduleLoad(
+            stationCode = station.korailCode,
+            weekDay = weekDay,
+            korailLineCode = station.lineCode
+        )
     }
 
     // ── 주변역 데이터 변환 ────────────────────────────────────────────────────
@@ -71,5 +108,51 @@ class TotalLoadModelImpl @Inject constructor(
     private fun formatDistance(distance: String): String {
         val meters = distance.toDoubleOrNull() ?: 0.0
         return "%.1fkm".format(meters / 1000.0)
+    }
+
+    /**
+     * iOS SubwayLineData.upDownText(isUp: true) 대응.
+     * 2호선: "내선", 9호선 반전: "하행", 그 외: "상행"
+     */
+    private fun upDirectionText(line: String) = when {
+        line == "2호선"          -> "내선"
+        line.contains("9호선") -> "하행"
+        else                    -> "상행"
+    }
+
+    /**
+     * iOS SubwayLineData.upDownText(isUp: false) 대응.
+     * 2호선: "외선", 9호선 반전: "상행", 그 외: "하행"
+     */
+    private fun downDirectionText(line: String) = when {
+        line == "2호선"          -> "외선"
+        line.contains("9호선") -> "상행"
+        else                    -> "하행"
+    }
+
+    /**
+     * VicinityTransformData.line → Seoul Metro API subWayId.
+     * 데이터 레이어가 ui.common.SubwayLineMapper를 import하지 않도록 독립 구현.
+     * 미지원 노선은 "" 반환 → 필터 미적용.
+     */
+    private fun lineNameToCode(line: String): String {
+        // 숫자 호선: "2호선" → "1002", "9호선" → "1009"
+        if (line.firstOrNull()?.isDigit() == true) {
+            val number = line.filter { it.isDigit() }
+            return "100$number"
+        }
+        return when (line) {
+            "경의중앙선" -> "1063"
+            "공항철도"   -> "1065"
+            "경춘선"     -> "1067"
+            "수인분당선" -> "1075"
+            "신분당선"   -> "1077"
+            "우이신설선" -> "1092"
+            "서해선"     -> "1093"
+            "신림선"     -> "1094"
+            "경강선"     -> "1081"
+            "GTX-A"      -> "1032"
+            else -> ""
+        }
     }
 }
