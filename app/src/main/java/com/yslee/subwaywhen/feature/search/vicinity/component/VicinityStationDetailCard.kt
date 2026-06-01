@@ -118,10 +118,12 @@ fun VicinityStationDetailCard(
                         .height(Dimens.vicinityStationCircleSizeLarge),  // 65dp = center circle
                 ) {
                     // 왼쪽: 상행 트랙 (중앙 원보다 위에 배치)
+                    // iOS: .offset(x: 10) → 트랙이 중앙 원 안쪽으로 살짝 연장되어 시각적 연결
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .offset(x = 10.dp),
                         horizontalAlignment = Alignment.Start,
                     ) {
                         Spacer(modifier = Modifier.height(15.dp))  // iOS: Spacer().frame(height:15)
@@ -186,10 +188,12 @@ fun VicinityStationDetailCard(
                     )
 
                     // 오른쪽: 하행 트랙 (중앙 원보다 아래에 배치)
+                    // iOS: .offset(x: -10, y: 5) → 트랙이 중앙 원 안쪽으로 살짝 연장되어 시각적 연결
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .offset(x = (-10).dp, y = 5.dp),
                         horizontalAlignment = Alignment.End,
                     ) {
                         Spacer(modifier = Modifier.weight(1f))  // 남은 공간 → 트랙이 아래에 위치
@@ -272,7 +276,7 @@ fun VicinityStationDetailCard(
                                 text = upDirection,
                                 fontSize = Dimens.fontSizeSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                             )
                             Text(
@@ -314,7 +318,7 @@ fun VicinityStationDetailCard(
                                 fontSize = Dimens.fontSizeSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 textAlign = TextAlign.End,
-                                maxLines = 1,
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                             )
                             Text(
@@ -413,17 +417,17 @@ private fun ActionIcon(
 /**
  * iOS backStationName 대응.
  * previousStation (arvlMsg3) 값에서 역 이름을 파싱한다.
- * ex) "역삼역 출발" → "역삼", "선릉역 도착" → "선릉", null → "-"
+ * ex) "역삼역 출발" → "역삼", "선릉역 도착" → "선릉", "역삼역" → "역삼", null → "-"
+ *
+ * 주의: .replace("역", "")는 "역삼" → "삼" 버그가 있으므로 removeSuffix("역") 사용.
  */
 private fun parseAdjacentStationName(previousStation: String?, isLoading: Boolean): String {
     if (isLoading) return "-"
     if (previousStation.isNullOrEmpty()) return "-"
     return previousStation
-        .replace("역 출발", "")
-        .replace("역 도착", "")
         .replace(" 출발", "")
         .replace(" 도착", "")
-        .replace("역", "")
+        .removeSuffix("역")
         .trim()
         .ifEmpty { "-" }
 }
