@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Skill(review)",
+      "Skill(commit)",
+      "Skill(feature)"
+    ]
+  }
+}

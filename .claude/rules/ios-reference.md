@@ -25,7 +25,7 @@
 
 | iOS | Android |
 |-----|---------|
-| TCA State | UiState (sealed interface) |
+| TCA State | UiState (data class 또는 sealed interface) |
 | TCA Action | Intent (sealed interface) |
 | TCA Effect | UiEffect (SharedFlow) |
 | MVVM-C Coordinator | Navigation Compose (NavHost) |
@@ -35,21 +35,21 @@
 
 ## 주요 기능 포팅 목록
 
-| 기능 | iOS 위치 | 우선순위 |
-|------|----------|----------|
-| 역 즐겨찾기 목록 (메인) | `Presentation/Main/` | P0 |
-| 실시간 도착정보 | `Presentation/Detail/` | P0 |
-| 역 검색 | `Presentation/Search/` | P0 |
-| 시간표 조회 | `Presentation/Detail/DetailResultSchedule/` | P1 |
-| 그룹 관리 (출근/퇴근) | `Configuration/Entity/SaveStationGroup.swift` | P1 |
-| 시간 기반 그룹 필터링 | `MainViewModel` | P1 |
-| 설정 화면 | `Presentation/Setting/` | P1 |
-| 알림 (로컬 Push) | `Service/Notification/` | P2 |
-| 위치 기반 역 검색 | `Service/Location/` | P2 |
-| 혼잡도 정보 | `Service/Congestion/` | P2 |
-| 민원 접수 | `Presentation/Report/` | P3 |
-| 실시간 열차 위치 | `Presentation/Realtime/` | P3 |
-| 홈 위젯 | `SubwayWhenHomeWidget/` | P3 |
+| 기능 | iOS 위치 | 우선순위 | 상태 |
+|------|----------|----------|------|
+| 역 즐겨찾기 목록 (메인) | `Presentation/Main/` | P0 | 🚧 진행 예정 |
+| 실시간 도착정보 | `Presentation/Detail/` | P0 | ❌ 미시작 |
+| 역 검색 | `Presentation/Search/` | P0 | ✅ 완료 |
+| 시간표 조회 | `Presentation/Detail/DetailResultSchedule/` | P1 | ❌ 미시작 |
+| 그룹 관리 (출근/퇴근) | `Configuration/Entity/SaveStationGroup.swift` | P1 | ❌ 미시작 |
+| 시간 기반 그룹 필터링 | `MainViewModel` | P1 | ❌ 미시작 |
+| 설정 화면 | `Presentation/Setting/` | P1 | 🚧 미구현 |
+| 알림 (로컬 Push) | `Service/Notification/` | P2 | ❌ 미시작 |
+| 위치 기반 역 검색 | `Service/Location/` | P2 | ✅ 완료 (LocationManager) |
+| 혼잡도 정보 | `Service/Congestion/` | P2 | ❌ 미시작 |
+| 민원 접수 | `Presentation/Report/` | P3 | ❌ 미시작 |
+| 실시간 열차 위치 | `Presentation/Realtime/` | P3 | ❌ 미시작 |
+| 홈 위젯 | `SubwayWhenHomeWidget/` | P3 | ❌ 미시작 |
 
 ## iOS 참조 경로
 

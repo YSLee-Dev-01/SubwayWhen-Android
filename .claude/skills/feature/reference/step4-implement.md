@@ -58,6 +58,10 @@ iOS 원본을 Android Compose로 포팅할 때 자주 발생하는 함정:
 - **Dimens 토큰** — 2회 이상 반복되는 여백·크기는 `Dimens.kt`에 추가 후 참조
 - **버튼 콜백 누락 주의** — iOS Button/TapGesture 핸들러가 있으면 AOS에도 반드시 콜백 파라미터로 노출해야 한다
 - **문자열 suffix/prefix** — iOS에서 `"\(value)\(Strings.X.suffix)"` 패턴을 사용하면 AOS도 동일하게 구성한다
+- **탭바 숨김** — 모달 open 시 `onTabBarVisibilityChange(false)`, 닫을 때 `onTabBarVisibilityChange(true)` 호출. 새 모달을 추가할 때마다 반드시 적용한다
+- **모달 dismiss 애니메이션** — `CommonModalBottomSheet`의 `animatedDismiss` 콜백을 사용한다. `onDismiss`를 직접 호출하면 슬라이드 다운 없이 닫힘
+- **탭 애니메이션** — iOS의 `scaleEffect` 탭 피드백은 `AnimatedTapBox`로 래핑하여 재현한다
+- **Contract 파일** — 신규 화면은 `{기능명}Contract.kt`에 UiState, Intent, Effect를 함께 정의한다
 ```
 
 ---

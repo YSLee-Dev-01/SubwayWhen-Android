@@ -30,13 +30,87 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 
 ---
 
+## 구현 현황
+
+| 기능 | 상태 | 주요 파일 |
+|------|------|-----------|
+| Splash | ✅ 완료 | `feature/splash/SplashViewModel.kt` |
+| Tutorial | ✅ 완료 | `feature/tutorial/` |
+| 탭바 + 네비게이션 | ✅ 완료 | `navigation/RootScaffold.kt`, `AppNavHost.kt` |
+| 역 검색 | ✅ 완료 | `feature/search/` |
+| 주변역 탐색 (Vicinity) | ✅ 완료 | `feature/search/vicinity/` |
+| 역 저장 Modal | ✅ 완료 | `feature/search/modal/` |
+| 공통 컴포넌트 | ✅ 완료 | `ui/common/` |
+| 데이터 레이어 | ✅ 완료 | `data/` |
+| 메인 화면 | ✅ 완료 | `feature/home/HomeScreen.kt`, `HomeViewModel.kt` |
+| 실시간 도착정보 | ✅ 완료 | `feature/home/HomeViewModel.kt` (arrivalDataLoad), `mapper/HomeCellMapper.kt` |
+| 시간표 조회 | ✅ 완료 | `feature/home/HomeViewModel.kt` (handleScheduleTap), `mapper/HomeCellMapper.kt` |
+| 설정 화면 | 🚧 미구현 | `feature/setting/SettingScreen.kt` (placeholder) |
+
+---
+
+## 폴더 구조
+
+```
+app/src/main/java/com/yslee/subwaywhen/
+├── core/
+│   ├── FixInfo.kt                    # DataStore 키 상수
+│   └── location/                     # 위치 권한 · GPS
+├── data/
+│   ├── local/                        # DataStore (PreferencesKeys, DataSources)
+│   ├── model/                        # SaveStation, SaveStationGroup, SaveSetting
+│   ├── network/                      # Ktor 클라이언트, NetworkResult
+│   ├── remote/
+│   │   ├── dto/                      # 응답 DTO (liveArrival, scheduleArrival 등)
+│   │   ├── firebase/                 # Firebase Realtime DB
+│   │   ├── loadmodel/                # LoadModel (API 호출 로직)
+│   │   └── totalload/                # TotalLoadModel (병렬 호출 통합)
+│   └── repository/                   # Repository 인터페이스 + Impl
+├── di/                               # Hilt 모듈
+├── feature/
+│   ├── home/                         # 메인 화면 (미구현)
+│   ├── search/
+│   │   ├── component/                # SearchTextField, 결과/추천 섹션
+│   │   ├── modal/                    # SaveStationModal + SaveCompletedModal
+│   │   │   └── component/
+│   │   └── vicinity/                 # 주변역 섹션
+│   │       ├── component/            # StationDetailCard, Row, MiniRow 등
+│   │       └── modal/                # LocationListModal
+│   ├── setting/                      # 설정 화면 (미구현)
+│   ├── splash/
+│   └── tutorial/
+├── navigation/
+│   ├── AppNavHost.kt                 # Splash → Tutorial → Root 흐름
+│   ├── NavRoutes.kt                  # 최상위 라우트 상수
+│   ├── RootScaffold.kt              # 탭바 + 탭 NavHost
+│   └── TabRoute.kt                   # 탭 정의 (Home, Search, Setting)
+└── ui/
+    ├── common/
+    │   ├── modal/                    # CommonModalBottomSheet, ModalSubButton
+    │   ├── AnimatedTapBox.kt         # 탭 시 스케일 애니메이션 래퍼
+    │   ├── CommonTopBar.kt           # 공통 상단바
+    │   ├── MainBgCard.kt             # 메인 배경 카드
+    │   ├── PrimaryButton.kt          # 주요 액션 버튼
+    │   ├── StationLineCircle.kt      # 호선 색상 원형 뱃지
+    │   ├── SubwayLineMapper.kt       # 호선명 → Color 매핑
+    │   ├── TriangleShape.kt          # 삼각형 커스텀 Shape
+    │   └── UpDownExceptionRow.kt     # 상하행 예외 안내 행
+    └── theme/
+        ├── Color.kt
+        ├── Dimens.kt                 # 간격·크기·폰트 토큰
+        ├── Theme.kt
+        └── Type.kt
+```
+
+---
+
 ## 규칙 문서 참조
 
 | 문서 | 내용 |
 |------|------|
 | [ios-reference.md](rules/ios-reference.md) | iOS 원본 참조 경로, 기술 스택 대응, 기능 포팅 목록 |
 | [architecture.md](rules/architecture.md) | MVI 레이어 구조, 화면 전환 |
-| [conventions.md](rules/conventions.md) | 코딩 컨벤션, 의존성 목록 |
+| [conventions.md](rules/conventions.md) | 코딩 컨벤션, 의존성 목록, 공통 패턴 |
 
 ---
 
