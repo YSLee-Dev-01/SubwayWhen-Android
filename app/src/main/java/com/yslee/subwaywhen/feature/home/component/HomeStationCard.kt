@@ -51,6 +51,12 @@ import kotlinx.coroutines.launch
 /**
  * iOS MainTableViewArrivalCell 대응.
  * 역 1건의 실시간 / 시간표 / 로딩 카드.
+ *
+ * 레이아웃 (iOS 원본 기준):
+ * [circle]  [역명 | 종착역행]
+ *           [상태메시지]
+ * [───────────────────── [🔄]]   ← 선이 버튼 수직 중앙 통과
+ *                           [시간]  or [로딩]
  */
 @Composable
 fun HomeStationCard(
@@ -99,7 +105,7 @@ fun HomeStationCard(
                 indication = null,
                 onClick = { scope.launch { delay(100L); onCardTap() } },
             )
-            .padding(15.dp),
+            .padding(horizontal = 15.dp, vertical = 24.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // 상단: 호선 원형 뱃지 + 역명/상태
@@ -137,18 +143,30 @@ fun HomeStationCard(
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            // 하단: 시간표 버튼 + 구분선 + 도착 시간
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
+            // 중단: 구분선(좌) + 시간표 버튼(우)
+            // border.top = changeBtn.bottom - 15 (= changeBtn.center.y) → 선이 버튼 중앙 통과
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp),
             ) {
-                // 시간표 버튼 (호선 색상 배경 + 타이머 아이콘)
+                // 구분선 — circle.leading 에서 button.leading 까지 (버튼 80dp)
                 Box(
-                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 80.dp)
+                        .height(1.dp)
+                        .background(lineColor.copy(alpha = 0.4f))
+                        .align(Alignment.CenterStart),
+                )
+                // 시간표 버튼 — 우측 끝, 호선 색상 배경
+                Box(
                     modifier = Modifier
                         .width(80.dp)
                         .height(30.dp)
-                        .background(color = lineColor, shape = RoundedCornerShape(Dimens.cornerRadius)),
+                        .background(lineColor, RoundedCornerShape(Dimens.cornerRadius))
+                        .align(Alignment.CenterEnd),
+                    contentAlignment = Alignment.Center,
                 ) {
                     IconButton(
                         onClick = onScheduleTap,
@@ -162,38 +180,30 @@ fun HomeStationCard(
                         )
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
-                // 구분선 (호선 색상)
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                        .background(lineColor.copy(alpha = 0.4f)),
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                // 도착 시간 or 로딩 인디케이터
-                Box(
-                    contentAlignment = Alignment.CenterEnd,
-                    modifier = Modifier.height(30.dp),
-                ) {
-                    if (cell.type == HomeCellType.Loading) {
-                        CircularProgressIndicator(
-                            color = AppIconColor,
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Text(
-                            text = cell.useTime,
-                            fontSize = Dimens.fontSizeLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
+            // 하단: 도착 시간 or 로딩 인디케이터 (우측 정렬)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                if (cell.type == HomeCellType.Loading) {
+                    CircularProgressIndicator(
+                        color = AppIconColor,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        text = cell.useTime,
+                        fontSize = Dimens.fontSizeLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
             }
         }
