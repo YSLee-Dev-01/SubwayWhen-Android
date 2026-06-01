@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.home.component
 
+import androidx.annotation.RawRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -9,15 +10,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,10 +22,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.yslee.subwaywhen.R
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.MainColorDark
 import com.yslee.subwaywhen.ui.theme.MainColorLight
@@ -41,12 +41,12 @@ import kotlinx.coroutines.launch
  * iOS MainTableHeaderViewBtn 대응.
  * 민원/편집 공용 버튼 컴포저블.
  * 높이 90dp, MainColor 배경 카드 형태.
- * 상단 좌측: label (fontSizeLarge, ExtraBold), 하단 우측: icon (50dp).
+ * 상단 좌측: label (fontSizeLarge, ExtraBold), 하단 우측: Lottie 애니메이션 (50dp, 1회 재생).
  */
 @Composable
 fun HomeHeaderActionButton(
     label: String,
-    icon: ImageVector,
+    @RawRes lottieRes: Int,
     onTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -68,6 +68,9 @@ fun HomeHeaderActionButton(
         label = "actionBtnColor",
     )
 
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
+    val progress by animateLottieCompositionAsState(composition, iterations = 1)
+
     Box(
         modifier = modifier
             .height(90.dp)
@@ -87,9 +90,9 @@ fun HomeHeaderActionButton(
                 .align(Alignment.TopStart)
                 .padding(start = 15.dp, top = 15.dp),
         )
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
+        LottieAnimation(
+            composition = composition,
+            progress = { progress },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 15.dp, bottom = 15.dp)
@@ -104,7 +107,7 @@ private fun HomeHeaderActionButtonReportLightPreview() {
     SubwayWhenTheme(darkTheme = false) {
         HomeHeaderActionButton(
             label = "지하철 민원",
-            icon = Icons.Default.MailOutline,
+            lottieRes = R.raw.report,
             onTap = {},
         )
     }
@@ -116,7 +119,7 @@ private fun HomeHeaderActionButtonReportDarkPreview() {
     SubwayWhenTheme(darkTheme = true) {
         HomeHeaderActionButton(
             label = "지하철 민원",
-            icon = Icons.Default.MailOutline,
+            lottieRes = R.raw.report,
             onTap = {},
         )
     }
@@ -128,7 +131,7 @@ private fun HomeHeaderActionButtonEditLightPreview() {
     SubwayWhenTheme(darkTheme = false) {
         HomeHeaderActionButton(
             label = "편집",
-            icon = Icons.Default.Edit,
+            lottieRes = R.raw.list,
             onTap = {},
         )
     }
@@ -140,7 +143,7 @@ private fun HomeHeaderActionButtonEditDarkPreview() {
     SubwayWhenTheme(darkTheme = true) {
         HomeHeaderActionButton(
             label = "편집",
-            icon = Icons.Default.Edit,
+            lottieRes = R.raw.list,
             onTap = {},
         )
     }

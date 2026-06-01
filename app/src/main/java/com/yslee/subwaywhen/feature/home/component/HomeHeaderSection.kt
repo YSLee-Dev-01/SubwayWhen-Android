@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +44,7 @@ fun HomeHeaderSection(
         Row(modifier = Modifier.fillMaxWidth()) {
             HomeHeaderActionButton(
                 label = stringResource(R.string.home_header_report),
-                icon = Icons.Default.MailOutline,
+                lottieRes = R.raw.report,
                 onTap = onReportTap,
                 modifier = Modifier
                     .weight(1f)
@@ -55,7 +52,7 @@ fun HomeHeaderSection(
             )
             HomeHeaderActionButton(
                 label = stringResource(R.string.home_header_edit),
-                icon = Icons.Default.Edit,
+                lottieRes = R.raw.list,
                 onTap = onEditTap,
                 modifier = Modifier
                     .weight(1f)
