@@ -57,7 +57,7 @@ class SearchVicinityViewModelTest : FunSpec({
         locationGranted: Boolean = false,
         locationData: LocationData? = fakeLocation,
         vicinityStations: List<VicinityTransformData> = emptyList(),
-        liveArrivals: List<RealtimeStationArrival> = emptyList(),
+        liveArrivals: Pair<List<RealtimeStationArrival>, List<RealtimeStationArrival>> = Pair(emptyList(), emptyList()),
     ): SearchVicinityViewModel {
         val locationManager = mockk<LocationManager>()
         coEvery { locationManager.locationAuthCheck() } returns locationGranted
@@ -65,7 +65,7 @@ class SearchVicinityViewModelTest : FunSpec({
 
         val vicinityRepository = mockk<VicinityRepository>()
         coEvery { vicinityRepository.loadVicinityStations(any(), any()) } returns vicinityStations
-        coEvery { vicinityRepository.loadLiveArrival(any()) } returns liveArrivals
+        coEvery { vicinityRepository.loadLiveArrival(any(), any()) } returns liveArrivals
 
         return SearchVicinityViewModel(locationManager, vicinityRepository, mockk(relaxed = true))
     }
@@ -218,7 +218,7 @@ class SearchVicinityViewModelTest : FunSpec({
 
             val vicinityRepository = mockk<VicinityRepository>()
             coEvery { vicinityRepository.loadVicinityStations(any(), any()) } returns listOf(unsupportedStation)
-            coEvery { vicinityRepository.loadLiveArrival(any()) } returns emptyList()
+            coEvery { vicinityRepository.loadLiveArrival(any(), any()) } returns Pair(emptyList(), emptyList())
 
             val vm = SearchVicinityViewModel(locationManager, vicinityRepository, mockk(relaxed = true))
             vm.onIntent(VicinityIntent.AuthResultReceived(granted = true))
@@ -229,7 +229,7 @@ class SearchVicinityViewModelTest : FunSpec({
 
             vm.uiState.value.errorDialog shouldBe "서비스 중인 노선이 아닙니다."
             vm.uiState.value.tappedIndex shouldBe null
-            coVerify(exactly = 0) { vicinityRepository.loadLiveArrival(any()) }
+            coVerify(exactly = 0) { vicinityRepository.loadLiveArrival(any(), any()) }
         }
     }
 
@@ -245,7 +245,7 @@ class SearchVicinityViewModelTest : FunSpec({
 
             val vicinityRepository = mockk<VicinityRepository>()
             coEvery { vicinityRepository.loadVicinityStations(any(), any()) } returns listOf(station)
-            coEvery { vicinityRepository.loadLiveArrival(any()) } returns emptyList()
+            coEvery { vicinityRepository.loadLiveArrival(any(), any()) } returns Pair(emptyList(), emptyList())
 
             val vm = SearchVicinityViewModel(locationManager, vicinityRepository, mockk(relaxed = true))
             vm.onIntent(VicinityIntent.AuthResultReceived(granted = true))
@@ -255,7 +255,7 @@ class SearchVicinityViewModelTest : FunSpec({
             advanceUntilIdle()
 
             vm.uiState.value.tappedIndex shouldBe 0
-            coVerify(exactly = 1) { vicinityRepository.loadLiveArrival("강남") }
+            coVerify(exactly = 1) { vicinityRepository.loadLiveArrival("강남", any()) }
         }
     }
 
@@ -272,7 +272,10 @@ class SearchVicinityViewModelTest : FunSpec({
 
             val vicinityRepository = mockk<VicinityRepository>()
             coEvery { vicinityRepository.loadVicinityStations(any(), any()) } returns listOf(ninthLineStation)
-            coEvery { vicinityRepository.loadLiveArrival(any()) } returns listOf(upArrival, downArrival)
+            // 9호선 반전은 TotalLoadModel.liveArrivalSplit 내부에서 처리됨.
+            // repository.loadLiveArrival 은 이미 반전된 Pair를 반환한다.
+            // first(up) = 하행 데이터, second(down) = 상행 데이터
+            coEvery { vicinityRepository.loadLiveArrival(any(), any()) } returns Pair(listOf(downArrival), listOf(upArrival))
 
             val vm = SearchVicinityViewModel(locationManager, vicinityRepository, mockk(relaxed = true))
             vm.onIntent(VicinityIntent.AuthResultReceived(granted = true))
@@ -281,7 +284,7 @@ class SearchVicinityViewModelTest : FunSpec({
             vm.onIntent(VicinityIntent.StationTapped(index = 0))
             advanceUntilIdle()
 
-            // 9호선: upLiveArrival ← "하행" 필터, downLiveArrival ← "상행" 필터
+            // ViewModel은 repository가 반환한 Pair를 그대로 uiState에 반영한다.
             vm.uiState.value.upLiveArrival shouldBe listOf(downArrival)
             vm.uiState.value.downLiveArrival shouldBe listOf(upArrival)
         }

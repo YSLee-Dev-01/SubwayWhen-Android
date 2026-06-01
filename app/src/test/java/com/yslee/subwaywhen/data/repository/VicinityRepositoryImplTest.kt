@@ -1,130 +1,66 @@
 package com.yslee.subwaywhen.data.repository
 
-import com.yslee.subwaywhen.data.network.NetworkResult
-import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityDocumentData
-import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityStationsData
+import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
-import com.yslee.subwaywhen.data.remote.loadmodel.LoadModel
+import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 
 class VicinityRepositoryImplTest : FunSpec({
 
-    lateinit var loadModel: LoadModel
+    lateinit var totalLoadModel: TotalLoadModel
     lateinit var repository: VicinityRepositoryImpl
 
     beforeEach {
-        loadModel = mockk()
-        repository = VicinityRepositoryImpl(loadModel)
+        totalLoadModel = mockk()
+        repository = VicinityRepositoryImpl(totalLoadModel)
     }
 
-    // ── category 필터링 ──────────────────────────────────────────────────────
+    // ── loadVicinityStations ──────────────────────────────────────────────
 
-    test("category != SW8 항목은 결과에 포함되지 않음") {
-        val documents = listOf(
-            VicinityDocumentData(name = "강남역 2호선", distance = "200", category = "SW8"),
-            VicinityDocumentData(name = "스타벅스", distance = "100", category = "CE7")
+    test("loadVicinityStations — TotalLoadModel.vicinityStations 결과 그대로 반환") {
+        val expected = listOf(
+            VicinityTransformData(id = "1", name = "강남", line = "2호선", distance = "0.2km"),
+            VicinityTransformData(id = "2", name = "역삼", line = "2호선", distance = "0.5km"),
         )
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(documents))
+        coEvery { totalLoadModel.vicinityStations(37.0, 127.0) } returns expected
 
         val result = repository.loadVicinityStations(37.0, 127.0)
 
-        result.size shouldBe 1
-        result[0].name shouldBe "강남"
+        result shouldBe expected
+        coVerify(exactly = 1) { totalLoadModel.vicinityStations(37.0, 127.0) }
     }
 
-    // ── 거리 정렬 ────────────────────────────────────────────────────────────
-
-    test("거리 기준 오름차순 정렬") {
-        val documents = listOf(
-            VicinityDocumentData(name = "선릉역 2호선", distance = "800", category = "SW8"),
-            VicinityDocumentData(name = "강남역 2호선", distance = "200", category = "SW8"),
-            VicinityDocumentData(name = "역삼역 2호선", distance = "500", category = "SW8")
-        )
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(documents))
-
-        val result = repository.loadVicinityStations(37.0, 127.0)
-
-        result.map { it.name } shouldBe listOf("강남", "역삼", "선릉")
-    }
-
-    // ── place_name 파싱 ──────────────────────────────────────────────────────
-
-    test("place_name에서 역명과 호선 분리") {
-        val documents = listOf(
-            VicinityDocumentData(name = "홍대입구역 2호선", distance = "300", category = "SW8")
-        )
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(documents))
-
-        val result = repository.loadVicinityStations(37.0, 127.0)
-
-        result[0].name shouldBe "홍대입구"
-        result[0].line shouldBe "2호선"
-    }
-
-    test("place_name에 역이 없으면 name·line 모두 정보없음") {
-        val documents = listOf(
-            VicinityDocumentData(name = "홍대입구 2호선", distance = "300", category = "SW8")
-        )
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(documents))
-
-        val result = repository.loadVicinityStations(37.0, 127.0)
-
-        result[0].name shouldBe "정보없음"
-        result[0].line shouldBe "정보없음"
-    }
-
-    // ── distance 변환 ────────────────────────────────────────────────────────
-
-    test("distance 1500 → 1.5km 변환") {
-        val documents = listOf(
-            VicinityDocumentData(name = "강남역 2호선", distance = "1500", category = "SW8")
-        )
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(documents))
-
-        val result = repository.loadVicinityStations(37.0, 127.0)
-
-        result[0].distance shouldBe "1.5km"
-    }
-
-    test("distance 200 → 0.2km 변환") {
-        val documents = listOf(
-            VicinityDocumentData(name = "강남역 2호선", distance = "200", category = "SW8")
-        )
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(documents))
-
-        val result = repository.loadVicinityStations(37.0, 127.0)
-
-        result[0].distance shouldBe "0.2km"
-    }
-
-    // ── 빈 응답 ──────────────────────────────────────────────────────────────
-
-    test("빈 응답 시 emptyList() 반환") {
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Success(VicinityStationsData(emptyList()))
+    test("loadVicinityStations — 빈 응답 시 emptyList() 반환") {
+        coEvery { totalLoadModel.vicinityStations(any(), any()) } returns emptyList()
 
         val result = repository.loadVicinityStations(37.0, 127.0)
 
         result shouldBe emptyList()
     }
 
-    // ── 네트워크 에러 ────────────────────────────────────────────────────────
+    // ── loadLiveArrival ───────────────────────────────────────────────────
 
-    test("네트워크 에러 시 emptyList() 반환") {
-        coEvery { loadModel.vicinityStationsLoad(any(), any()) } returns
-            NetworkResult.Failure(mockk())
+    test("loadLiveArrival — TotalLoadModel.liveArrivalSplit 결과 그대로 반환") {
+        val upArrival = RealtimeStationArrival(
+            upDown = "상행", arrivalTime = "60", subPrevious = "강남 방면",
+            code = "0", subWayId = "1002", stationName = "강남", lastStation = "성수",
+            backStationId = "221", nextStationId = "223", trainCode = "1234"
+        )
+        val downArrival = RealtimeStationArrival(
+            upDown = "하행", arrivalTime = "120", subPrevious = "잠실 방면",
+            code = "0", subWayId = "1002", stationName = "강남", lastStation = "잠실",
+            backStationId = "221", nextStationId = "223", trainCode = "5678"
+        )
+        val expected = Pair(listOf(upArrival), listOf(downArrival))
+        coEvery { totalLoadModel.liveArrivalSplit("강남", "2호선") } returns expected
 
-        val result = repository.loadVicinityStations(37.0, 127.0)
+        val result = repository.loadLiveArrival("강남", "2호선")
 
-        result shouldBe emptyList()
+        result shouldBe expected
+        coVerify(exactly = 1) { totalLoadModel.liveArrivalSplit("강남", "2호선") }
     }
 })
