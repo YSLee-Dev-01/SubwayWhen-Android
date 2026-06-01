@@ -22,5 +22,8 @@ data class RealtimeStationArrival(
     @SerialName("btrainSttus") val isFast: String? = null,
     @SerialName("statnFid") val backStationId: String,
     @SerialName("statnTid") val nextStationId: String,
-    @SerialName("btrainNo") val trainCode: String
+    @SerialName("btrainNo") val trainCode: String,
+    // TotalLoadModelImpl.liveArrivalSplit()에서 statnFid 조회 후 채워지는 파생 필드
+    // iOS TotalLoadModel.nextAndBackStationSearch() 대응
+    @kotlinx.serialization.Transient val backStationName: String = "",
 )

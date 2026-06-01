@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.data.remote.totalload
 
+import android.content.Context
 import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
@@ -9,14 +10,39 @@ import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStatio
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
 import com.yslee.subwaywhen.data.remote.loadmodel.LoadModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+@Serializable
+private data class StationIdEntry(
+    @SerialName("lineId")     val lineId: String,
+    @SerialName("stationId")  val stationId: String,
+    @SerialName("stationName") val stationName: String,
+)
+
 class TotalLoadModelImpl @Inject constructor(
-    private val loadModel: LoadModel
+    private val loadModel: LoadModel,
+    @ApplicationContext private val context: Context,
 ) : TotalLoadModel {
+
+    /** stationId → stationName 맵. assets/station_id_list.json lazy load. */
+    private val stationIdMap: Map<String, String> by lazy {
+        val json = context.assets.open("station_id_list.json").bufferedReader().readText()
+        Json.decodeFromString<List<StationIdEntry>>(json).associate { it.stationId to it.stationName }
+    }
+
+    /**
+     * iOS TotalLoadModel.nextAndBackStationSearch() + removingSubName() 대응.
+     * 역명의 부역명(괄호 부분) 제거 → e.g. "쌍용(나사렛대)" → "쌍용".
+     */
+    private fun lookupStationName(id: String): String =
+        stationIdMap[id]?.replace(Regex("\\(.*?\\)"), "")?.trim() ?: ""
 
     override suspend fun stationSearch(query: String): List<SearchStationInfo> {
         return when (val result = loadModel.stationSearch(query)) {
@@ -57,8 +83,12 @@ class TotalLoadModelImpl @Inject constructor(
         val filtered = if (lineCode.isNotEmpty()) arrivals.filter { it.subWayId == lineCode } else arrivals
         // 2호선은 "내선"/"외선", 9호선은 방향 반전, 그 외는 "상행"/"하행"
         // iOS: line.upDownText(isUp: true/false) 대응
+        // iOS: 공항철도(1065)는 nextAndBackStationSearch에서 back/next 반전
+        val isAirport = lineCode == "1065"
         val up   = filtered.filter { it.upDown == upDirectionText(line) }
+            .map { it.copy(backStationName = if (isAirport) lookupStationName(it.nextStationId) else lookupStationName(it.backStationId)) }
         val down = filtered.filter { it.upDown == downDirectionText(line) }
+            .map { it.copy(backStationName = if (isAirport) lookupStationName(it.nextStationId) else lookupStationName(it.backStationId)) }
         return Pair(up, down)
     }
 

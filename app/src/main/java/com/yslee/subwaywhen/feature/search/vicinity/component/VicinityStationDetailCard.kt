@@ -163,12 +163,10 @@ fun VicinityStationDetailCard(
                             }
                         }
 
-                        // 인접역 이름
+                        // 인접역 이름 (iOS: backStationName = statnFid 조회)
                         Text(
-                            text = parseAdjacentStationName(
-                                previousStation = upArrival.firstOrNull()?.previousStation,
-                                isLoading = liveLoading.first,
-                            ),
+                            text = if (liveLoading.first) "-"
+                                   else upArrival.firstOrNull()?.backStationName?.ifEmpty { "-" } ?: "-",
                             fontSize = Dimens.fontSizeSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
@@ -231,11 +229,10 @@ fun VicinityStationDetailCard(
                             }
                         }
 
+                        // 인접역 이름 (iOS: backStationName = statnFid 조회)
                         Text(
-                            text = parseAdjacentStationName(
-                                previousStation = downArrival.firstOrNull()?.previousStation,
-                                isLoading = liveLoading.second,
-                            ),
+                            text = if (liveLoading.second) "-"
+                                   else downArrival.firstOrNull()?.backStationName?.ifEmpty { "-" } ?: "-",
                             fontSize = Dimens.fontSizeSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.End,
@@ -410,26 +407,6 @@ private fun ActionIcon(
                 onClick = onClick,
             ),
     )
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────
-
-/**
- * iOS backStationName 대응.
- * previousStation (arvlMsg3) 값에서 역 이름을 파싱한다.
- * ex) "역삼역 출발" → "역삼", "선릉역 도착" → "선릉", "역삼역" → "역삼", null → "-"
- *
- * 주의: .replace("역", "")는 "역삼" → "삼" 버그가 있으므로 removeSuffix("역") 사용.
- */
-private fun parseAdjacentStationName(previousStation: String?, isLoading: Boolean): String {
-    if (isLoading) return "-"
-    if (previousStation.isNullOrEmpty()) return "-"
-    return previousStation
-        .replace(" 출발", "")
-        .replace(" 도착", "")
-        .removeSuffix("역")
-        .trim()
-        .ifEmpty { "-" }
 }
 
 // ── Preview ──────────────────────────────────────────────────────────
