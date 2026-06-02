@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +20,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.yslee.subwaywhen.R
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.theme.Dimens
@@ -45,6 +46,9 @@ fun HomeEmptyStationCard(
         label = "emptyCardScale",
     )
 
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.plus))
+    val progress by animateLottieCompositionAsState(composition, iterations = 1)
+
     MainBgCard(
         modifier = modifier
             .fillMaxWidth()
@@ -58,14 +62,12 @@ fun HomeEmptyStationCard(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
                 modifier = Modifier
                     .padding(start = 5.dp)
-                    .size(85.dp)
-                    .padding(20.dp),
+                    .size(102.dp),
             )
             Text(
                 text = stringResource(R.string.home_empty_station),
