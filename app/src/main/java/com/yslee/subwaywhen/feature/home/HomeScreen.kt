@@ -1,14 +1,9 @@
 package com.yslee.subwaywhen.feature.home
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,11 +17,10 @@ import com.yslee.subwaywhen.R
 import com.yslee.subwaywhen.feature.home.component.HomeEmptyStationCard
 import com.yslee.subwaywhen.feature.home.component.HomeGroupTabBar
 import com.yslee.subwaywhen.feature.home.component.HomeHeaderSection
-import com.yslee.subwaywhen.feature.home.component.HomeMainTitleHeader
 import com.yslee.subwaywhen.feature.home.component.HomeStationCard
+import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
 import com.yslee.subwaywhen.ui.theme.Dimens
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -37,8 +31,9 @@ fun HomeScreen(
     onEditTap: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lazyListState = rememberLazyListState()
 
-    // 요일별 타이틀 메시지 랜덤 선택
+    // 요일별 타이틀 메시지 랜덤 선택 — dayOfWeek 단위로 고정 (앱 세션 내 불변)
     val dayOfWeek = remember { todayDayOfWeek() }
     val titleArrayRes = when (dayOfWeek) {
         1 -> R.array.home_main_title_sunday
@@ -52,9 +47,8 @@ fun HomeScreen(
     val messages = stringArrayResource(titleArrayRes)
     val mainTitle = remember(dayOfWeek) { messages.random() }
 
-    // SideEffect 처리 + 화면 진입 시 1회 데이터 로드
+    // Effect 수집은 Intent 전달보다 먼저 구독을 시작해야 유실되지 않는다.
     LaunchedEffect(Unit) {
-        viewModel.onIntent(HomeIntent.OnAppear)
         viewModel.effect.collect { effect ->
             when (effect) {
                 HomeEffect.NavigateToSearch -> onNavigateToSearch()
@@ -65,68 +59,58 @@ fun HomeScreen(
             }
         }
     }
+    // 화면 진입 시 1회 데이터 로드 — 별도 키로 분리해 effect collect 구독 이후 실행 보장
+    LaunchedEffect("load") {
+        viewModel.onIntent(HomeIntent.OnAppear)
+    }
 
-    PullToRefreshBox(
+    CommonTopBarLazyScreen(
+        title = mainTitle,
+        listState = lazyListState,
         isRefreshing = uiState.isRefreshing,
         onRefresh = { viewModel.onIntent(HomeIntent.Refresh) },
-        modifier = Modifier.fillMaxSize(),
+        bottomPadding = Dimens.tabBarBottomPadding,
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(horizontal = Dimens.paddingLR),
-        ) {
-            // 요일 타이틀
-            item {
-                Spacer(modifier = Modifier.height(Dimens.paddingTB))
-                HomeMainTitleHeader(title = mainTitle)
-                Spacer(modifier = Modifier.height(10.dp))
-            }
+        // 헤더 섹션 (혼잡도 + 민원/편집 버튼 + "실시간 현황" 라벨)
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
+            HomeHeaderSection(
+                congestionEmoji = uiState.congestionEmoji,
+                onCongestionTap = { viewModel.onIntent(HomeIntent.CongestionTap) },
+                onReportTap = { viewModel.onIntent(HomeIntent.ReportTap) },
+                onEditTap = { viewModel.onIntent(HomeIntent.EditTap) },
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
-            // 헤더 섹션 (혼잡도 + 민원/편집 버튼 + "실시간 현황" 라벨)
+        // 그룹 탭 (출근 / 퇴근)
+        item {
+            HomeGroupTabBar(
+                currentGroup = uiState.currentGroup,
+                onGroupTap = { viewModel.onIntent(HomeIntent.GroupTap(it)) },
+            )
+            Spacer(modifier = Modifier.height(Dimens.paddingTB))
+        }
+
+        // 역 카드 목록 또는 빈 상태
+        if (uiState.cells.isEmpty()) {
             item {
-                HomeHeaderSection(
-                    congestionEmoji = uiState.congestionEmoji,
-                    onCongestionTap = { viewModel.onIntent(HomeIntent.CongestionTap) },
-                    onReportTap = { viewModel.onIntent(HomeIntent.ReportTap) },
-                    onEditTap = { viewModel.onIntent(HomeIntent.EditTap) },
+                HomeEmptyStationCard(
+                    onTap = { viewModel.onIntent(HomeIntent.EmptyAddTap) },
                 )
-                Spacer(modifier = Modifier.height(10.dp))
             }
-
-            // 그룹 탭 (출근 / 퇴근)
-            item {
-                HomeGroupTabBar(
-                    currentGroup = uiState.currentGroup,
-                    onGroupTap = { viewModel.onIntent(HomeIntent.GroupTap(it)) },
+        } else {
+            itemsIndexed(
+                items = uiState.cells,
+                key = { _, cell -> "${cell.stationCode}_${cell.updnLine}_${cell.subIndex}" },
+            ) { _, cell ->
+                HomeStationCard(
+                    cell = cell,
+                    onCardTap = { viewModel.onIntent(HomeIntent.StationTap(cell)) },
+                    onScheduleTap = { viewModel.onIntent(HomeIntent.ScheduleTap(cell)) },
                 )
-                Spacer(modifier = Modifier.height(Dimens.paddingTB))
+                Spacer(modifier = Modifier.height(Dimens.paddingTB + 10.dp))
             }
-
-            // 역 카드 목록 또는 빈 상태
-            if (uiState.cells.isEmpty()) {
-                item {
-                    HomeEmptyStationCard(
-                        onTap = { viewModel.onIntent(HomeIntent.EmptyAddTap) },
-                    )
-                }
-            } else {
-                itemsIndexed(
-                    items = uiState.cells,
-                    key = { index, _ -> index },
-                ) { _, cell ->
-                    HomeStationCard(
-                        cell = cell,
-                        onCardTap = { viewModel.onIntent(HomeIntent.StationTap(cell)) },
-                        onScheduleTap = { viewModel.onIntent(HomeIntent.ScheduleTap(cell)) },
-                    )
-                    Spacer(modifier = Modifier.height((Dimens.paddingTB.value + 10f).dp))
-                }
-            }
-
-            // 탭바 하단 여백
-            item { Spacer(modifier = Modifier.height(Dimens.tabBarBottomPadding)) }
         }
     }
 }

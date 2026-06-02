@@ -8,10 +8,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -28,8 +35,7 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 /**
  * iOS NavigationBarScrollViewInSUI 대응 — CommonTopBar + 스크롤 대형 타이틀 결합 스캐폴드.
- * 내부 rememberScrollState()로 스크롤 offset을 감지해 isSubTitleVisible 상태를 결정한다.
- * isLargeTitleHidden == false일 때 본문 상단에 대형 타이틀을 노출한다.
+ * Column + verticalScroll 기반. 역 목록처럼 LazyColumn이 필요한 화면은 [CommonTopBarLazyScreen] 사용.
  */
 @Composable
 fun CommonTopBarScreen(
@@ -44,7 +50,7 @@ fun CommonTopBarScreen(
 ) {
     val scrollState = rememberScrollState()
     val density = LocalDensity.current
-    val threshold = with(density) { 25.dp.toPx() }
+    val threshold = remember(density) { with(density) { 25.dp.toPx() } }
     val isSubTitleVisible by remember {
         derivedStateOf { scrollState.value >= threshold }
     }
@@ -82,6 +88,108 @@ fun CommonTopBarScreen(
     }
 }
 
+/**
+ * LazyColumn + PullToRefresh 기반 화면용 CommonTopBarScreen 오버로드.
+ * iOS NavigationBarScrollViewInSUI 대응 — 역 목록처럼 스크롤 성능이 중요한 화면에 사용.
+ *
+ * @param listState 스크롤 감지에 사용. 외부에서 주입하면 스크롤 위치를 공유할 수 있다.
+ * @param isRefreshing PullToRefresh 로딩 상태. onRefresh가 null이면 무시된다.
+ * @param onRefresh 당겨서 새로고침 콜백. null이면 PullToRefreshBox를 렌더링하지 않는다.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CommonTopBarLazyScreen(
+    title: String,
+    listState: LazyListState = rememberLazyListState(),
+    isLargeTitleHidden: Boolean = false,
+    isRefreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
+    backIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
+    onTrailingClick: (() -> Unit)? = null,
+    bottomPadding: Dp = 0.dp,
+    content: LazyListScope.() -> Unit,
+) {
+    val density = LocalDensity.current
+    val threshold = remember(density) { with(density) { 25.dp.toPx() } }
+    val isSubTitleVisible by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 ||
+                    listState.firstVisibleItemScrollOffset > threshold
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+        CommonTopBar(
+            title = title,
+            isSubTitleVisible = isSubTitleVisible,
+            onBack = onBack,
+            backIcon = backIcon,
+            trailingIcon = trailingIcon,
+            onTrailingClick = onTrailingClick,
+        )
+
+        if (onRefresh != null) {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                CommonTopBarLazyContent(
+                    listState = listState,
+                    title = title,
+                    isLargeTitleHidden = isLargeTitleHidden,
+                    bottomPadding = bottomPadding,
+                    content = content,
+                )
+            }
+        } else {
+            CommonTopBarLazyContent(
+                listState = listState,
+                title = title,
+                isLargeTitleHidden = isLargeTitleHidden,
+                bottomPadding = bottomPadding,
+                content = content,
+            )
+        }
+    }
+}
+
+/** [CommonTopBarLazyScreen] 내부용 — LazyColumn + Large Title + content + 하단 여백. */
+@Composable
+private fun CommonTopBarLazyContent(
+    listState: LazyListState,
+    title: String,
+    isLargeTitleHidden: Boolean,
+    bottomPadding: Dp,
+    content: LazyListScope.() -> Unit,
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = Dimens.paddingLR),
+    ) {
+        if (!isLargeTitleHidden) {
+            item {
+                Text(
+                    text = title,
+                    fontSize = Dimens.fontSizeMainTitle,
+                    fontWeight = FontWeight.ExtraBold,
+                    lineHeight = Dimens.fontSizeMainTitle * 1.4f,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.offset(y = -Dimens.titleOffsetY),
+                )
+            }
+        }
+        content()
+        if (bottomPadding > 0.dp) {
+            item { Spacer(modifier = Modifier.height(bottomPadding)) }
+        }
+    }
+}
+
 @Preview(name = "CommonTopBarScreen - Light", showBackground = true)
 @Composable
 private fun CommonTopBarScreenLightPreview() {
@@ -105,6 +213,40 @@ private fun CommonTopBarScreenDarkPreview() {
             onBack = {},
         ) {
             Text(text = "콘텐츠 영역")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "CommonTopBarLazyScreen - Light", showBackground = true)
+@Composable
+private fun CommonTopBarLazyScreenLightPreview() {
+    SubwayWhenTheme(darkTheme = false) {
+        CommonTopBarLazyScreen(
+            title = "월요일,\n한 주도 화이팅해봐요!",
+            isRefreshing = false,
+            onRefresh = {},
+        ) {
+            items(listOf("강남역", "교대역", "선릉역")) { name ->
+                Text(text = name, modifier = Modifier.padding(vertical = 8.dp))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "CommonTopBarLazyScreen - Dark", showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+private fun CommonTopBarLazyScreenDarkPreview() {
+    SubwayWhenTheme(darkTheme = true) {
+        CommonTopBarLazyScreen(
+            title = "월요일,\n한 주도 화이팅해봐요!",
+            isRefreshing = false,
+            onRefresh = {},
+        ) {
+            items(listOf("강남역", "교대역", "선릉역")) { name ->
+                Text(text = name, modifier = Modifier.padding(vertical = 8.dp))
+            }
         }
     }
 }
