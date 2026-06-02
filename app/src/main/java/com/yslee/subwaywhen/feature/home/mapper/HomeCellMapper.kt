@@ -52,7 +52,7 @@ fun LiveStationModel.toRealCells(index: Int, base: SaveStation): List<HomeCellDa
             type = HomeCellType.Real,
             stationName = base.stationName,
             updnLine = arrival.upDown,
-            lastStation = arrival.lastStation,
+            lastStation = if (arrival.lastStation.isNotEmpty()) "${arrival.lastStation}행" else "",
             exceptionLastStation = base.exceptionLastStation,
             stateMSG = arrival.previousStation ?: "",
             arrivalTime = arrival.arrivalTime,
@@ -84,18 +84,20 @@ fun ScheduleStationModel.toScheduleCell(prev: HomeCellData): HomeCellData {
 
     return if (next != null) {
         val digits = next.startTime.filter { it.isDigit() }
-        val h = digits.substring(0, 2)
-        val m = digits.substring(2, 4)
+        val h = digits.substring(0, 2).toIntOrNull() ?: 0
+        val m = digits.substring(2, 4).toIntOrNull() ?: 0
+        val remainingMin = (h * 60 + m) - nowTotal
         prev.copy(
             type = HomeCellType.Schedule,
-            subPrevious = "${next.startStation}→${next.lastStation} $h:$m",
-            stateMSG = "",
+            lastStation = if (next.lastStation.isNotEmpty()) "${next.lastStation}행" else prev.lastStation,
+            stateMSG = "%02d:%02d".format(h, m),
+            subPrevious = "${remainingMin}분",
         )
     } else {
         prev.copy(
             type = HomeCellType.Schedule,
+            stateMSG = "운행 종료",
             subPrevious = "운행 종료",
-            stateMSG = "",
         )
     }
 }
@@ -116,18 +118,19 @@ fun KorailHeader.toScheduleCell(prev: HomeCellData): HomeCellData {
 
     return if (next != null) {
         val time = next.time!! // non-null guaranteed by firstOrNull filter
-        val h = time.substring(0, 2)
-        val m = time.substring(2, 4)
+        val h = time.substring(0, 2).toIntOrNull() ?: 0
+        val m = time.substring(2, 4).toIntOrNull() ?: 0
+        val remainingMin = (h * 60 + m) - nowTotal
         prev.copy(
             type = HomeCellType.Schedule,
-            subPrevious = "$h:$m",
-            stateMSG = "",
+            stateMSG = "%02d:%02d".format(h, m),
+            subPrevious = "${remainingMin}분",
         )
     } else {
         prev.copy(
             type = HomeCellType.Schedule,
+            stateMSG = "운행 종료",
             subPrevious = "운행 종료",
-            stateMSG = "",
         )
     }
 }

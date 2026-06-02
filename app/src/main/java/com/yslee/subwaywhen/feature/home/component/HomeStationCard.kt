@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,8 +72,6 @@ fun HomeStationCard(
     val lineColor = subwayLineColor(cell.line) ?: MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
     val lineDisplayName = subwayLineDisplayName(cell.line)
 
-    val destination = cell.exceptionLastStation.ifEmpty { cell.lastStation }
-
     val statusText = buildString {
         if (cell.type == HomeCellType.Schedule) append("⏱️")
         append(cell.useFast)
@@ -125,7 +123,7 @@ fun HomeStationCard(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (destination.isNotEmpty()) "${cell.stationName} | ${destination}행"
+                        text = if (cell.lastStation.isNotEmpty()) "${cell.stationName} | ${cell.lastStation}"
                                else cell.stationName,
                         fontSize = Dimens.fontSizeSmall,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -173,7 +171,7 @@ fun HomeStationCard(
                         modifier = Modifier.size(30.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Refresh,
+                            imageVector = Icons.Default.Timer,
                             contentDescription = "시간표",
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(18.dp),

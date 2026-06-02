@@ -151,12 +151,20 @@ class HomeViewModel @Inject constructor(
             val scheduleCell = if (station.korailCode.isNotEmpty()) {
                 when (val result = totalLoadModel.korailScheduleLoad(station, weekDay)) {
                     is NetworkResult.Success -> result.data.toScheduleCell(cell)
-                    is NetworkResult.Failure -> cell // 실패 → 이전 Real 상태 복원
+                    is NetworkResult.Failure -> cell.copy(
+                        type = HomeCellType.Schedule,
+                        stateMSG = "정보없음",
+                        subPrevious = "정보없음",
+                    )
                 }
             } else {
                 when (val result = totalLoadModel.seoulScheduleLoad(station, weekDay)) {
                     is NetworkResult.Success -> result.data.toScheduleCell(cell)
-                    is NetworkResult.Failure -> cell // 실패 → 이전 Real 상태 복원
+                    is NetworkResult.Failure -> cell.copy(
+                        type = HomeCellType.Schedule,
+                        stateMSG = "정보없음",
+                        subPrevious = "정보없음",
+                    )
                 }
             }
 
