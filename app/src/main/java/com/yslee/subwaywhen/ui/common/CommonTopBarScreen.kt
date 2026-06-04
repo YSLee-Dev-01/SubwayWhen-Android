@@ -92,6 +92,8 @@ fun CommonTopBarScreen(
  * LazyColumn + PullToRefresh 기반 화면용 CommonTopBarScreen 오버로드.
  * iOS NavigationBarScrollViewInSUI 대응 — 역 목록처럼 스크롤 성능이 중요한 화면에 사용.
  *
+ * @param title TopBar(스크롤 후 나타나는 작은 제목)에 표시할 텍스트.
+ * @param largeTitle 스크롤 영역 상단의 큰 제목. null이면 title을 그대로 사용한다.
  * @param listState 스크롤 감지에 사용. 외부에서 주입하면 스크롤 위치를 공유할 수 있다.
  * @param isRefreshing PullToRefresh 로딩 상태. onRefresh가 null이면 무시된다.
  * @param onRefresh 당겨서 새로고침 콜백. null이면 PullToRefreshBox를 렌더링하지 않는다.
@@ -100,6 +102,7 @@ fun CommonTopBarScreen(
 @Composable
 fun CommonTopBarLazyScreen(
     title: String,
+    largeTitle: String? = null,
     listState: LazyListState = rememberLazyListState(),
     isLargeTitleHidden: Boolean = false,
     isRefreshing: Boolean = false,
@@ -130,6 +133,7 @@ fun CommonTopBarLazyScreen(
             onTrailingClick = onTrailingClick,
         )
 
+        val resolvedLargeTitle = largeTitle ?: title
         if (onRefresh != null) {
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
@@ -138,7 +142,7 @@ fun CommonTopBarLazyScreen(
             ) {
                 CommonTopBarLazyContent(
                     listState = listState,
-                    title = title,
+                    title = resolvedLargeTitle,
                     isLargeTitleHidden = isLargeTitleHidden,
                     bottomPadding = bottomPadding,
                     content = content,
@@ -147,7 +151,7 @@ fun CommonTopBarLazyScreen(
         } else {
             CommonTopBarLazyContent(
                 listState = listState,
-                title = title,
+                title = resolvedLargeTitle,
                 isLargeTitleHidden = isLargeTitleHidden,
                 bottomPadding = bottomPadding,
                 content = content,

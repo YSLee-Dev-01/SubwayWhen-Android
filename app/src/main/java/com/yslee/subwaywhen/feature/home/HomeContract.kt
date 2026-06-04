@@ -8,6 +8,8 @@ data class HomeUiState(
     val currentGroup: SaveStationGroup = SaveStationGroup.ONE,
     val cells: List<HomeCellData> = emptyList(),
     val isRefreshing: Boolean = false,
+    /** Refresh 시 increment → HomeScreen에서 mainTitle 재랜덤 트리거 */
+    val mainTitleVersion: Int = 0,
 )
 
 sealed interface HomeIntent {

@@ -45,7 +45,8 @@ fun HomeScreen(
         else -> R.array.home_main_title_saturday
     }
     val messages = stringArrayResource(titleArrayRes)
-    val mainTitle = remember(dayOfWeek) { messages.random() }
+    // iOS: refreshEvent 시 mainTitleLoad() 재호출 → 새 랜덤 메시지. mainTitleVersion이 바뀔 때마다 재랜덤.
+    val mainTitle = remember(dayOfWeek, uiState.mainTitleVersion) { messages.random() }
 
     // Effect 수집은 Intent 전달보다 먼저 구독을 시작해야 유실되지 않는다.
     LaunchedEffect(Unit) {
@@ -65,7 +66,8 @@ fun HomeScreen(
     }
 
     CommonTopBarLazyScreen(
-        title = mainTitle,
+        title = "홈",
+        largeTitle = mainTitle,
         listState = lazyListState,
         isRefreshing = uiState.isRefreshing,
         onRefresh = { viewModel.onIntent(HomeIntent.Refresh) },
