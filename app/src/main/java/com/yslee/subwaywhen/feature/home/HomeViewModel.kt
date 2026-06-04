@@ -64,7 +64,7 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             HomeIntent.OnAppear -> loadGroupData()
             HomeIntent.Refresh -> {
-                _uiState.update { it.copy(isRefreshing = true) }
+                _uiState.update { it.copy(isRefreshing = true, mainTitleVersion = it.mainTitleVersion + 1) }
                 loadGroupData()
             }
             is HomeIntent.GroupTap -> {
@@ -103,7 +103,7 @@ class HomeViewModel @Inject constructor(
                     is NetworkResult.Failure -> listOf(
                         station.toLoadingCell(index).copy(
                             type = HomeCellType.Real,
-                            stateMSG = "정보 없음",
+                            stateMSG = "현재 실시간 열차 데이터가 없어요.",
                         )
                     )
                 }

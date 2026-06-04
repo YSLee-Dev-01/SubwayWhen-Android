@@ -16,7 +16,7 @@ fun SaveStation.toLoadingCell(index: Int): HomeCellData = HomeCellData(
     updnLine = updnLine,
     lastStation = "",
     exceptionLastStation = exceptionLastStation,
-    stateMSG = "",
+    stateMSG = "데이터를 로드하고 있어요.",
     arrivalTime = "",
     subPrevious = "",
     code = "",
@@ -34,27 +34,30 @@ fun LiveStationModel.toRealCells(index: Int, base: SaveStation): List<HomeCellDa
     } else {
         base.updnLine
     }
+    // iOS: station.lineCode == x.subWayId && upDown == x.upDown && !(exceptionLastStation.contains(x.lastStation))
+    // lineCode 필터로 환승역에서 다른 호선 데이터가 섞이는 버그 방지
     val matched = realtimeArrivalList
+        .filter { it.subWayId == base.lineCode }
         .filter { it.upDown == targetUpDown }
         .filter { base.exceptionLastStation.isEmpty() || !base.exceptionLastStation.contains(it.lastStation) }
-    if (matched.isEmpty()) {
-        return listOf(
+    // iOS는 첫 번째 매칭만 반환 (한 역 = 셀 1개)
+    val arrival = matched.firstOrNull()
+        ?: return listOf(
             base.toLoadingCell(index).copy(
                 type = HomeCellType.Real,
-                stateMSG = "정보 없음",
+                stateMSG = "현재 실시간 열차 데이터가 없어요.",
             )
         )
-    }
-    return matched.mapIndexed { subIdx, arrival ->
+    return listOf(
         HomeCellData(
             stationIndex = index,
-            subIndex = subIdx,
+            subIndex = 0,
             type = HomeCellType.Real,
             stationName = base.stationName,
             updnLine = arrival.upDown,
             lastStation = if (arrival.lastStation.isNotEmpty()) "${arrival.lastStation}행" else "",
             exceptionLastStation = base.exceptionLastStation,
-            stateMSG = arrival.previousStation ?: "",
+            stateMSG = arrival.useState,
             arrivalTime = arrival.arrivalTime,
             subPrevious = arrival.subPrevious,
             code = arrival.code,
@@ -64,7 +67,7 @@ fun LiveStationModel.toRealCells(index: Int, base: SaveStation): List<HomeCellDa
             korailCode = base.korailCode,
             stationCode = base.stationCode,
         )
-    }
+    )
 }
 
 fun ScheduleStationModel.toScheduleCell(prev: HomeCellData): HomeCellData {
