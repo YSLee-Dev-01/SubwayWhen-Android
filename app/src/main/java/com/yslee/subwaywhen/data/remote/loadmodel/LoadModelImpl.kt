@@ -36,7 +36,9 @@ class LoadModelImpl @Inject constructor(
             return NetworkResult.Failure(NetworkError.BadUrl)
         }
 
-        val inOut = if (stationLine == "09호선") {
+        // 9호선은 상하행이 반대 (iOS LoadModel.swift 동일 처리)
+        // stationLine은 lineCode("1009")로 전달됨
+        val inOut = if (stationLine == "1009") {
             if (upDown == "상행" || upDown == "내선") 2 else 1
         } else {
             if (upDown == "상행" || upDown == "내선") 1 else 2
