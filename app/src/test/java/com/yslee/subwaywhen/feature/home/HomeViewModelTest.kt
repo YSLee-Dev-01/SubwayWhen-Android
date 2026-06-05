@@ -117,7 +117,7 @@ class HomeViewModelTest : FunSpec({
             advanceUntilIdle()
 
             val cell = vm.uiState.value.cells.firstOrNull()
-            cell?.stateMSG shouldBe "정보 없음"
+            cell?.stateMSG shouldBe "현재 실시간 열차 데이터가 없어요."
         }
     }
 

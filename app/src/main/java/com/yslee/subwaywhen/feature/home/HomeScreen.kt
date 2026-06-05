@@ -104,7 +104,7 @@ fun HomeScreen(
         } else {
             itemsIndexed(
                 items = uiState.cells,
-                key = { _, cell -> "${cell.stationCode}_${cell.updnLine}_${cell.subIndex}" },
+                key = { _, cell -> "${cell.stationIndex}_${cell.subIndex}" },
             ) { _, cell ->
                 HomeStationCard(
                     cell = cell,

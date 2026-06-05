@@ -54,7 +54,7 @@ fun LiveStationModel.toRealCells(index: Int, base: SaveStation): List<HomeCellDa
             subIndex = 0,
             type = HomeCellType.Real,
             stationName = base.stationName,
-            updnLine = arrival.upDown,
+            updnLine = base.updnLine,  // 사용자가 저장한 방향 유지 (9호선 반전은 targetUpDown 필터에서 처리됨)
             lastStation = if (arrival.lastStation.isNotEmpty()) "${arrival.lastStation}행" else "",
             exceptionLastStation = base.exceptionLastStation,
             stateMSG = arrival.useState,
