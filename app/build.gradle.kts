@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.lottie.compose)
+    implementation(libs.reorderable)
     implementation(libs.ktor.core)
     implementation(libs.ktor.okhttp)
     implementation(libs.ktor.content.negotiation)

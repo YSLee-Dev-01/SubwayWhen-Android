@@ -4,4 +4,5 @@ object NavRoutes {
     const val Splash = "splash"
     const val Tutorial = "tutorial"
     const val Root = "root"
+    const val Edit = "edit"
 }

@@ -45,6 +45,7 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 | 메인 화면 | ✅ 완료 | `feature/home/HomeScreen.kt`, `HomeViewModel.kt` |
 | 실시간 도착정보 | ✅ 완료 | `feature/home/HomeViewModel.kt` (arrivalDataLoad), `mapper/HomeCellMapper.kt` |
 | 시간표 조회 | ✅ 완료 | `feature/home/HomeViewModel.kt` (handleScheduleTap), `mapper/HomeCellMapper.kt` |
+| 역 편집 | ✅ 완료 | `feature/edit/EditScreen.kt`, `EditViewModel.kt` |
 | 설정 화면 | 🚧 미구현 | `feature/setting/SettingScreen.kt` (placeholder) |
 
 ---
@@ -68,7 +69,13 @@ app/src/main/java/com/yslee/subwaywhen/
 │   └── repository/                   # Repository 인터페이스 + Impl
 ├── di/                               # Hilt 모듈
 ├── feature/
-│   ├── home/                         # 메인 화면 (미구현)
+│   ├── edit/                         # 역 편집 화면
+│   │   ├── EditContract.kt           # UiState, Intent, Effect
+│   │   ├── EditMapper.kt             # 그룹 분리/병합 매퍼
+│   │   ├── EditScreen.kt             # Composable 진입점
+│   │   ├── EditViewModel.kt          # 비즈니스 로직
+│   │   └── component/               # EditStationRow, NotSaveAlertDialog
+│   ├── home/                         # 메인 화면
 │   ├── search/
 │   │   ├── component/                # SearchTextField, 결과/추천 섹션
 │   │   ├── modal/                    # SaveStationModal + SaveCompletedModal

@@ -36,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.yslee.subwaywhen.feature.edit.EditScreen
 import com.yslee.subwaywhen.feature.home.HomeScreen
 import com.yslee.subwaywhen.feature.search.SearchScreen
 import com.yslee.subwaywhen.feature.setting.SettingScreen
@@ -79,13 +80,19 @@ fun RootScaffold() {
                     onNavigateToDetail = { _ -> },
                     onCongestionTap = {},
                     onReportTap = {},
-                    onEditTap = {},
+                    onEditTap = { childNavController.navigate(NavRoutes.Edit) },
                 )
             }
             composable(TabRoute.Search.route) {
                 SearchScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
             }
             composable(TabRoute.Setting.route) { SettingScreen() }
+            composable(NavRoutes.Edit) {
+                EditScreen(
+                    onNavigateBack = { childNavController.popBackStack() },
+                    onTabBarVisibilityChange = { isTabBarVisible = it },
+                )
+            }
         }
 
         AnimatedVisibility(
