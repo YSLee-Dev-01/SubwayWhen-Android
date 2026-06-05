@@ -21,7 +21,7 @@ class LoadModelImpl @Inject constructor(
 ) : LoadModel {
 
     override suspend fun stationArrivalRequest(stationName: String): NetworkResult<LiveStationModel> {
-        val name = arrivalStationNameCheck(stationName).replace(" ", "")
+        val name = arrivalStationNameCheck(stationName).replace(" ", "%20")
         val url = "http://swopenapi.seoul.go.kr/api/subway/${tokenProvider.token(TokenKey.LIVE)}/json/realtimeStationArrival/0/50/$name"
         return networkManager.requestData(url)
     }

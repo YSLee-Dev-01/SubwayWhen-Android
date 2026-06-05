@@ -93,6 +93,18 @@ class LoadModelTest : FunSpec({
         urlSlot.captured shouldContain "강남"
     }
 
+    test("stationArrivalRequest — 공백 있는 역명은 %20으로 인코딩된다 (을지로 3가)") {
+        val urlSlot = slot<String>()
+
+        coEvery {
+            networkManager.requestData(capture(urlSlot), any<KSerializer<LiveStationModel>>())
+        } returns NetworkResult.Success(mockk())
+
+        loadModel.stationArrivalRequest("을지로 3가")
+
+        urlSlot.captured shouldContain "을지로%203가"
+    }
+
     // ── seoulStationScheduleLoad ───────────────────────────────────────────
 
     test("seoulStationScheduleLoad — SEOUL 토큰 키로 조회된다") {
@@ -128,7 +140,7 @@ class LoadModelTest : FunSpec({
             networkManager.requestData(capture(urlSlot), any<KSerializer<ScheduleStationModel>>())
         } returns NetworkResult.Success(mockk())
 
-        loadModel.seoulStationScheduleLoad("1234", "weekday", "상행", "09호선")
+        loadModel.seoulStationScheduleLoad("1234", "weekday", "상행", "1009")
 
         // weekday=1, inOut=2 → .../1234/1/2
         urlSlot.captured shouldContain "/1234/1/2"
@@ -141,7 +153,7 @@ class LoadModelTest : FunSpec({
             networkManager.requestData(capture(urlSlot), any<KSerializer<ScheduleStationModel>>())
         } returns NetworkResult.Success(mockk())
 
-        loadModel.seoulStationScheduleLoad("1234", "weekday", "하행", "09호선")
+        loadModel.seoulStationScheduleLoad("1234", "weekday", "하행", "1009")
 
         urlSlot.captured shouldContain "/1234/1/1"
     }
