@@ -34,7 +34,7 @@ class EditViewModel @Inject constructor(
         val initial = localDataRepository.saveStations.value
         val (groupOne, groupTwo) = initial.splitByGroup()
         lastSaved = initial
-        _uiState.update { it.copy(groupOne = groupOne, groupTwo = groupTwo) }
+        _uiState.update { it.copy(flatItems = buildFlatItems(groupOne, groupTwo)) }
     }
 
     fun onIntent(intent: EditIntent) {
@@ -42,25 +42,32 @@ class EditViewModel @Inject constructor(
             EditIntent.OnAppear -> Unit
 
             is EditIntent.DeleteStation -> {
-                val state = _uiState.value
-                val newGroupOne = state.groupOne.filterNot { it == intent.station }
-                val newGroupTwo = state.groupTwo.filterNot { it == intent.station }
+                val newItems = _uiState.value.flatItems
+                    .filterNot { it is EditFlatItem.Station && it.station == intent.station }
+                    .let { insertDropTargetsIfNeeded(it) }
                 _uiState.update {
                     it.copy(
-                        groupOne = newGroupOne,
-                        groupTwo = newGroupTwo,
-                        isSaveEnabled = isSaveEnabled(newGroupOne, newGroupTwo),
+                        flatItems = newItems,
+                        isSaveEnabled = isSaveEnabled(newItems),
                     )
                 }
             }
 
-            is EditIntent.MoveStation -> handleMove(intent)
+            is EditIntent.Reorder -> {
+                // 드래그 종료 후 호출 — DropTarget 잔류 제거 + 빈 섹션에 재삽입
+                val cleaned = insertDropTargetsIfNeeded(intent.newItems)
+                _uiState.update {
+                    it.copy(
+                        flatItems = cleaned,
+                        isSaveEnabled = isSaveEnabled(cleaned),
+                    )
+                }
+            }
 
             EditIntent.SaveTap,
             EditIntent.DialogSave -> {
                 viewModelScope.launch {
-                    val state = _uiState.value
-                    val merged = Pair(state.groupOne, state.groupTwo).mergeGroups()
+                    val merged = extractStations(_uiState.value.flatItems)
                     localDataRepository.updateSaveStations(merged)
                     lastSaved = merged
                     _uiState.update { it.copy(isSaveEnabled = false) }
@@ -87,34 +94,75 @@ class EditViewModel @Inject constructor(
         }
     }
 
-    private fun handleMove(intent: EditIntent.MoveStation) {
-        val state = _uiState.value
-        val groupOne = state.groupOne.toMutableList()
-        val groupTwo = state.groupTwo.toMutableList()
+    // ─── Private helpers ──────────────────────────────────────────────────────
 
-        if (intent.fromSection == intent.toSection) {
-            val list = if (intent.fromSection == 0) groupOne else groupTwo
-            val item = list.removeAt(intent.fromIndex)
-            list.add(intent.toIndex, item)
-        } else {
-            val fromList = if (intent.fromSection == 0) groupOne else groupTwo
-            val toList = if (intent.toSection == 0) groupOne else groupTwo
-            val targetGroup = if (intent.toSection == 0) SaveStationGroup.ONE else SaveStationGroup.TWO
-            val item = fromList.removeAt(intent.fromIndex).copy(group = targetGroup)
-            val clampedIndex = intent.toIndex.coerceIn(0, toList.size)
-            toList.add(clampedIndex, item)
-        }
+    /**
+     * 저장된 두 그룹으로부터 플랫 리스트 생성.
+     * [Header(출근), ...Station, DropTarget?, Header(퇴근), ...Station, DropTarget?]
+     */
+    private fun buildFlatItems(
+        groupOne: List<SaveStation>,
+        groupTwo: List<SaveStation>,
+    ): List<EditFlatItem> = buildList {
+        add(EditFlatItem.Header("출근", SaveStationGroup.ONE))
+        addAll(groupOne.map { EditFlatItem.Station(it) })
+        if (groupOne.isEmpty()) add(EditFlatItem.DropTarget(SaveStationGroup.ONE))
 
-        _uiState.update {
-            it.copy(
-                groupOne = groupOne,
-                groupTwo = groupTwo,
-                isSaveEnabled = isSaveEnabled(groupOne, groupTwo),
-            )
-        }
+        add(EditFlatItem.Header("퇴근", SaveStationGroup.TWO))
+        addAll(groupTwo.map { EditFlatItem.Station(it) })
+        if (groupTwo.isEmpty()) add(EditFlatItem.DropTarget(SaveStationGroup.TWO))
     }
 
-    private fun isSaveEnabled(groupOne: List<SaveStation>, groupTwo: List<SaveStation>): Boolean {
-        return (groupOne + groupTwo) != lastSaved
+    /**
+     * 드래그/삭제 후 DropTarget 여부를 재조정.
+     * 각 Header 뒤에 Station이 하나도 없으면 DropTarget 추가, 있으면 제거.
+     */
+    private fun insertDropTargetsIfNeeded(items: List<EditFlatItem>): List<EditFlatItem> {
+        val result = mutableListOf<EditFlatItem>()
+        var currentGroup: SaveStationGroup? = null
+        var stationCountInSection = 0
+
+        // DropTarget을 제거하고 필요한 위치에 다시 삽입
+        val withoutDropTargets = items.filterNot { it is EditFlatItem.DropTarget }
+
+        for (i in withoutDropTargets.indices) {
+            val item = withoutDropTargets[i]
+            if (item is EditFlatItem.Header) {
+                // 이전 섹션이 비어있으면 DropTarget 삽입
+                if (currentGroup != null && stationCountInSection == 0) {
+                    result.add(EditFlatItem.DropTarget(currentGroup))
+                }
+                currentGroup = item.group
+                stationCountInSection = 0
+            } else if (item is EditFlatItem.Station) {
+                stationCountInSection++
+            }
+            result.add(item)
+        }
+        // 마지막 섹션 처리
+        if (currentGroup != null && stationCountInSection == 0) {
+            result.add(EditFlatItem.DropTarget(currentGroup))
+        }
+        return result
+    }
+
+    /**
+     * 플랫 리스트에서 각 역의 그룹을 Header 위치 기준으로 결정하여 SaveStation 리스트 반환.
+     */
+    private fun extractStations(items: List<EditFlatItem>): List<SaveStation> {
+        var currentGroup = SaveStationGroup.ONE
+        val result = mutableListOf<SaveStation>()
+        for (item in items) {
+            when (item) {
+                is EditFlatItem.Header -> currentGroup = item.group
+                is EditFlatItem.Station -> result.add(item.station.copy(group = currentGroup))
+                is EditFlatItem.DropTarget -> Unit
+            }
+        }
+        return result
+    }
+
+    private fun isSaveEnabled(items: List<EditFlatItem>): Boolean {
+        return extractStations(items) != lastSaved
     }
 }

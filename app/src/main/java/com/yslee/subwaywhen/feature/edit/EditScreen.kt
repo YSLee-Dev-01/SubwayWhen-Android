@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,10 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.data.model.SaveStation
@@ -64,29 +68,52 @@ private fun EditScreenContent(
     uiState: EditUiState,
     onIntent: (EditIntent) -> Unit,
 ) {
+    // remember 키 없음 → MutableState 객체가 컴포저블 생명주기 내내 동일
+    // remember(key) 방식은 key 변경 시 새 객체를 생성해 LaunchedEffect가 stale closure를 캡처
+    var localItems by remember { mutableStateOf(uiState.flatItems) }
+
     val lazyListState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(
         lazyListState = lazyListState,
         onMove = { from, to ->
-            val fromKey = from.key as? String ?: return@rememberReorderableLazyListState
-            val toKey = to.key as? String ?: return@rememberReorderableLazyListState
+            val fromIdx = localItems.indexOfFirst { it.listKey == from.key }
+            val toIdx = localItems.indexOfFirst { it.listKey == to.key }
 
-            // 헤더/from이 헤더인 경우 제외
-            if (fromKey.startsWith("header_") || toKey.startsWith("header_")) return@rememberReorderableLazyListState
+            // Header는 이동 불가 — from이나 to가 Header면 무시
+            if (fromIdx == -1 || toIdx == -1) return@rememberReorderableLazyListState
+            if (localItems[fromIdx] is EditFlatItem.Header) return@rememberReorderableLazyListState
+            if (localItems[toIdx] is EditFlatItem.Header) return@rememberReorderableLazyListState
 
-            // 빈 섹션 드롭 타겟 key → 해당 섹션 index 0으로 정규화
-            val normalizedToKey = when (toKey) {
-                "group1_drop_target" -> "group1_0"
-                "group2_drop_target" -> "group2_0"
-                else -> toKey
+            // 드래그 중: localItems만 즉각 갱신 (ViewModel 동기화는 드래그 종료 시)
+            // DropTarget 정리를 mid-drag에 하면 LazyColumn 구조 변경 → scroll jump 재발
+            localItems = localItems.toMutableList().also {
+                it.add(toIdx, it.removeAt(fromIdx))
             }
-
-            val (fromSection, fromIndex) = parseItemKey(fromKey) ?: return@rememberReorderableLazyListState
-            val (toSection, toIndex) = parseItemKey(normalizedToKey) ?: return@rememberReorderableLazyListState
-
-            onIntent(EditIntent.MoveStation(fromSection, fromIndex, toSection, toIndex))
         },
     )
+
+    // ViewModel 변경(삭제, 저장 후 복귀 등)을 localItems에 반영 — 드래그 중엔 무시
+    LaunchedEffect(uiState.flatItems) {
+        if (!reorderState.isAnyItemDragging) {
+            localItems = uiState.flatItems
+        }
+    }
+
+    // 드래그 종료 감지: isAnyItemDragging true→false 전환 시 ViewModel 동기화
+    // 동일한 MutableState를 항상 읽으므로 stale closure 없음
+    LaunchedEffect(reorderState) {
+        var prevDragging = false
+        snapshotFlow { reorderState.isAnyItemDragging }
+            .collect { isDragging ->
+                if (prevDragging && !isDragging) {
+                    onIntent(EditIntent.Reorder(localItems))
+                }
+                prevDragging = isDragging
+            }
+    }
+
+    val stations = localItems.filterIsInstance<EditFlatItem.Station>()
+    val isEmpty = stations.isEmpty()
 
     Box(modifier = Modifier.fillMaxSize()) {
         CommonTopBarLazyScreen(
@@ -95,65 +122,41 @@ private fun EditScreenContent(
             listState = lazyListState,
             bottomPadding = 120.dp,
         ) {
-            item(key = "header_group1") {
-                Text(
-                    text = "출근",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = Dimens.paddingTB),
-                )
-            }
-            itemsIndexed(
-                items = uiState.groupOne,
-                key = { index, _ -> "group1_$index" },
-            ) { index, station ->
-                val itemKey = "group1_$index"
-                ReorderableItem(reorderState, key = itemKey) {
-                    EditStationRow(
-                        station = station,
-                        onDelete = { onIntent(EditIntent.DeleteStation(station)) },
-                    )
-                }
-            }
-            // 출근 섹션이 비어있을 때 드롭 타겟 — 퇴근→출근 이동 가능하게
-            if (uiState.groupOne.isEmpty()) {
-                item(key = "group1_drop_target") {
-                    Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
-                }
-            }
+            items(
+                items = localItems,
+                key = { it.listKey },
+            ) { item ->
+                when (item) {
+                    is EditFlatItem.Header -> {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = Dimens.paddingTB),
+                        )
+                    }
 
-            item(key = "header_group2") {
-                Text(
-                    text = "퇴근",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = Dimens.paddingTB),
-                )
-            }
-            itemsIndexed(
-                items = uiState.groupTwo,
-                key = { index, _ -> "group2_$index" },
-            ) { index, station ->
-                val itemKey = "group2_$index"
-                ReorderableItem(reorderState, key = itemKey) {
-                    EditStationRow(
-                        station = station,
-                        onDelete = { onIntent(EditIntent.DeleteStation(station)) },
-                    )
-                }
-            }
-            // 퇴근 섹션이 비어있을 때 드롭 타겟 — 출근→퇴근 이동 가능하게
-            if (uiState.groupTwo.isEmpty()) {
-                item(key = "group2_drop_target") {
-                    Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
+                    is EditFlatItem.Station -> {
+                        ReorderableItem(reorderState, key = item.listKey) {
+                            EditStationRow(
+                                station = item.station,
+                                onDelete = { onIntent(EditIntent.DeleteStation(item.station)) },
+                            )
+                        }
+                    }
+
+                    is EditFlatItem.DropTarget -> {
+                        ReorderableItem(reorderState, key = item.listKey) {
+                            Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
+                        }
+                    }
                 }
             }
         }
 
-        // iOS noListLabel 대응: 두 그룹 모두 비어있을 때 중앙 안내 문구
-        if (uiState.groupOne.isEmpty() && uiState.groupTwo.isEmpty()) {
+        // 두 그룹 모두 비어있을 때 중앙 안내 문구
+        if (isEmpty) {
             Text(
                 text = "현재 저장되어 있는 지하철역이 없어요.",
                 fontSize = Dimens.fontSizeMedium,
@@ -193,18 +196,6 @@ private fun EditScreenContent(
     }
 }
 
-/** "group1_2" → Pair(section=0, index=2), "group2_0" → Pair(section=1, index=0) */
-private fun parseItemKey(key: String): Pair<Int, Int>? {
-    val parts = key.split("_")
-    if (parts.size != 2) return null
-    val section = when (parts[0]) {
-        "group1" -> 0
-        "group2" -> 1
-        else -> return null
-    }
-    val index = parts[1].toIntOrNull() ?: return null
-    return Pair(section, index)
-}
 
 @Preview(name = "EditScreen - 역 있음", showBackground = true)
 @Composable
@@ -212,26 +203,30 @@ private fun EditScreenWithStationsPreview() {
     SubwayWhenTheme(darkTheme = false) {
         EditScreenContent(
             uiState = EditUiState(
-                groupOne = listOf(
-                    SaveStation(
-                        id = "1",
-                        stationName = "강남",
-                        stationCode = "222",
-                        updnLine = "상행",
-                        line = "02호선",
-                        lineCode = "1002",
-                        group = SaveStationGroup.ONE,
+                flatItems = listOf(
+                    EditFlatItem.Header("출근", SaveStationGroup.ONE),
+                    EditFlatItem.Station(
+                        SaveStation(
+                            id = "1",
+                            stationName = "강남",
+                            stationCode = "222",
+                            updnLine = "상행",
+                            line = "02호선",
+                            lineCode = "1002",
+                            group = SaveStationGroup.ONE,
+                        )
                     ),
-                ),
-                groupTwo = listOf(
-                    SaveStation(
-                        id = "2",
-                        stationName = "서울역",
-                        stationCode = "150",
-                        updnLine = "하행",
-                        line = "01호선",
-                        lineCode = "1001",
-                        group = SaveStationGroup.TWO,
+                    EditFlatItem.Header("퇴근", SaveStationGroup.TWO),
+                    EditFlatItem.Station(
+                        SaveStation(
+                            id = "2",
+                            stationName = "서울역",
+                            stationCode = "150",
+                            updnLine = "하행",
+                            line = "01호선",
+                            lineCode = "1001",
+                            group = SaveStationGroup.TWO,
+                        )
                     ),
                 ),
                 isSaveEnabled = true,
@@ -246,7 +241,14 @@ private fun EditScreenWithStationsPreview() {
 private fun EditScreenEmptyPreview() {
     SubwayWhenTheme(darkTheme = false) {
         EditScreenContent(
-            uiState = EditUiState(),
+            uiState = EditUiState(
+                flatItems = listOf(
+                    EditFlatItem.Header("출근", SaveStationGroup.ONE),
+                    EditFlatItem.DropTarget(SaveStationGroup.ONE),
+                    EditFlatItem.Header("퇴근", SaveStationGroup.TWO),
+                    EditFlatItem.DropTarget(SaveStationGroup.TWO),
+                ),
+            ),
             onIntent = {},
         )
     }
@@ -258,16 +260,21 @@ private fun EditScreenDialogPreview() {
     SubwayWhenTheme(darkTheme = false) {
         EditScreenContent(
             uiState = EditUiState(
-                groupOne = listOf(
-                    SaveStation(
-                        id = "1",
-                        stationName = "강남",
-                        stationCode = "222",
-                        updnLine = "상행",
-                        line = "02호선",
-                        lineCode = "1002",
-                        group = SaveStationGroup.ONE,
+                flatItems = listOf(
+                    EditFlatItem.Header("출근", SaveStationGroup.ONE),
+                    EditFlatItem.Station(
+                        SaveStation(
+                            id = "1",
+                            stationName = "강남",
+                            stationCode = "222",
+                            updnLine = "상행",
+                            line = "02호선",
+                            lineCode = "1002",
+                            group = SaveStationGroup.ONE,
+                        )
                     ),
+                    EditFlatItem.Header("퇴근", SaveStationGroup.TWO),
+                    EditFlatItem.DropTarget(SaveStationGroup.TWO),
                 ),
                 isSaveEnabled = true,
                 showNotSaveDialog = true,
