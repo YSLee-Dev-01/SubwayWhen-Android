@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +35,10 @@ import kotlinx.coroutines.launch
  * 눌림 시 scale + 배경색 전환 컨테이너.
  * alignment에 따라 내부 content의 좌/중/우 정렬을 Spacer로 제어한다.
  * tap → 100ms 지연 후 onClick() 호출 (iOS 0.1s 동작 동일).
+ *
+ * Box 절대 배치(TopStart/BottomEnd 등)가 필요한 경우:
+ * alignment = Leading, verticalPadding = 0.dp, horizontalPadding = 0.dp 로 설정 후
+ * content 내부에 Box(Modifier.fillMaxSize()) 를 두면 fillMaxWidth/fillMaxHeight로 전체 영역 활용 가능.
  */
 enum class AnimatedTapBoxAlignment {
     Leading, Center, Trailing
@@ -43,6 +48,7 @@ enum class AnimatedTapBoxAlignment {
 fun AnimatedTapBox(
     bgColor: Color,
     pressedColor: Color,
+    modifier: Modifier = Modifier,
     alignment: AnimatedTapBoxAlignment = AnimatedTapBoxAlignment.Center,
     verticalPadding: Dp = 10.dp,
     horizontalPadding: Dp = 0.dp,
@@ -66,7 +72,7 @@ fun AnimatedTapBox(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .graphicsLayer(scaleX = scale, scaleY = scale)
             .background(
                 color = backgroundColor,
@@ -75,7 +81,7 @@ fun AnimatedTapBox(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = { scope.launch { delay(100L); onClick() } },
+                onClick = { scope.launch { delay(50L); onClick() } },
             )
             .padding(vertical = verticalPadding, horizontal = horizontalPadding),
     ) {
@@ -114,7 +120,7 @@ private fun AnimatedTapBoxDarkPreview() {
             alignment = AnimatedTapBoxAlignment.Leading,
             onClick = {},
         ) {
-            Text(text = "버튼", color = Color.White)
+            Text(text = "버튼", color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

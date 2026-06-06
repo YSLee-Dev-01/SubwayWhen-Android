@@ -14,11 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
@@ -54,7 +54,7 @@ fun ModalSubButton(
     ) {
         Text(
             text = text,
-            fontSize = 13.5.sp,
+            fontSize = Dimens.fontSizeSmall,
             color = textColor,
             textAlign = TextAlign.Center,
         )
@@ -68,7 +68,7 @@ private fun ModalSubButtonLightPreview() {
         ModalSubButton(
             text = "취소",
             bgColor = Color(0xFFE0E0E0),
-            textColor = Color.Black,
+            textColor = MaterialTheme.colorScheme.onSurface,
             onClick = {},
             modifier = Modifier.fillMaxWidth(),
         )
@@ -82,7 +82,7 @@ private fun ModalSubButtonDarkPreview() {
         ModalSubButton(
             text = "취소",
             bgColor = Color(0xFF3A3A3C),
-            textColor = Color.White,
+            textColor = MaterialTheme.colorScheme.onSurface,
             onClick = {},
             modifier = Modifier.fillMaxWidth(),
         )

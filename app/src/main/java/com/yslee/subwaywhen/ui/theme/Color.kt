@@ -26,3 +26,7 @@ val TabIndicatorDark = Color(0xFF3A3A3C)   // iOS systemGray5 dark 근사값
 // Tab bar: unselected icon
 val TabIconUnselectedLight = Color(0xFF8E8E93)  // iOS systemGray
 val TabIconUnselectedDark = Color(0xFFAEAEB2)   // iOS systemGray2 dark
+
+// 상/하행 방향 버튼 색상 (iOS system red/blue)
+val UpButtonColor = Color(0xFFFF3B30)    // iOS system red
+val DownButtonColor = Color(0xFF007AFF)  // iOS system blue
