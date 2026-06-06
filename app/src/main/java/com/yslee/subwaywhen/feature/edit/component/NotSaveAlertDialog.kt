@@ -16,7 +16,10 @@ fun NotSaveAlertDialog(
     AlertDialog(
         onDismissRequest = onCancel,
         title = {
-            Text(text = "수정된 지하철역이 저장되지 않았어요.\n저장하지 않을 경우 변경된 내용은\n적용되지 않아요.")
+            Text(text = "수정된 지하철역이 저장되지 않았어요.")
+        },
+        text = {
+            Text(text = "저장하지 않을 경우 변경된 내용은 적용되지 않아요.")
         },
         confirmButton = {
             TextButton(onClick = onSave) {
@@ -26,11 +29,6 @@ fun NotSaveAlertDialog(
         dismissButton = {
             TextButton(onClick = onDiscard) {
                 Text(text = "저장하지 않음")
-            }
-        },
-        text = {
-            TextButton(onClick = onCancel) {
-                Text(text = "취소")
             }
         },
     )

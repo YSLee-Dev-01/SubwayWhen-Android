@@ -2,11 +2,13 @@ package com.yslee.subwaywhen.feature.edit
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +27,7 @@ import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.feature.edit.component.EditStationRow
 import com.yslee.subwaywhen.feature.edit.component.NotSaveAlertDialog
-import com.yslee.subwaywhen.ui.common.CommonTopBar
+import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
@@ -41,16 +43,15 @@ fun EditScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) { onTabBarVisibilityChange(false) }
-    DisposableEffect(Unit) { onDispose { onTabBarVisibilityChange(true) } }
-
-    BackHandler { viewModel.onIntent(EditIntent.BackTap) }
-
     LaunchedEffect(Unit) {
+        onTabBarVisibilityChange(false)
         viewModel.effect.collect { effect ->
             if (effect is EditEffect.NavigateBack) onNavigateBack()
         }
     }
+    DisposableEffect(Unit) { onDispose { onTabBarVisibilityChange(true) } }
+
+    BackHandler { viewModel.onIntent(EditIntent.BackTap) }
 
     EditScreenContent(
         uiState = uiState,
@@ -63,8 +64,6 @@ private fun EditScreenContent(
     uiState: EditUiState,
     onIntent: (EditIntent) -> Unit,
 ) {
-    val isEmpty = uiState.groupOne.isEmpty() && uiState.groupTwo.isEmpty()
-
     val lazyListState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(
         lazyListState = lazyListState,
@@ -72,95 +71,95 @@ private fun EditScreenContent(
             val fromKey = from.key as? String ?: return@rememberReorderableLazyListState
             val toKey = to.key as? String ?: return@rememberReorderableLazyListState
 
-            // 헤더 키는 drag 대상에서 제외
+            // 헤더/from이 헤더인 경우 제외
             if (fromKey.startsWith("header_") || toKey.startsWith("header_")) return@rememberReorderableLazyListState
 
+            // 빈 섹션 드롭 타겟 key → 해당 섹션 index 0으로 정규화
+            val normalizedToKey = when (toKey) {
+                "group1_drop_target" -> "group1_0"
+                "group2_drop_target" -> "group2_0"
+                else -> toKey
+            }
+
             val (fromSection, fromIndex) = parseItemKey(fromKey) ?: return@rememberReorderableLazyListState
-            val (toSection, toIndex) = parseItemKey(toKey) ?: return@rememberReorderableLazyListState
+            val (toSection, toIndex) = parseItemKey(normalizedToKey) ?: return@rememberReorderableLazyListState
 
             onIntent(EditIntent.MoveStation(fromSection, fromIndex, toSection, toIndex))
         },
     )
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        CommonTopBar(
+    Box(modifier = Modifier.fillMaxSize()) {
+        CommonTopBarLazyScreen(
             title = "편집",
-            isSubTitleVisible = true,
             onBack = { onIntent(EditIntent.BackTap) },
-        )
-
-        if (isEmpty) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            ) {
+            listState = lazyListState,
+            bottomPadding = 120.dp,
+        ) {
+            item(key = "header_group1") {
                 Text(
-                    text = "현재 저장되어 있는 지하철역이 없어요.",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "출근",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = Dimens.paddingTB),
                 )
             }
-        } else {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.weight(1f),
-            ) {
-                if (uiState.groupOne.isNotEmpty()) {
-                    item(key = "header_group1") {
-                        Text(
-                            text = "출근",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(
-                                horizontal = Dimens.paddingLR,
-                                vertical = Dimens.paddingTB,
-                            ),
-                        )
-                    }
-                    itemsIndexed(
-                        items = uiState.groupOne,
-                        key = { index, _ -> "group1_$index" },
-                    ) { index, station ->
-                        val itemKey = "group1_$index"
-                        ReorderableItem(reorderState, key = itemKey) {
-                            EditStationRow(
-                                station = station,
-                                onDelete = { onIntent(EditIntent.DeleteStation(station)) },
-                            )
-                        }
-                    }
-                }
-
-                if (uiState.groupTwo.isNotEmpty()) {
-                    item(key = "header_group2") {
-                        Text(
-                            text = "퇴근",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(
-                                horizontal = Dimens.paddingLR,
-                                vertical = Dimens.paddingTB,
-                            ),
-                        )
-                    }
-                    itemsIndexed(
-                        items = uiState.groupTwo,
-                        key = { index, _ -> "group2_$index" },
-                    ) { index, station ->
-                        val itemKey = "group2_$index"
-                        ReorderableItem(reorderState, key = itemKey) {
-                            EditStationRow(
-                                station = station,
-                                onDelete = { onIntent(EditIntent.DeleteStation(station)) },
-                            )
-                        }
-                    }
+            itemsIndexed(
+                items = uiState.groupOne,
+                key = { index, _ -> "group1_$index" },
+            ) { index, station ->
+                val itemKey = "group1_$index"
+                ReorderableItem(reorderState, key = itemKey) {
+                    EditStationRow(
+                        station = station,
+                        onDelete = { onIntent(EditIntent.DeleteStation(station)) },
+                    )
                 }
             }
+            // 출근 섹션이 비어있을 때 드롭 타겟 — 퇴근→출근 이동 가능하게
+            if (uiState.groupOne.isEmpty()) {
+                item(key = "group1_drop_target") {
+                    Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
+                }
+            }
+
+            item(key = "header_group2") {
+                Text(
+                    text = "퇴근",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = Dimens.paddingTB),
+                )
+            }
+            itemsIndexed(
+                items = uiState.groupTwo,
+                key = { index, _ -> "group2_$index" },
+            ) { index, station ->
+                val itemKey = "group2_$index"
+                ReorderableItem(reorderState, key = itemKey) {
+                    EditStationRow(
+                        station = station,
+                        onDelete = { onIntent(EditIntent.DeleteStation(station)) },
+                    )
+                }
+            }
+            // 퇴근 섹션이 비어있을 때 드롭 타겟 — 출근→퇴근 이동 가능하게
+            if (uiState.groupTwo.isEmpty()) {
+                item(key = "group2_drop_target") {
+                    Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
+                }
+            }
+        }
+
+        // iOS noListLabel 대응: 두 그룹 모두 비어있을 때 중앙 안내 문구
+        if (uiState.groupOne.isEmpty() && uiState.groupTwo.isEmpty()) {
+            Text(
+                text = "현재 저장되어 있는 지하철역이 없어요.",
+                fontSize = Dimens.fontSizeMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.Center),
+            )
         }
 
         PrimaryButton(
@@ -177,8 +176,11 @@ private fun EditScreenContent(
             },
             onClick = { if (uiState.isSaveEnabled) onIntent(EditIntent.SaveTap) },
             modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingInner),
+                .navigationBarsPadding()
+                .padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingInner)
+                .height(Dimens.modalButtonHeight),
         )
     }
 
