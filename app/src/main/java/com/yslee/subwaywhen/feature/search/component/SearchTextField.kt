@@ -1,6 +1,7 @@
 package com.yslee.subwaywhen.feature.search.component
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -89,7 +90,11 @@ fun SearchTextField(
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .clip(RoundedCornerShape(Dimens.cornerRadius))
-                    .clickable { onExitSearchMode() }
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onExitSearchMode,
+                    )
                     .padding(horizontal = 4.dp, vertical = 8.dp),
             )
         }
@@ -97,7 +102,11 @@ fun SearchTextField(
         MainBgCard(
             modifier = modifier
                 .fillMaxWidth()
-                .clickable { onEnterSearchMode() }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onEnterSearchMode,
+                )
                 .clip(RoundedCornerShape(Dimens.cornerRadius)),
         ) {
             Text(

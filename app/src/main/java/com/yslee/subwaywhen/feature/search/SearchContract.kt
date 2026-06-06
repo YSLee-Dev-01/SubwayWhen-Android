@@ -29,5 +29,3 @@ sealed interface SearchIntent {
     data object SaveCompletedDismissed : SearchIntent
     data class VicinityStationSelected(val stationName: String) : SearchIntent
 }
-
-sealed interface SearchEffect

@@ -6,11 +6,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.yslee.subwaywhen.data.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -34,8 +31,6 @@ class SearchViewModel @Inject constructor(
     private val _internal = MutableStateFlow(SearchUiState(recommendStations = SearchRepository.DEFAULT_RECOMMEND))
 
     val uiState: StateFlow<SearchUiState> = _internal.asStateFlow()
-    private val _effect = MutableSharedFlow<SearchEffect>()
-    val effect: SharedFlow<SearchEffect> = _effect.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -141,7 +136,7 @@ class SearchViewModel @Inject constructor(
             return
         }
 
-        analytics.logEvent("SerachVC_Search") {
+        analytics.logEvent("SearchVC_Search") {
             param("Search_Station", query)
         }
         val filtered = _internal.value.nowQueryRecommendList.filter { it.queryName == query }
