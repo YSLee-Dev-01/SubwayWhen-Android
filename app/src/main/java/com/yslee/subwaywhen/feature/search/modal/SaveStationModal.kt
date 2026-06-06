@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -43,7 +42,9 @@ import com.yslee.subwaywhen.ui.common.subwayLineDisplayName
 import com.yslee.subwaywhen.ui.common.subwayLineIsService
 import com.yslee.subwaywhen.ui.common.subwayLineUpDownText
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.DownButtonColor
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
+import com.yslee.subwaywhen.ui.theme.UpButtonColor
 
 @Composable
 fun SaveStationModal(
@@ -59,7 +60,7 @@ fun SaveStationModal(
         viewModel.initStation(station)
     }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is SaveStationModalEffect.SaveCompleted -> {
@@ -169,8 +170,8 @@ private fun SaveStationModalContent(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     ModalSubButton(
                         text = subwayLineUpDownText(station.line, isUp = true),
-                        bgColor = Color(0xFFFF3B30),
-                        textColor = Color.White,
+                        bgColor = UpButtonColor,
+                        textColor = MaterialTheme.colorScheme.onPrimary,
                         onClick = { onIntent(SaveStationModalIntent.UpButtonTapped) },
                         modifier = Modifier
                             .weight(1f)
@@ -178,8 +179,8 @@ private fun SaveStationModalContent(
                     )
                     ModalSubButton(
                         text = subwayLineUpDownText(station.line, isUp = false),
-                        bgColor = Color(0xFF007AFF),
-                        textColor = Color.White,
+                        bgColor = DownButtonColor,
+                        textColor = MaterialTheme.colorScheme.onPrimary,
                         onClick = { onIntent(SaveStationModalIntent.DownButtonTapped) },
                         modifier = Modifier
                             .weight(1f)

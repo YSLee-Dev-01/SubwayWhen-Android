@@ -12,20 +12,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.DownButtonColor
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
+import com.yslee.subwaywhen.ui.theme.UpButtonColor
 
 /**
  * iOS DisposableView.swift 대응. 임시 UI — Detail 연동은 다음 spec.
@@ -49,8 +50,8 @@ fun DisposableView(
     ) {
         Text(
             text = "저장하지 않고 일회성으로 볼 수 있어요.",
-            fontSize = 11.5.sp,
-            color = Color.White,
+            fontSize = Dimens.fontSizeMediumSmall,
+            color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.weight(1f),
         )
 
@@ -62,7 +63,7 @@ fun DisposableView(
                 .width(Dimens.disposableButtonWidth)
                 .height(Dimens.disposableButtonHeight)
                 .background(
-                    color = Color.Red.copy(alpha = 0.5f),
+                    color = UpButtonColor.copy(alpha = 0.5f),
                     shape = RoundedCornerShape(Dimens.cornerRadius),
                 )
                 .clickable(
@@ -74,7 +75,7 @@ fun DisposableView(
             Text(
                 text = upText,
                 fontSize = Dimens.fontSizeSuperSmall,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center,
             )
         }
@@ -87,7 +88,7 @@ fun DisposableView(
                 .width(Dimens.disposableButtonWidth)
                 .height(Dimens.disposableButtonHeight)
                 .background(
-                    color = Color.Blue.copy(alpha = 0.5f),
+                    color = DownButtonColor.copy(alpha = 0.5f),
                     shape = RoundedCornerShape(Dimens.cornerRadius),
                 )
                 .clickable(
@@ -99,7 +100,7 @@ fun DisposableView(
             Text(
                 text = downText,
                 fontSize = Dimens.fontSizeSuperSmall,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center,
             )
         }
