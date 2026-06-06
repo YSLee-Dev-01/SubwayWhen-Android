@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -266,8 +265,8 @@ fun VicinityStationDetailCard(
                             }
                             val upStatus = when {
                                 liveLoading.first -> "🔄 로딩 중"
-                                upData == null || upData.subPrevious.isEmpty() -> "⚠️ 정보없음"
-                                else -> upData.subPrevious
+                                upData == null -> "⚠️ 정보없음"
+                                else -> upData.useState
                             }
                             Text(
                                 text = upDirection,
@@ -307,8 +306,8 @@ fun VicinityStationDetailCard(
                             }
                             val downStatus = when {
                                 liveLoading.second -> "🔄 로딩 중"
-                                downData == null || downData.subPrevious.isEmpty() -> "⚠️ 정보없음"
-                                else -> downData.subPrevious
+                                downData == null -> "⚠️ 정보없음"
+                                else -> downData.useState
                             }
                             Text(
                                 text = downDirection,
@@ -341,11 +340,11 @@ fun VicinityStationDetailCard(
             horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ActionIcon(icon = Icons.Default.Close,   tint = Color.Gray, onClick = onClose)
-            ActionIcon(icon = Icons.Default.Refresh, tint = Color.Gray, onClick = onRefresh)
-            ActionIcon(icon = Icons.Default.Info,    tint = Color.Gray, onClick = { /* TODO: 임시보기 */ })
-            ActionIcon(icon = Icons.Default.Add,     tint = Color.Gray, onClick = onAddStation)
-            ActionIcon(icon = Icons.Default.Warning, tint = Color.Gray, onClick = { /* TODO: 신고하기 */ })
+            ActionIcon(icon = Icons.Default.Close,   onClick = onClose)
+            ActionIcon(icon = Icons.Default.Refresh, onClick = onRefresh)
+            ActionIcon(icon = Icons.Default.Info,    onClick = { /* TODO: 임시보기 */ })
+            ActionIcon(icon = Icons.Default.Add,     onClick = onAddStation)
+            ActionIcon(icon = Icons.Default.Warning, onClick = { /* TODO: 신고하기 */ })
         }
     }
 }
@@ -392,13 +391,12 @@ private fun TrainIcon(
 @Composable
 private fun ActionIcon(
     icon: ImageVector,
-    tint: Color,
     onClick: () -> Unit,
 ) {
     Icon(
         imageVector = icon,
         contentDescription = null,
-        tint = tint,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
             .size(Dimens.vicinityActionIconSize)
             .clickable(

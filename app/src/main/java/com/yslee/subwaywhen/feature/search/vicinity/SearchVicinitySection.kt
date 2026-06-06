@@ -37,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -87,16 +86,13 @@ fun SearchVicinitySection(
         viewModel.onIntent(VicinityIntent.AuthResultReceived(granted))
     }
 
-    LaunchedEffect(viewModel.effect) {
+    LaunchedEffect(Unit) {
+        viewModel.onIntent(VicinityIntent.OnAppear)
         viewModel.effect.collect { effect ->
             when (effect) {
                 is VicinityEffect.SearchStation -> onStationSearch(effect.name)
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.onIntent(VicinityIntent.OnAppear)
     }
 
     if (state.showRefreshCooldownDialog) {
@@ -112,10 +108,11 @@ fun SearchVicinitySection(
         )
     }
 
-    if (state.errorDialog != null) {
+    val errorMsg = state.errorDialog
+    if (errorMsg != null) {
         AlertDialog(
             onDismissRequest = { viewModel.onIntent(VicinityIntent.DialogDismissed) },
-            text = { Text(state.errorDialog!!) },
+            text = { Text(errorMsg) },
             confirmButton = {
                 TextButton(onClick = { viewModel.onIntent(VicinityIntent.DialogDismissed) }) {
                     Text(stringResource(R.string.common_confirm))
@@ -151,6 +148,10 @@ private fun SearchVicinitySectionContent(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+
+    // exit 애니메이션 중에도 올바른 역 데이터를 유지하기 위해 마지막 non-null 인덱스 기억
+    // Rules of Hooks: 조건부 블록 내 remember 금지 → 함수 최상단에 위치
+    var lastSelectedIdx by remember { mutableIntStateOf(0) }
 
     MainBgCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingInner)) {
@@ -210,7 +211,7 @@ private fun SearchVicinitySectionContent(
                         Text(
                             text = stringResource(R.string.vicinity_auth_request_button),
                             fontSize = Dimens.fontSizeSmall,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                     Spacer(modifier = Modifier.height(Dimens.paddingTB))
@@ -245,9 +246,6 @@ private fun SearchVicinitySectionContent(
 
                 else -> {
                     val tappedIdx = state.tappedIndex
-
-                    // exit 애니메이션 중에도 올바른 역 데이터를 유지하기 위해 마지막 non-null 인덱스 기억
-                    var lastSelectedIdx by remember { mutableIntStateOf(0) }
                     if (tappedIdx != null) lastSelectedIdx = tappedIdx
 
                     // 역 목록: 미선택 → full 크기 / 선택 → 선택된 역 제외 mini 크기
@@ -281,7 +279,7 @@ private fun SearchVicinitySectionContent(
                             ModalSubButton(
                                 text = stringResource(R.string.vicinity_list_button),
                                 bgColor = AppIconColor,
-                                textColor = Color.White,
+                                textColor = MaterialTheme.colorScheme.onPrimary,
                                 onClick = { onIntent(VicinityIntent.ListModalOpenTapped) },
                                 modifier = Modifier
                                     .fillMaxWidth()
