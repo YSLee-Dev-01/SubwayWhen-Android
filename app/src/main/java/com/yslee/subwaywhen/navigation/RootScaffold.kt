@@ -4,10 +4,13 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,7 +90,11 @@ fun RootScaffold() {
                 SearchScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
             }
             composable(TabRoute.Setting.route) { SettingScreen() }
-            composable(NavRoutes.Edit) {
+            composable(
+                route = NavRoutes.Edit,
+                enterTransition = { slideInHorizontally(tween(Dimens.animationDurationMs)) { it } },
+                popExitTransition = { slideOutHorizontally(tween(Dimens.animationDurationMs)) { it } },
+            ) {
                 EditScreen(
                     onNavigateBack = { childNavController.popBackStack() },
                     onTabBarVisibilityChange = { isTabBarVisible = it },
@@ -117,13 +124,17 @@ fun RootScaffold() {
                         modifier = Modifier
                             .clip(TabItemShape)
                             .background(if (selected) indicatorColor else Color.Transparent)
-                            .clickable {
-                                childNavController.navigate(tab.route) {
-                                    popUpTo(TabRoute.Home.route) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {
+                                    childNavController.navigate(tab.route) {
+                                        popUpTo(TabRoute.Home.route) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                            )
                             .padding(horizontal = 19.dp, vertical = 10.dp),
                         contentAlignment = Alignment.Center,
                     ) {
