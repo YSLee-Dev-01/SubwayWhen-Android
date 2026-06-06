@@ -41,7 +41,9 @@ import kotlinx.coroutines.launch
  * content 내부에 Box(Modifier.fillMaxSize()) 를 두면 fillMaxWidth/fillMaxHeight로 전체 영역 활용 가능.
  */
 enum class AnimatedTapBoxAlignment {
-    Leading, Center, Trailing
+    Leading, Center, Trailing,
+    /** content가 Row 전체를 채울 때 사용. Spacer를 추가하지 않는다. */
+    Fill
 }
 
 @Composable
@@ -85,11 +87,11 @@ fun AnimatedTapBox(
             )
             .padding(vertical = verticalPadding, horizontal = horizontalPadding),
     ) {
-        if (alignment != AnimatedTapBoxAlignment.Leading) {
+        if (alignment == AnimatedTapBoxAlignment.Center || alignment == AnimatedTapBoxAlignment.Trailing) {
             Spacer(modifier = Modifier.weight(1f))
         }
         content()
-        if (alignment != AnimatedTapBoxAlignment.Trailing) {
+        if (alignment == AnimatedTapBoxAlignment.Center || alignment == AnimatedTapBoxAlignment.Leading) {
             Spacer(modifier = Modifier.weight(1f))
         }
     }

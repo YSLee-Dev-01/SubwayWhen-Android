@@ -40,7 +40,7 @@ fun HomeCongestionCard(
         bgColor = bgColor,
         pressedColor = pressedColor,
         modifier = modifier.fillMaxWidth().height(90.dp),
-        alignment = AnimatedTapBoxAlignment.Leading,
+        alignment = AnimatedTapBoxAlignment.Fill,
         verticalPadding = 0.dp,
         horizontalPadding = Dimens.paddingInner,
         onClick = onTap,
@@ -58,6 +58,7 @@ fun HomeCongestionCard(
                 fontSize = Dimens.fontSizeMainTitleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
             )
             Spacer(modifier = Modifier.weight(1f))
         }
