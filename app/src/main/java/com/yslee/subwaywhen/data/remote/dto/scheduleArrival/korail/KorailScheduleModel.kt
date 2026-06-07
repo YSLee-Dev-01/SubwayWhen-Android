@@ -17,3 +17,20 @@ data class KorailSchedule(
     @SerialName("dayCd") val weekDay: String,
     @SerialName("stinCd") val stationId: String
 )
+
+@Serializable
+data class KorailTrainNumber(
+    val endStation: String,
+    val isFast: String,
+    val line: String,
+    val startStation: String,
+    val trainNumber: String,
+    val week: String,
+)
+
+data class ProcessedKorailSchedule(
+    val time: String,
+    val lastStation: String,
+    val startStation: String,
+    val isFast: String,
+)

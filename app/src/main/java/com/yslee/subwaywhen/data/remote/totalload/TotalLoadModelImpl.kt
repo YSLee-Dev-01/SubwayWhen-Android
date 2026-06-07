@@ -5,10 +5,11 @@ import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
-import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.KorailHeader
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.ProcessedKorailSchedule
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
+import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSource
 import com.yslee.subwaywhen.data.remote.loadmodel.LoadModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,7 @@ private data class StationIdEntry(
 
 class TotalLoadModelImpl @Inject constructor(
     private val loadModel: LoadModel,
+    private val firebaseDataSource: FirebaseDataSource,
     @ApplicationContext private val context: Context,
 ) : TotalLoadModel {
 
@@ -110,12 +112,59 @@ class TotalLoadModelImpl @Inject constructor(
         )
     }
 
-    override suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<KorailHeader> {
-        return loadModel.korailScheduleLoad(
-            stationCode = station.korailCode,
+    override suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<List<ProcessedKorailSchedule>> {
+        // iOS 패턴: 첫 시도 실패 시 소문자 stationCode로 재시도
+        // lnCd = korailCode (K1/K2/K4), stinCd = stationCode (K154 등 실제 역코드)
+        val rawResult = loadModel.korailScheduleLoad(
+            stationCode = station.stationCode,
             weekDay = weekDay,
-            korailLineCode = station.lineCode
+            korailLineCode = station.korailCode
         )
+        val body = when (rawResult) {
+            is NetworkResult.Success -> rawResult.data.body
+            is NetworkResult.Failure -> {
+                val retry = loadModel.korailScheduleLoad(
+                    stationCode = station.stationCode.lowercase(),
+                    weekDay = weekDay,
+                    korailLineCode = station.korailCode
+                )
+                when (retry) {
+                    is NetworkResult.Success -> retry.data.body
+                    is NetworkResult.Failure -> return NetworkResult.Failure(retry.error)
+                }
+            }
+        }
+
+        val trainNumbers = firebaseDataSource.getKorailTrainNumberList() ?: emptyList()
+        val isWeekday = weekDay == "weekday"
+        val filteredNumbers = trainNumbers.filter { if (isWeekday) it.week == "평일" else it.week == "주말" }
+
+        // 짝수 trainCode 마지막 자리 = 상행, 홀수 = 하행
+        val upDownFiltered = body.filter { schedule ->
+            val time = schedule.time?.takeIf { it.isNotEmpty() } ?: return@filter false
+            val lastDigit = schedule.trainCode.lastOrNull()?.digitToIntOrNull() ?: return@filter false
+            val isUp = lastDigit % 2 == 0
+            if (isUp) station.updnLine == "상행" else station.updnLine == "하행"
+        }
+
+        // 트레인 넘버 조인으로 lastStation / startStation / 급행 주입
+        val processed = upDownFiltered.mapNotNull { schedule ->
+            val time = schedule.time ?: return@mapNotNull null
+            val tn = filteredNumbers.firstOrNull { it.trainNumber == schedule.trainCode }
+            ProcessedKorailSchedule(
+                time = time,
+                lastStation = tn?.endStation ?: "",
+                startStation = tn?.startStation ?: "",
+                isFast = if (tn?.isFast == "급행") "급행" else "",
+            )
+        }
+
+        // exceptionLastStation 필터 후 시간 오름차순 정렬
+        val sorted = processed
+            .filter { station.exceptionLastStation.isEmpty() || !station.exceptionLastStation.contains(it.lastStation) }
+            .sortedBy { it.time.toIntOrNull() ?: 0 }
+
+        return NetworkResult.Success(sorted)
     }
 
     // ── 주변역 데이터 변환 ────────────────────────────────────────────────────

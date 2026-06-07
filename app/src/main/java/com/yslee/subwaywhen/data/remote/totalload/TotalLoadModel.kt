@@ -4,7 +4,7 @@ import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
-import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.KorailHeader
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.ProcessedKorailSchedule
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
@@ -28,5 +28,5 @@ interface TotalLoadModel {
 
     suspend fun seoulScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<ScheduleStationModel>
 
-    suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<KorailHeader>
+    suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<List<ProcessedKorailSchedule>>
 }
