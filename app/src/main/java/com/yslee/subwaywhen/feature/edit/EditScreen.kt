@@ -2,6 +2,7 @@ package com.yslee.subwaywhen.feature.edit
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -115,71 +116,63 @@ private fun EditScreenContent(
     val stations = localItems.filterIsInstance<EditFlatItem.Station>()
     val isEmpty = stations.isEmpty()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        CommonTopBarLazyScreen(
-            title = "편집",
-            onBack = { onIntent(EditIntent.BackTap) },
-            listState = lazyListState,
-            bottomPadding = 120.dp,
-        ) {
-            items(
-                items = localItems,
-                key = { it.listKey },
-            ) { item ->
-                when (item) {
-                    is EditFlatItem.Header -> {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = Dimens.paddingTB),
-                        )
-                    }
-
-                    is EditFlatItem.Station -> {
-                        ReorderableItem(reorderState, key = item.listKey) {
-                            EditStationRow(
-                                station = item.station,
-                                onDelete = { onIntent(EditIntent.DeleteStation(item.station)) },
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f)) {
+            CommonTopBarLazyScreen(
+                title = "편집",
+                onBack = { onIntent(EditIntent.BackTap) },
+                listState = lazyListState,
+            ) {
+                items(
+                    items = localItems,
+                    key = { it.listKey },
+                ) { item ->
+                    when (item) {
+                        is EditFlatItem.Header -> {
+                            Text(
+                                text = item.title,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = Dimens.paddingTB),
                             )
                         }
-                    }
 
-                    is EditFlatItem.DropTarget -> {
-                        ReorderableItem(reorderState, key = item.listKey) {
-                            Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
+                        is EditFlatItem.Station -> {
+                            ReorderableItem(reorderState, key = item.listKey) {
+                                EditStationRow(
+                                    station = item.station,
+                                    onDelete = { onIntent(EditIntent.DeleteStation(item.station)) },
+                                )
+                            }
+                        }
+
+                        is EditFlatItem.DropTarget -> {
+                            ReorderableItem(reorderState, key = item.listKey) {
+                                Spacer(modifier = Modifier.fillMaxWidth().height(91.dp))
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // 두 그룹 모두 비어있을 때 중앙 안내 문구
-        if (isEmpty) {
-            Text(
-                text = "현재 저장되어 있는 지하철역이 없어요.",
-                fontSize = Dimens.fontSizeMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.align(Alignment.Center),
-            )
+            // 두 그룹 모두 비어있을 때 중앙 안내 문구
+            if (isEmpty) {
+                Text(
+                    text = "현재 저장되어 있는 지하철역이 없어요.",
+                    fontSize = Dimens.fontSizeMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
         }
 
         PrimaryButton(
             text = "저장",
-            containerColor = if (uiState.isSaveEnabled) {
-                AppIconColor
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-            contentColor = if (uiState.isSaveEnabled) {
-                MaterialTheme.colorScheme.onPrimary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
+            containerColor = if (uiState.isSaveEnabled) AppIconColor else AppIconColor.copy(alpha = 0.7f),
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             onClick = { if (uiState.isSaveEnabled) onIntent(EditIntent.SaveTap) },
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingInner)

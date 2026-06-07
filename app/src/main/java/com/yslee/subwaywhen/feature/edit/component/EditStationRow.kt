@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,6 +30,8 @@ import com.yslee.subwaywhen.ui.common.StationLineCircle
 import com.yslee.subwaywhen.ui.common.subwayLineColor
 import com.yslee.subwaywhen.ui.common.subwayLineDisplayName
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.MainColorDark
+import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 
@@ -90,10 +93,10 @@ private fun EditStationRowContent(
             modifier = Modifier
                 .weight(1f)
                 .background(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                    color = if (isSystemInDarkTheme()) MainColorDark else MainColorLight,
                     shape = RoundedCornerShape(Dimens.cornerRadius),
                 )
-                .padding(horizontal = Dimens.paddingInner, vertical = 3.dp),
+                .padding(horizontal = Dimens.paddingInner, vertical = 10.dp),
         ) {
             // 호선 원형 뱃지
             StationLineCircle(

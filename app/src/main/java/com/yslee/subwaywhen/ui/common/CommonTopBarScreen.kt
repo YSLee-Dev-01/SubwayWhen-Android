@@ -112,6 +112,7 @@ fun CommonTopBarLazyScreen(
     trailingIcon: ImageVector? = null,
     onTrailingClick: (() -> Unit)? = null,
     bottomPadding: Dp = 0.dp,
+    modifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit,
 ) {
     val density = LocalDensity.current
@@ -123,7 +124,7 @@ fun CommonTopBarLazyScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+    Column(modifier = modifier.fillMaxSize().statusBarsPadding()) {
         CommonTopBar(
             title = title,
             isSubTitleVisible = isSubTitleVisible,
