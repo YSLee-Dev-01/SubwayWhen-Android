@@ -4,6 +4,7 @@ import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.ProcessedKorailSchedule
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.shinbundang.ProcessedShinbundangSchedule
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
 import com.yslee.subwaywhen.feature.home.HomeCellData
 import com.yslee.subwaywhen.feature.home.HomeCellType
@@ -105,6 +106,7 @@ fun ScheduleStationModel.toScheduleCell(prev: HomeCellData): HomeCellData {
     }
 }
 
+@JvmName("korailToScheduleCell")
 fun List<ProcessedKorailSchedule>.toScheduleCell(prev: HomeCellData): HomeCellData {
     val now = Calendar.getInstance()
     val nowHour = now.get(Calendar.HOUR_OF_DAY)
@@ -128,6 +130,43 @@ fun List<ProcessedKorailSchedule>.toScheduleCell(prev: HomeCellData): HomeCellDa
             stateMSG = "%02d:%02d".format(h, m),
             subPrevious = "${remainingMin}분",
             isFast = next.isFast,
+        )
+    } else {
+        prev.copy(
+            type = HomeCellType.Schedule,
+            stateMSG = "운행 종료",
+            subPrevious = "운행 종료",
+        )
+    }
+}
+
+@JvmName("shinbundangToScheduleCell")
+fun List<ProcessedShinbundangSchedule>.toScheduleCell(prev: HomeCellData): HomeCellData {
+    val now = Calendar.getInstance()
+    val nowHour = now.get(Calendar.HOUR_OF_DAY)
+    val nowMin = now.get(Calendar.MINUTE)
+    val nowTotal = nowHour * 60 + nowMin
+
+    // startTime은 "HH:mm:ss" 또는 "HHmmss" 형식
+    val next = firstOrNull { schedule ->
+        val digits = schedule.startTime.filter { it.isDigit() }
+        if (digits.length < 4) return@firstOrNull false
+        val h = digits.substring(0, 2).toIntOrNull() ?: return@firstOrNull false
+        val m = digits.substring(2, 4).toIntOrNull() ?: return@firstOrNull false
+        h * 60 + m >= nowTotal
+    }
+
+    return if (next != null) {
+        val digits = next.startTime.filter { it.isDigit() }
+        val h = digits.substring(0, 2).toIntOrNull() ?: 0
+        val m = digits.substring(2, 4).toIntOrNull() ?: 0
+        val remainingMin = (h * 60 + m) - nowTotal
+        prev.copy(
+            type = HomeCellType.Schedule,
+            lastStation = if (next.endStation.isNotEmpty()) "${next.endStation}행" else prev.lastStation,
+            stateMSG = "%02d:%02d".format(h, m),
+            subPrevious = "${remainingMin}분",
+            isFast = "",
         )
     } else {
         prev.copy(
