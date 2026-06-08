@@ -5,8 +5,12 @@ import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
+import com.yslee.subwaywhen.data.local.room.ShinbundangScheduleDao
+import com.yslee.subwaywhen.data.local.room.ShinbundangScheduleEntity
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.ProcessedKorailSchedule
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.shinbundang.ProcessedShinbundangSchedule
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.shinbundang.ShinbundangSchedule
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
 import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSource
@@ -30,6 +34,7 @@ private data class StationIdEntry(
 class TotalLoadModelImpl @Inject constructor(
     private val loadModel: LoadModel,
     private val firebaseDataSource: FirebaseDataSource,
+    private val shinbundangScheduleDao: ShinbundangScheduleDao,
     @ApplicationContext private val context: Context,
 ) : TotalLoadModel {
 
@@ -165,6 +170,59 @@ class TotalLoadModelImpl @Inject constructor(
             .sortedBy { it.time.toIntOrNull() ?: 0 }
 
         return NetworkResult.Success(sorted)
+    }
+
+    override suspend fun shinbundangScheduleLoad(
+        station: SaveStation,
+        weekDay: String,
+        isDisposable: Boolean,
+    ): NetworkResult<List<ProcessedShinbundangSchedule>> {
+        // 1. Firebase에서 버전 조회
+        val firebaseVersion = loadModel.shinbundangScheduleVersionRequest() ?: 0.0
+
+        // 2. Room에서 로컬 캐시 조회
+        val cached = try { shinbundangScheduleDao.load(station.stationName) } catch (e: Exception) { null }
+        val cachedVersion = cached?.scheduleVersion?.toDoubleOrNull() ?: 0.0
+
+        // 3. 버전 비교: 로컬이 최신이면 캐시 사용, 아니면 Firebase 조회
+        val rawSchedules: List<ShinbundangSchedule> = if (cachedVersion >= firebaseVersion && cached != null) {
+            try {
+                Json.decodeFromString(kotlinx.serialization.builtins.ListSerializer(ShinbundangSchedule.serializer()), cached.scheduleData)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        } else {
+            val fetched = loadModel.shinbundangScheduleRequest(station.stationName) ?: emptyList()
+
+            // 4. isDisposable = false이면 Room에 저장
+            if (!isDisposable && fetched.isNotEmpty()) {
+                try {
+                    shinbundangScheduleDao.insert(
+                        ShinbundangScheduleEntity(
+                            stationName = station.stationName,
+                            scheduleData = Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(ShinbundangSchedule.serializer()), fetched),
+                            scheduleVersion = firebaseVersion.toString(),
+                        )
+                    )
+                } catch (e: Exception) { /* 저장 실패 시 무시 */ }
+            }
+            fetched
+        }
+
+        // 5. 방향 / 요일 / exceptionLastStation 필터
+        val requestWeek = if (weekDay == "weekday") "평일" else "주말"
+        val filtered = rawSchedules.filter { schedule ->
+            schedule.updown == station.updnLine &&
+            schedule.week == requestWeek &&
+            !station.exceptionLastStation.contains(schedule.endStation)
+        }
+
+        // 6. startTime 오름차순 정렬 후 ProcessedShinbundangSchedule 매핑
+        val result = filtered
+            .sortedBy { it.startTime.split(":").joinToString("").toIntOrNull() ?: 0 }
+            .map { ProcessedShinbundangSchedule(it.startTime, it.startStation, it.endStation) }
+
+        return NetworkResult.Success(result)
     }
 
     // ── 주변역 데이터 변환 ────────────────────────────────────────────────────

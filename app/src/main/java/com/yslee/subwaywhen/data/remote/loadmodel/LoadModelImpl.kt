@@ -10,14 +10,18 @@ import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.realtimePosition.RealtimeTrainPositionResponse
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.KorailHeader
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.shinbundang.ShinbundangSchedule
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStation
 import com.yslee.subwaywhen.data.remote.dto.subwayNotice.SubwayNoticeResponse
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityStationsData
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class LoadModelImpl @Inject constructor(
     private val networkManager: NetworkManager,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
+    private val firebaseDatabase: FirebaseDatabase,
 ) : LoadModel {
 
     override suspend fun stationArrivalRequest(stationName: String): NetworkResult<LiveStationModel> {
@@ -102,6 +106,42 @@ class LoadModelImpl @Inject constructor(
     override suspend fun realtimePositionRequest(subwayLine: String): NetworkResult<RealtimeTrainPositionResponse> {
         val url = "http://swopenapi.seoul.go.kr/api/subway/${tokenProvider.token(TokenKey.REALTIME)}/json/realtimePosition/0/100/$subwayLine"
         return networkManager.requestData(url)
+    }
+
+    override suspend fun shinbundangScheduleVersionRequest(): Double? = try {
+        val snapshot = firebaseDatabase.reference
+            .child("SubwayWhen/ShinbundangLineScheduleVersion/version")
+            .get().await()
+        snapshot.getValue(Double::class.java)
+    } catch (e: Exception) {
+        null
+    }
+
+    override suspend fun shinbundangScheduleRequest(stationName: String): List<ShinbundangSchedule>? {
+        return try {
+            val rootSnapshot = firebaseDatabase.reference
+                .child("SubwayWhenShinbundangScheduleData")
+                .get().await()
+
+            val keys = rootSnapshot.child("Keys").children.map { it.getValue(String::class.java) ?: "" }
+            val stationIndex = keys.indexOf(stationName)
+            if (stationIndex < 0) return null
+
+            val scheduleListSnapshots = rootSnapshot.child("ScheduleList").children.toList()
+            if (scheduleListSnapshots.size <= stationIndex) return null
+
+            scheduleListSnapshots[stationIndex].children.mapNotNull { child ->
+                val endStation = child.child("endStation").getValue(String::class.java) ?: return@mapNotNull null
+                val startStation = child.child("startStation").getValue(String::class.java) ?: return@mapNotNull null
+                val startTime = child.child("startTime").getValue(String::class.java) ?: return@mapNotNull null
+                val sName = child.child("stationName").getValue(String::class.java) ?: return@mapNotNull null
+                val updown = child.child("updown").getValue(String::class.java) ?: return@mapNotNull null
+                val week = child.child("week").getValue(String::class.java) ?: return@mapNotNull null
+                ShinbundangSchedule(endStation, startStation, startTime, sName, updown, week)
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun arrivalStationNameCheck(stationName: String): String {

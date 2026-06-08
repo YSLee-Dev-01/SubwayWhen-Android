@@ -6,6 +6,7 @@ import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.ProcessedKorailSchedule
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.seoul.ScheduleStationModel
+import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.shinbundang.ProcessedShinbundangSchedule
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
 import kotlinx.coroutines.flow.Flow
@@ -29,4 +30,10 @@ interface TotalLoadModel {
     suspend fun seoulScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<ScheduleStationModel>
 
     suspend fun korailScheduleLoad(station: SaveStation, weekDay: String): NetworkResult<List<ProcessedKorailSchedule>>
+
+    suspend fun shinbundangScheduleLoad(
+        station: SaveStation,
+        weekDay: String,
+        isDisposable: Boolean,
+    ): NetworkResult<List<ProcessedShinbundangSchedule>>
 }
