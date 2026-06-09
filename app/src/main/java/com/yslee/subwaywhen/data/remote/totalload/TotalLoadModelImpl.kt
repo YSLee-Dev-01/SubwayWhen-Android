@@ -225,6 +225,10 @@ class TotalLoadModelImpl @Inject constructor(
         return NetworkResult.Success(result)
     }
 
+    override suspend fun getLicenses(): List<String> = loadModel.getLicenses() ?: emptyList()
+
+    override suspend fun getContents(): String = loadModel.getContents() ?: ""
+
     // ── 주변역 데이터 변환 ────────────────────────────────────────────────────
 
     /** "강남역 2호선" → "강남" */

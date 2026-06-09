@@ -17,7 +17,23 @@
     <!-- tab placeholder -->
     <string name="home_placeholder_title">홈</string>
     <string name="search_placeholder_title">검색</string>
-    <string name="setting_placeholder_title">설정</string>
+
+    <!-- setting -->
+    <string name="setting_title">설정</string>
+    <string name="setting_section_home">홈 화면</string>
+    <string name="setting_section_detail">상세 화면</string>
+    <string name="setting_section_search">검색 화면</string>
+    <string name="setting_section_etc">기타</string>
+    <string name="setting_work_alarm">출근 알람</string>
+    <string name="setting_work_time">출근 시간</string>
+    <string name="setting_leave_time">퇴근 시간</string>
+    <string name="setting_congestion_label">혼잡도 이모지</string>
+    <string name="setting_auto_reload">자동 새로고침</string>
+    <string name="setting_schedule_auto_time">시간표 자동 정렬</string>
+    <string name="setting_train_icon">열차 아이콘</string>
+    <string name="setting_search_overlap">중복 저장 방지</string>
+    <string name="setting_license">오픈 라이선스</string>
+    <string name="setting_contents">기타</string>
 
     <!-- search -->
     <string name="search_textfield_placeholder">🔍 지하철역을 검색하세요.</string>

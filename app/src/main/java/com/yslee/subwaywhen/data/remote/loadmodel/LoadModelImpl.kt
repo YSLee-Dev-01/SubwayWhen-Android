@@ -117,6 +117,23 @@ class LoadModelImpl @Inject constructor(
         null
     }
 
+    override suspend fun getLicenses(): List<String>? = try {
+        val snapshot = firebaseDatabase.reference.child("SubwayWhen/Licenses").get().await()
+        @Suppress("UNCHECKED_CAST")
+        snapshot.getValue(Any::class.java)
+            ?.let { it as? List<*> }
+            ?.filterIsInstance<String>()
+    } catch (e: Exception) {
+        null
+    }
+
+    override suspend fun getContents(): String? = try {
+        val snapshot = firebaseDatabase.reference.child("SubwayWhen/Contents").get().await()
+        snapshot.getValue(String::class.java)
+    } catch (e: Exception) {
+        null
+    }
+
     override suspend fun shinbundangScheduleRequest(stationName: String): List<ShinbundangSchedule>? {
         return try {
             val rootSnapshot = firebaseDatabase.reference

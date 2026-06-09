@@ -29,4 +29,6 @@ interface LoadModel {
     suspend fun realtimePositionRequest(subwayLine: String): NetworkResult<RealtimeTrainPositionResponse>
     suspend fun shinbundangScheduleVersionRequest(): Double?
     suspend fun shinbundangScheduleRequest(stationName: String): List<ShinbundangSchedule>?
+    suspend fun getLicenses(): List<String>?
+    suspend fun getContents(): String?
 }

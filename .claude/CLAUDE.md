@@ -47,7 +47,7 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 | 시간표 조회 (서울/코레일) | ✅ 완료 | `feature/home/HomeViewModel.kt` (handleScheduleTap), `mapper/HomeCellMapper.kt` |
 | 시간표 조회 (신분당선) | ✅ 완료 | `data/local/room/`, `data/remote/loadmodel/LoadModelImpl.kt`, `data/remote/totalload/TotalLoadModelImpl.kt` |
 | 역 편집 | ✅ 완료 | `feature/edit/EditScreen.kt`, `EditViewModel.kt` |
-| 설정 화면 | 🚧 미구현 | `feature/setting/SettingScreen.kt` (placeholder) |
+| 설정 화면 | ✅ 완료 | `feature/setting/SettingScreen.kt`, `SettingViewModel.kt`, `component/`, `modal/` |
 
 ---
 
@@ -86,7 +86,7 @@ app/src/main/java/com/yslee/subwaywhen/
 │   │   └── vicinity/                 # 주변역 섹션
 │   │       ├── component/            # StationDetailCard, Row, MiniRow 등
 │   │       └── modal/                # LocationListModal
-│   ├── setting/                      # 설정 화면 (미구현)
+│   ├── setting/                      # 설정 화면
 │   ├── splash/
 │   └── tutorial/
 ├── navigation/

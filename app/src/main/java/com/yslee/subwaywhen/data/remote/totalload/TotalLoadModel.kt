@@ -36,4 +36,6 @@ interface TotalLoadModel {
         weekDay: String,
         isDisposable: Boolean,
     ): NetworkResult<List<ProcessedShinbundangSchedule>>
+    suspend fun getLicenses(): List<String>
+    suspend fun getContents(): String
 }
