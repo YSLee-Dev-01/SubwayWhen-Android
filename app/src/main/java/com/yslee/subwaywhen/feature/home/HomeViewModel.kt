@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.data.network.NetworkResult
+import com.yslee.subwaywhen.data.remote.congestion.CongestionManager
 import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
 import com.yslee.subwaywhen.data.repository.LocalDataRepository
 import com.yslee.subwaywhen.feature.home.mapper.timeGroup
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -28,6 +30,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val totalLoadModel: TotalLoadModel,
     private val localDataRepository: LocalDataRepository,
+    private val congestionManager: CongestionManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -92,6 +95,17 @@ class HomeViewModel @Inject constructor(
             _uiState.update { it.copy(cells = loadingCells, isRefreshing = false) }
 
             if (stations.isEmpty()) return@launch
+
+            // 혼잡도 로드 (실시간 요청과 병렬)
+            launch {
+                val saveSetting = localDataRepository.saveSetting.first()
+                val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+                val level = congestionManager.getLevel(
+                    station = saveSetting.mainCongestionBaseStation,
+                    hour = hour,
+                ) ?: 0
+                _uiState.update { it.copy(congestionEmoji = buildCongestionEmoji(level, saveSetting.mainCongestionLabel)) }
+            }
 
             // 역별 병렬 실시간 요청 → 응답 순서대로 카드 교체
             totalLoadModel.arrivalDataLoad(stations).collect { indexedResult ->
@@ -183,6 +197,12 @@ class HomeViewModel @Inject constructor(
                 })
             }
         }
+    }
+
+    private fun buildCongestionEmoji(level: Int, label: String): String {
+        if (level == 0) return "🫥".repeat(10)
+        val emoji = label.ifEmpty { "☹️" }
+        return emoji.repeat(level) + "🫥".repeat(maxOf(0, 10 - level))
     }
 
     private fun emitEffect(effect: HomeEffect) {

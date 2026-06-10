@@ -3,6 +3,7 @@ package com.yslee.subwaywhen.data.remote.firebase
 import com.google.firebase.database.FirebaseDatabase
 import com.yslee.subwaywhen.core.logger.AppLogger
 import com.yslee.subwaywhen.core.logger.LogLevel
+import com.yslee.subwaywhen.data.model.HolidayData
 import com.yslee.subwaywhen.data.remote.dto.scheduleArrival.korail.KorailTrainNumber
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchQueryRecommendData
 import kotlinx.coroutines.tasks.await
@@ -66,6 +67,20 @@ class FirebaseDataSourceImpl @Inject constructor(
             AppLogger.Network.log(LogLevel.ERROR, "getKorailTrainNumberList failed: ${e.message}")
             null
         }
+    }
+
+    override suspend fun getHolidayList(): HolidayData? = try {
+        val snapshot = database.reference.child("SubwayWhen/HolidayList").get().await()
+        val version = snapshot.child("version").getValue(Long::class.java)?.toInt() ?: 0
+        @Suppress("UNCHECKED_CAST")
+        val list = snapshot.child("value").getValue(Any::class.java)
+            ?.let { it as? List<*> }
+            ?.filterIsInstance<String>()
+            ?: emptyList()
+        HolidayData(version = version, list = list)
+    } catch (e: Exception) {
+        AppLogger.Network.log(LogLevel.ERROR, "getHolidayList failed: ${e.message}")
+        null
     }
 
 }

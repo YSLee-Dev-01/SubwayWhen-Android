@@ -2,6 +2,8 @@ package com.yslee.subwaywhen.feature.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yslee.subwaywhen.data.local.SettingLocalDataSource
+import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSource
 import com.yslee.subwaywhen.data.repository.TutorialRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,7 +22,9 @@ sealed interface SplashEffect {
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val repository: TutorialRepository
+    private val repository: TutorialRepository,
+    private val firebaseDataSource: FirebaseDataSource,
+    private val settingLocalDataSource: SettingLocalDataSource,
 ) : ViewModel() {
 
     private val _effect = MutableSharedFlow<SplashEffect>(replay = 1)
@@ -39,6 +43,15 @@ class SplashViewModel @Inject constructor(
             if (seen) _effect.emit(SplashEffect.NavigateToHome)
             else _effect.emit(SplashEffect.NavigateToTutorial)
             _isReady.value = true
+        }
+
+        // iOS AppDefaultManager.holidayLoad() 대응 — 화면 전환 블로킹 없이 fire-and-forget
+        viewModelScope.launch {
+            val cached = settingLocalDataSource.getHolidayData()
+            val remote = firebaseDataSource.getHolidayList() ?: return@launch
+            if (remote.version > cached.version) {
+                settingLocalDataSource.saveHolidayData(remote)
+            }
         }
     }
 }

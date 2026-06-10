@@ -3,9 +3,11 @@ package com.yslee.subwaywhen.data.local
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.yslee.subwaywhen.data.model.HolidayData
 import com.yslee.subwaywhen.data.model.SaveSetting
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,6 +51,20 @@ class SettingLocalDataSource @Inject constructor(
     suspend fun updateTutorialSeen(value: Boolean) {
         dataStore.edit { prefs ->
             prefs[PreferencesKeys.TUTORIAL_SUCCESS] = value
+        }
+    }
+
+    suspend fun getHolidayData(): HolidayData {
+        val prefs = dataStore.data.first()
+        val version = prefs[PreferencesKeys.HOLIDAY_VERSION] ?: 0
+        val list = prefs[PreferencesKeys.HOLIDAY_LIST]?.toList() ?: emptyList()
+        return HolidayData(version = version, list = list)
+    }
+
+    suspend fun saveHolidayData(data: HolidayData) {
+        dataStore.edit { prefs ->
+            prefs[PreferencesKeys.HOLIDAY_VERSION] = data.version
+            prefs[PreferencesKeys.HOLIDAY_LIST] = data.list.toSet()
         }
     }
 }

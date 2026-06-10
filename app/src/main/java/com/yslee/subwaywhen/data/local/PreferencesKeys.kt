@@ -3,6 +3,7 @@ package com.yslee.subwaywhen.data.local
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 
 object PreferencesKeys {
     val MAIN_CONGESTION_LABEL = stringPreferencesKey("main_congestion_label")
@@ -16,4 +17,6 @@ object PreferencesKeys {
     val IS_WEEKEND_NOTIFICATION_ENABLED = booleanPreferencesKey("is_weekend_notification_enabled")
     val MAIN_CONGESTION_BASE_STATION = stringPreferencesKey("main_congestion_base_station")
     val SAVE_STATIONS_JSON = stringPreferencesKey("save_stations_json")
+    val HOLIDAY_VERSION = intPreferencesKey("holiday_version")
+    val HOLIDAY_LIST = stringSetPreferencesKey("holiday_list")
 }
