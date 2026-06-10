@@ -8,13 +8,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,26 +71,31 @@ fun TrainIconModal(
                 val isSelected = icon == selected
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = if (isSelected) AppIconColor.copy(alpha = 0.1f) else unselectedBg,
-                            shape = RoundedCornerShape(Dimens.cornerRadius),
-                        )
-                        .then(
-                            if (isSelected) Modifier.border(
-                                width = 2.dp,
-                                color = AppIconColor,
-                                shape = RoundedCornerShape(Dimens.cornerRadius),
-                            ) else Modifier
-                        )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { selected = icon },
-                        ),
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
                 ) {
-                    Text(text = icon, fontSize = Dimens.fontSizeBigTitle)
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize(0.85f)
+                            .background(
+                                color = if (isSelected) AppIconColor.copy(alpha = 0.1f) else unselectedBg,
+                                shape = CircleShape,
+                            )
+                            .then(
+                                if (isSelected) Modifier.border(
+                                    width = 2.dp,
+                                    color = AppIconColor,
+                                    shape = CircleShape,
+                                ) else Modifier
+                            )
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { selected = icon },
+                            ),
+                    ) {
+                        Text(text = icon, fontSize = Dimens.fontSizeBigTitle)
+                    }
                 }
             }
         }

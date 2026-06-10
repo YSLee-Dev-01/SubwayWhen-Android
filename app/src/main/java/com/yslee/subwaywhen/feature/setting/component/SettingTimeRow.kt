@@ -70,7 +70,7 @@ fun SettingTimeRow(
                 TimeGroupButton(
                     label = "출근 시간",
                     time = workTime,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp),
+                    modifier = Modifier.padding(horizontal = Dimens.paddingInner, vertical = 20.dp),
                 )
             }
             AnimatedTapBox(
@@ -84,7 +84,7 @@ fun SettingTimeRow(
                 TimeGroupButton(
                     label = "퇴근 시간",
                     time = leaveTime,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp),
+                    modifier = Modifier.padding(horizontal = Dimens.paddingInner, vertical = 20.dp),
                 )
             }
         }
