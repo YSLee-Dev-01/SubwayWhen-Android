@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.yslee.subwaywhen.core.location.LocationManager
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
+import com.yslee.subwaywhen.data.repository.LocalDataRepository
 import com.yslee.subwaywhen.data.repository.VicinityRepository
 import com.yslee.subwaywhen.ui.common.subwayLineIsService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class SearchVicinityViewModel @Inject constructor(
     private val locationManager: LocationManager,
     private val vicinityRepository: VicinityRepository,
+    private val localDataRepository: LocalDataRepository,
     private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
@@ -36,6 +38,14 @@ class SearchVicinityViewModel @Inject constructor(
 
     private val _effect = MutableSharedFlow<VicinityEffect>(replay = 0)
     val effect: SharedFlow<VicinityEffect> = _effect.asSharedFlow()
+
+    init {
+        viewModelScope.launch {
+            localDataRepository.saveSetting.collect { setting ->
+                _uiState.update { it.copy(trainIcon = setting.detailVcTrainIcon) }
+            }
+        }
+    }
 
     fun onIntent(intent: VicinityIntent) {
         when (intent) {

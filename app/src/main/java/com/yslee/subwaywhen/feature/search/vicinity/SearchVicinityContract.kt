@@ -20,6 +20,7 @@ data class VicinityUiState(
     val refreshCooldownSec: Int = 0,
     val errorDialog: String? = null,
     val isLocationModalVisible: Boolean = false,
+    val trainIcon: String = "🚃",
 )
 
 sealed interface VicinityIntent {

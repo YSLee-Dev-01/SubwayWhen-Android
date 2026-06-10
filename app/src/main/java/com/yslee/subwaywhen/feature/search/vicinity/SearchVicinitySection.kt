@@ -306,6 +306,7 @@ private fun SearchVicinitySectionContent(
                                 upArrival = state.upLiveArrival,
                                 downArrival = state.downLiveArrival,
                                 liveLoading = state.liveLoading,
+                                trainIcon = state.trainIcon,
                                 onClose = { onIntent(VicinityIntent.StationTapped(null)) },
                                 onRefresh = { onIntent(VicinityIntent.LiveRefreshTapped) },
                                 onAddStation = { onStationSearch(state.vicinityStations[lastSelectedIdx].name) },

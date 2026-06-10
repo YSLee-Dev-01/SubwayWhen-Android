@@ -68,6 +68,7 @@ fun VicinityStationDetailCard(
     upArrival: List<RealtimeStationArrival>,
     downArrival: List<RealtimeStationArrival>,
     liveLoading: Pair<Boolean, Boolean>,
+    trainIcon: String,
     onClose: () -> Unit,
     onRefresh: () -> Unit,
     onAddStation: () -> Unit,
@@ -156,6 +157,7 @@ fun VicinityStationDetailCard(
                                     TrainIcon(
                                         code = code,
                                         isUp = true,
+                                        icon = trainIcon,
                                         modifier = Modifier.matchParentSize(),
                                     )
                                 }
@@ -222,6 +224,7 @@ fun VicinityStationDetailCard(
                                     TrainIcon(
                                         code = code,
                                         isUp = false,
+                                        icon = trainIcon,
                                         modifier = Modifier.matchParentSize(),
                                     )
                                 }
@@ -361,6 +364,7 @@ fun VicinityStationDetailCard(
 private fun TrainIcon(
     code: String,
     isUp: Boolean,
+    icon: String,
     modifier: Modifier = Modifier,
 ) {
     val isNearStation = code == "0" || code == "1" || code == "2"
@@ -378,7 +382,7 @@ private fun TrainIcon(
         modifier = modifier,
     ) {
         Text(
-            text = "🚃",
+            text = icon,
             modifier = Modifier
                 .offset(y = (-12).dp)               // iOS: .padding(.bottom, 20) 대응, 트랙 위로 부상
                 .then(
@@ -448,6 +452,7 @@ private fun VicinityStationDetailCardLightPreview() {
                 ),
             ),
             liveLoading = Pair(false, false),
+            trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
             onAddStation = {},
@@ -494,6 +499,7 @@ private fun VicinityStationDetailCardDarkPreview() {
                 ),
             ),
             liveLoading = Pair(false, false),
+            trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
             onAddStation = {},
@@ -510,6 +516,7 @@ private fun VicinityStationDetailCardLoadingPreview() {
             upArrival = emptyList(),
             downArrival = emptyList(),
             liveLoading = Pair(true, true),
+            trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
             onAddStation = {},
@@ -526,6 +533,7 @@ private fun VicinityStationDetailCardEmptyPreview() {
             upArrival = emptyList(),
             downArrival = emptyList(),
             liveLoading = Pair(false, false),
+            trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
             onAddStation = {},
