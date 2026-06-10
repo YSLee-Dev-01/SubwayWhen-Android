@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,8 @@ import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
 import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.MainColorDark
+import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 private val trainIcons = listOf("🚃", "🚂", "🚈", "🚅", "🚋", "🚗", "🚙", "🏎️")
@@ -40,16 +43,20 @@ fun TrainIconModal(
     onDismiss: () -> Unit,
 ) {
     var selected by remember(currentIcon) { mutableStateOf(currentIcon) }
+    val isDark = isSystemInDarkTheme()
+    val unselectedBg = if (isDark) MainColorDark else MainColorLight
 
     CommonModalBottomSheet(
         mainTitle = "열차 아이콘",
+        subTitle = "상세화면의 열차 아이콘을 변경하는 기능이에요.",
         onDismiss = onDismiss,
         confirmButton = { animatedDismiss ->
             PrimaryButton(
                 text = "확인",
-                containerColor = AppIconColor,
+                containerColor = if (isDark) MainColorDark else MainColorLight,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 onClick = { onIconSelected(selected); animatedDismiss() },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(Dimens.modalButtonHeight),
             )
         },
     ) {
@@ -66,8 +73,7 @@ fun TrainIconModal(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (isSelected) AppIconColor.copy(alpha = 0.1f)
-                                    else MaterialTheme.colorScheme.surfaceVariant,
+                            color = if (isSelected) AppIconColor.copy(alpha = 0.1f) else unselectedBg,
                             shape = RoundedCornerShape(Dimens.cornerRadius),
                         )
                         .then(

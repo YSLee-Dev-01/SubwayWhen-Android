@@ -22,7 +22,7 @@ fun SettingSectionHeader(title: String, modifier: Modifier = Modifier) {
         ),
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingTB),
+            .padding(vertical = Dimens.paddingTB),
     )
 }
 

@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.setting.modal
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
-import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.MainColorDark
+import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 @Composable
@@ -29,11 +31,13 @@ fun LicenseModal(
         mainTitle = "오픈 라이선스",
         onDismiss = onDismiss,
         confirmButton = { animatedDismiss ->
+            val isDark = isSystemInDarkTheme()
             PrimaryButton(
                 text = "확인",
-                containerColor = AppIconColor,
+                containerColor = if (isDark) MainColorDark else MainColorLight,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 onClick = animatedDismiss,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(Dimens.modalButtonHeight),
             )
         },
     ) {

@@ -1,14 +1,8 @@
 package com.yslee.subwaywhen.feature.setting
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -26,11 +20,9 @@ import com.yslee.subwaywhen.feature.setting.component.SettingToggleRow
 import com.yslee.subwaywhen.feature.setting.modal.ContentsModal
 import com.yslee.subwaywhen.feature.setting.modal.LicenseModal
 import com.yslee.subwaywhen.feature.setting.modal.TrainIconModal
-import com.yslee.subwaywhen.ui.common.CommonTopBar
+import com.yslee.subwaywhen.ui.common.CommonTopBarScreen
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.theme.Dimens
-import com.yslee.subwaywhen.ui.theme.MainColorDark
-import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 @Composable
@@ -50,104 +42,95 @@ private fun SettingScreenContent(
     uiState: SettingUiState,
     onIntent: (SettingIntent) -> Unit,
 ) {
-    val isDark = isSystemInDarkTheme()
-    val cardBg = if (isDark) MainColorDark else MainColorLight
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        CommonTopBar(title = stringResource(R.string.setting_title), isSubTitleVisible = true)
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = Dimens.paddingLR),
-        ) {
-            Spacer(Modifier.height(12.dp))
-
-            // 섹션 1. 홈 화면
-            SettingSectionHeader(title = stringResource(R.string.setting_section_home))
-            Spacer(Modifier.height(4.dp))
-            SettingTimeRow(
-                workTime = uiState.saveSetting.mainGroupOneTime,
-                leaveTime = uiState.saveSetting.mainGroupTwoTime,
-                expandedGroup = uiState.expandedTimeGroup,
-                onGroupTapped = { onIntent(SettingIntent.TimeGroupTapped(it)) },
-                onSave = { group, time -> onIntent(SettingIntent.TimeSaved(group, time)) },
-                modifier = Modifier.padding(bottom = 8.dp),
+    CommonTopBarScreen(
+        title = stringResource(R.string.setting_title),
+        bottomPadding = Dimens.tabBarBottomPadding,
+    ) {
+        // 섹션 1. 홈 화면
+        SettingSectionHeader(title = stringResource(R.string.setting_section_home))
+        Spacer(Modifier.height(7.5.dp))
+        SettingTimeRow(
+            workTime = uiState.saveSetting.mainGroupOneTime,
+            leaveTime = uiState.saveSetting.mainGroupTwoTime,
+            expandedGroup = uiState.expandedTimeGroup,
+            onGroupTapped = { onIntent(SettingIntent.TimeGroupTapped(it)) },
+            onSave = { group, time -> onIntent(SettingIntent.TimeSaved(group, time)) },
+        )
+        Spacer(Modifier.height(10.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingArrowRow(
+                title = stringResource(R.string.setting_work_alarm),
+                onTap = { onIntent(SettingIntent.WorkAlarmTapped) },
             )
-            MainBgCard(modifier = Modifier.fillMaxWidth()) {
-                SettingArrowRow(
-                    title = stringResource(R.string.setting_work_alarm),
-                    onTap = { onIntent(SettingIntent.WorkAlarmTapped) },
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            MainBgCard(modifier = Modifier.fillMaxWidth()) {
-                SettingTextFieldRow(
-                    title = stringResource(R.string.setting_congestion_label),
-                    value = uiState.saveSetting.mainCongestionLabel,
-                    onValueChange = { onIntent(SettingIntent.CongestionLabelChanged(it)) },
-                    onFocusLost = { onIntent(SettingIntent.CongestionLabelFocusLost) },
-                )
-            }
+        }
+        Spacer(Modifier.height(10.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingTextFieldRow(
+                title = stringResource(R.string.setting_congestion_label),
+                value = uiState.saveSetting.mainCongestionLabel,
+                onValueChange = { onIntent(SettingIntent.CongestionLabelChanged(it)) },
+                onFocusLost = { onIntent(SettingIntent.CongestionLabelFocusLost) },
+            )
+        }
 
-            Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(15.dp))
 
-            // 섹션 2. 상세 화면
-            SettingSectionHeader(title = stringResource(R.string.setting_section_detail))
-            Spacer(Modifier.height(4.dp))
-            MainBgCard(modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    SettingToggleRow(
-                        title = stringResource(R.string.setting_auto_reload),
-                        checked = uiState.saveSetting.detailAutoReload,
-                        onToggle = { onIntent(SettingIntent.ToggleChanged(SettingToggleField.AutoReload)) },
-                    )
-                    SettingToggleRow(
-                        title = stringResource(R.string.setting_schedule_auto_time),
-                        checked = uiState.saveSetting.detailScheduleAutoTime,
-                        onToggle = { onIntent(SettingIntent.ToggleChanged(SettingToggleField.ScheduleAutoTime)) },
-                    )
-                    SettingArrowRow(
-                        title = stringResource(R.string.setting_train_icon),
-                        onTap = { onIntent(SettingIntent.TrainIconTapped) },
-                    )
-                }
-            }
+        // 섹션 2. 상세 화면
+        SettingSectionHeader(title = stringResource(R.string.setting_section_detail))
+        Spacer(Modifier.height(7.5.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingToggleRow(
+                title = stringResource(R.string.setting_auto_reload),
+                checked = uiState.saveSetting.detailAutoReload,
+                onToggle = { onIntent(SettingIntent.ToggleChanged(SettingToggleField.AutoReload)) },
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingToggleRow(
+                title = stringResource(R.string.setting_schedule_auto_time),
+                checked = uiState.saveSetting.detailScheduleAutoTime,
+                onToggle = { onIntent(SettingIntent.ToggleChanged(SettingToggleField.ScheduleAutoTime)) },
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingArrowRow(
+                title = stringResource(R.string.setting_train_icon),
+                onTap = { onIntent(SettingIntent.TrainIconTapped) },
+            )
+        }
 
-            Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(15.dp))
 
-            // 섹션 3. 검색 화면
-            SettingSectionHeader(title = stringResource(R.string.setting_section_search))
-            Spacer(Modifier.height(4.dp))
-            MainBgCard(modifier = Modifier.fillMaxWidth()) {
-                SettingToggleRow(
-                    title = stringResource(R.string.setting_search_overlap),
-                    checked = uiState.saveSetting.searchOverlapAlert,
-                    onToggle = { onIntent(SettingIntent.ToggleChanged(SettingToggleField.SearchOverlap)) },
-                )
-            }
+        // 섹션 3. 검색 화면
+        SettingSectionHeader(title = stringResource(R.string.setting_section_search))
+        Spacer(Modifier.height(7.5.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingToggleRow(
+                title = stringResource(R.string.setting_search_overlap),
+                checked = uiState.saveSetting.searchOverlapAlert,
+                onToggle = { onIntent(SettingIntent.ToggleChanged(SettingToggleField.SearchOverlap)) },
+            )
+        }
 
-            Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(15.dp))
 
-            // 섹션 4. 기타
-            SettingSectionHeader(title = stringResource(R.string.setting_section_etc))
-            Spacer(Modifier.height(4.dp))
-            MainBgCard(modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    SettingArrowRow(
-                        title = stringResource(R.string.setting_license),
-                        onTap = { onIntent(SettingIntent.LicenseTapped) },
-                    )
-                    SettingArrowRow(
-                        title = stringResource(R.string.setting_contents),
-                        onTap = { onIntent(SettingIntent.ContentsTapped) },
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(Dimens.tabBarBottomPadding))
+        // 섹션 4. 기타
+        SettingSectionHeader(title = stringResource(R.string.setting_section_etc))
+        Spacer(Modifier.height(7.5.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingArrowRow(
+                title = stringResource(R.string.setting_license),
+                onTap = { onIntent(SettingIntent.LicenseTapped) },
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+            SettingArrowRow(
+                title = stringResource(R.string.setting_contents),
+                onTap = { onIntent(SettingIntent.ContentsTapped) },
+            )
         }
     }
 

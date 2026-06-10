@@ -94,17 +94,13 @@ class SettingViewModel @Inject constructor(
             }
 
             is SettingIntent.LicenseTapped -> {
-                _uiState.update { it.copy(activeModal = SettingModalType.License, isModalLoading = true) }
-                viewModelScope.launch {
-                    val licenses = totalLoadModel.getLicenses()
-                    _uiState.update { it.copy(modalLicenses = licenses, isModalLoading = false) }
-                }
+                _uiState.update { it.copy(activeModal = SettingModalType.License) }
             }
 
             is SettingIntent.ContentsTapped -> {
                 _uiState.update { it.copy(activeModal = SettingModalType.Contents, isModalLoading = true) }
                 viewModelScope.launch {
-                    val contents = totalLoadModel.getContents()
+                    val contents = totalLoadModel.getLicenses().joinToString("\n")
                     _uiState.update { it.copy(modalContents = contents, isModalLoading = false) }
                 }
             }

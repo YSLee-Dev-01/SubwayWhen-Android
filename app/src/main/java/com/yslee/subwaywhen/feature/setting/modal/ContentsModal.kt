@@ -1,7 +1,9 @@
 package com.yslee.subwaywhen.feature.setting.modal
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,8 +15,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
-import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.MainColorDark
+import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 @Composable
@@ -27,11 +30,13 @@ fun ContentsModal(
         mainTitle = "기타",
         onDismiss = onDismiss,
         confirmButton = { animatedDismiss ->
+            val isDark = isSystemInDarkTheme()
             PrimaryButton(
                 text = "확인",
-                containerColor = AppIconColor,
+                containerColor = if (isDark) MainColorDark else MainColorLight,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 onClick = animatedDismiss,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(Dimens.modalButtonHeight),
             )
         },
     ) {

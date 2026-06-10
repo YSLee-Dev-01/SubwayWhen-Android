@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.feature.setting.TimeGroup
@@ -56,9 +57,7 @@ fun SettingTimeRow(
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             AnimatedTapBox(
                 bgColor = bgColor,
@@ -71,7 +70,7 @@ fun SettingTimeRow(
                 TimeGroupButton(
                     label = "출근 시간",
                     time = workTime,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp),
                 )
             }
             AnimatedTapBox(
@@ -85,7 +84,7 @@ fun SettingTimeRow(
                 TimeGroupButton(
                     label = "퇴근 시간",
                     time = leaveTime,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp),
                 )
             }
         }
@@ -102,7 +101,6 @@ fun SettingTimeRow(
                 MainBgCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Dimens.paddingLR)
                         .padding(top = 8.dp),
                 ) {
                     Row(
@@ -149,6 +147,8 @@ private fun TimeGroupButton(label: String, time: Int, modifier: Modifier = Modif
         )
         Text(
             text = if (time == 0) "-" else "${time}시",
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontSize = Dimens.fontSizeBigTitle,
                 fontWeight = FontWeight.Bold,
@@ -168,15 +168,6 @@ private fun StepperControl(value: Int, onValueChange: (Int) -> Unit) {
                 tint = AppIconColor,
             )
         }
-        Text(
-            text = if (value == 0) "-" else "${value}시",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = Dimens.fontSizeMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            ),
-            modifier = Modifier.width(40.dp),
-        )
         IconButton(onClick = { if (value < 23) onValueChange(value + 1) }) {
             Icon(
                 imageVector = Icons.Default.Add,

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -82,7 +83,7 @@ fun CommonTopBarScreen(
             }
             content()
             if (bottomPadding > 0.dp) {
-                Spacer(modifier = Modifier.height(bottomPadding))
+                Spacer(modifier = Modifier.height(bottomPadding).navigationBarsPadding())
             }
         }
     }
@@ -190,7 +191,7 @@ private fun CommonTopBarLazyContent(
         }
         content()
         if (bottomPadding > 0.dp) {
-            item { Spacer(modifier = Modifier.height(bottomPadding)) }
+            item { Spacer(modifier = Modifier.height(bottomPadding).navigationBarsPadding()) }
         }
     }
 }
