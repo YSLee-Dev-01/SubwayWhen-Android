@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
 import com.yslee.subwaywhen.ui.theme.Dimens
@@ -43,7 +42,7 @@ fun ContentsModal(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 400.dp)
+                .heightIn(max = Dimens.modalContentMaxHeight)
                 .verticalScroll(rememberScrollState()),
         ) {
             if (!isLoading && contents.isNotEmpty()) {

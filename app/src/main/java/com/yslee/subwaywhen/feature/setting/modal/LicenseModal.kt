@@ -44,7 +44,7 @@ fun LicenseModal(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 400.dp)
+                .heightIn(max = Dimens.modalContentMaxHeight)
                 .verticalScroll(rememberScrollState()),
         ) {
             if (!isLoading && licenses.isNotEmpty()) {

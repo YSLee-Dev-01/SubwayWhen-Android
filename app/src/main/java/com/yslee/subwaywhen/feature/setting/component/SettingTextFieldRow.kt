@@ -32,7 +32,7 @@ fun SettingTextFieldRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .height(59.dp)
+            .height(Dimens.settingRowHeight)
             .padding(horizontal = Dimens.paddingInner),
     ) {
         Text(

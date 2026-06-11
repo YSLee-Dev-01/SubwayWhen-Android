@@ -32,7 +32,7 @@ fun SettingToggleRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .height(59.dp)
+            .height(Dimens.settingRowHeight)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

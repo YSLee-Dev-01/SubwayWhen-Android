@@ -42,7 +42,7 @@ fun SettingArrowRow(
         onClick = onTap,
         modifier = modifier
             .fillMaxWidth()
-            .height(59.dp),
+            .height(Dimens.settingRowHeight),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

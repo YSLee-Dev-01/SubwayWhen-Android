@@ -20,6 +20,8 @@ object Dimens {
     val tabBarBottomPadding = 80.dp
     val disposableButtonWidth = 60.dp
     val disposableButtonHeight = 30.dp
+    val settingRowHeight = 59.dp
+    val modalContentMaxHeight = 400.dp
     val modalButtonHeight = 50.dp
     val modalHorizontalMargin = 10.dp
     val disposableViewGap = 10.dp
