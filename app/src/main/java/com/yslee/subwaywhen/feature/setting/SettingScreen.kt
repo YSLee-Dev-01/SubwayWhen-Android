@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,6 +28,7 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 @Composable
 fun SettingScreen(
+    onTabBarVisibilityChange: (Boolean) -> Unit = {},
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -34,6 +36,7 @@ fun SettingScreen(
     SettingScreenContent(
         uiState = uiState,
         onIntent = viewModel::onIntent,
+        onTabBarVisibilityChange = onTabBarVisibilityChange,
     )
 }
 
@@ -41,7 +44,11 @@ fun SettingScreen(
 private fun SettingScreenContent(
     uiState: SettingUiState,
     onIntent: (SettingIntent) -> Unit,
+    onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
+    LaunchedEffect(uiState.activeModal) {
+        onTabBarVisibilityChange(uiState.activeModal == null)
+    }
     CommonTopBarScreen(
         title = stringResource(R.string.setting_title),
         bottomPadding = Dimens.tabBarBottomPadding,

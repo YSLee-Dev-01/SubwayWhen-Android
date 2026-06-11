@@ -89,7 +89,9 @@ fun RootScaffold() {
             composable(TabRoute.Search.route) {
                 SearchScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
             }
-            composable(TabRoute.Setting.route) { SettingScreen() }
+            composable(TabRoute.Setting.route) {
+                SettingScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
+            }
             composable(
                 route = NavRoutes.Edit,
                 enterTransition = { slideInHorizontally(tween(Dimens.animationDurationMs)) { it } },
