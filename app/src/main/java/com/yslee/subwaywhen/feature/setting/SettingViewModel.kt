@@ -100,7 +100,7 @@ class SettingViewModel @Inject constructor(
             is SettingIntent.ContentsTapped -> {
                 _uiState.update { it.copy(activeModal = SettingModalType.Contents, isModalLoading = true) }
                 viewModelScope.launch {
-                    val contents = totalLoadModel.getLicenses().joinToString("\n")
+                    val contents = totalLoadModel.getContents()
                     _uiState.update { it.copy(modalContents = contents, isModalLoading = false) }
                 }
             }
