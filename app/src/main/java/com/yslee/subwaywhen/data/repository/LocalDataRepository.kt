@@ -10,4 +10,5 @@ interface LocalDataRepository {
     val isInitialized: StateFlow<Boolean>
     suspend fun updateSaveSetting(setting: SaveSetting)
     suspend fun updateSaveStations(stations: List<SaveStation>)
+    suspend fun deleteShinbundangSchedule(stationName: String)
 }

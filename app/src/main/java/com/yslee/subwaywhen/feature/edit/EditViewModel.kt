@@ -51,6 +51,11 @@ class EditViewModel @Inject constructor(
                         isSaveEnabled = isSaveEnabled(newItems),
                     )
                 }
+                if (intent.station.line == "신분당선") {
+                    viewModelScope.launch {
+                        localDataRepository.deleteShinbundangSchedule(intent.station.stationName)
+                    }
+                }
             }
 
             is EditIntent.Reorder -> {
