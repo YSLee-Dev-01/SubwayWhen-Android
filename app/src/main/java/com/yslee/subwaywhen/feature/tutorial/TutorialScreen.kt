@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,7 +53,7 @@ fun TutorialScreen(
         label = "backgroundColor",
     )
     val headerTextColor by animateColorAsState(
-        targetValue = if (isLastPage) Color.White else MaterialTheme.colorScheme.onBackground,
+        targetValue = if (isLastPage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground,
         label = "headerTextColor",
     )
 

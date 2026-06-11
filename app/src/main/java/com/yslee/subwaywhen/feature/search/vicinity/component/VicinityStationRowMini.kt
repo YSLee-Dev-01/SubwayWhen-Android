@@ -32,11 +32,11 @@ fun VicinityStationRowMini(
     station: VicinityTransformData,
     onClick: () -> Unit,
 ) {
-    val lineColor = subwayLineColor(station.lineColorName) ?: Color.Gray
+    val lineColor = subwayLineColor(station.lineColorName) ?: MaterialTheme.colorScheme.onSurfaceVariant
 
     AnimatedTapBox(
         bgColor = Color.Transparent,
-        pressedColor = Color.Gray.copy(alpha = 0.1f),
+        pressedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
         alignment = AnimatedTapBoxAlignment.Center,
         horizontalPadding = 8.dp,
         onClick = onClick,

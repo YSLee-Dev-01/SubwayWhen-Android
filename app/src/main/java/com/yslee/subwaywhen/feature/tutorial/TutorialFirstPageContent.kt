@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -89,6 +90,7 @@ fun TutorialFirstPageContent(onNextClick: () -> Unit) {
         PrimaryButton(
             text = stringResource(R.string.tutorial_page_0_button),
             containerColor = AppIconColor,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             onClick = onNextClick,
             modifier = Modifier
                 .fillMaxWidth()

@@ -115,6 +115,7 @@ fun SettingTimeRow(
                             PrimaryButton(
                                 text = "저장",
                                 containerColor = AppIconColor,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
                                 onClick = { onSave(expandedGroup, stepperValue) },
                                 modifier = Modifier.width(80.dp),
                             )
@@ -122,6 +123,7 @@ fun SettingTimeRow(
                             PrimaryButton(
                                 text = "저장",
                                 containerColor = AppIconColor,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
                                 onClick = { onSave(expandedGroup, stepperValue) },
                                 modifier = Modifier.width(80.dp),
                             )

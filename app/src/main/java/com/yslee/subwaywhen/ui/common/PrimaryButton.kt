@@ -31,7 +31,7 @@ fun PrimaryButton(
     containerColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contentColor: Color = Color.White,
+    contentColor: Color,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
