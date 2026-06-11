@@ -7,6 +7,7 @@ import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.LiveStationModel
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
+import com.yslee.subwaywhen.data.remote.congestion.CongestionManager
 import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
 import com.yslee.subwaywhen.data.network.NetworkError
 import com.yslee.subwaywhen.data.repository.LocalDataRepository
@@ -60,7 +61,10 @@ class HomeViewModelTest : FunSpec({
         coEvery { localRepo.saveStations } returns MutableStateFlow(stations)
         coEvery { localRepo.saveSetting } returns MutableStateFlow(setting)
 
-        return HomeViewModel(totalLoadModel, localRepo)
+        val congestionManager = mockk<CongestionManager>()
+        coEvery { congestionManager.getLevel(any(), any()) } returns null
+
+        return HomeViewModel(totalLoadModel, localRepo, congestionManager)
     }
 
     // ── 1. 빈 목록 ────────────────────────────────────────────────────────────
