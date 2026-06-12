@@ -1,10 +1,11 @@
 package com.yslee.subwaywhen.feature.setting
 
 import com.yslee.subwaywhen.data.model.SaveSetting
+import com.yslee.subwaywhen.data.model.SaveStation
 
 enum class TimeGroup { Work, Leave }
 
-enum class SettingModalType { TrainIcon, License, Contents }
+enum class SettingModalType { TrainIcon, License, Contents, WorkAlarm }
 
 enum class SettingToggleField { AutoReload, ScheduleAutoTime, SearchOverlap }
 
@@ -15,6 +16,13 @@ data class SettingUiState(
     val modalLicenses: List<String> = emptyList(),
     val modalContents: String = "",
     val isModalLoading: Boolean = false,
+    val hasNotificationPermission: Boolean = false,
+    val isWeekendIncluded: Boolean = true,
+    val workAlarmGroupOneStation: SaveStation? = null,
+    val workAlarmGroupTwoStation: SaveStation? = null,
+    val workAlarmSelectGroup: TimeGroup? = null,
+    val groupOneStations: List<SaveStation> = emptyList(),
+    val groupTwoStations: List<SaveStation> = emptyList(),
 )
 
 sealed interface SettingIntent {
@@ -29,5 +37,11 @@ sealed interface SettingIntent {
     data object LicenseTapped : SettingIntent
     data object ContentsTapped : SettingIntent
     data object ModalDismissed : SettingIntent
-    data object WorkAlarmTapped : SettingIntent
+    data class WorkAlarmOpened(val hasPermission: Boolean) : SettingIntent
+    data object WeekendToggled : SettingIntent
+    data class WorkAlarmStationTapped(val group: TimeGroup) : SettingIntent
+    data class WorkAlarmStationSelected(val station: SaveStation) : SettingIntent
+    data class WorkAlarmStationReset(val group: TimeGroup) : SettingIntent
+    data object WorkAlarmSelectPopped : SettingIntent
+    data object WorkAlarmSaved : SettingIntent
 }

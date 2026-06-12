@@ -1,5 +1,8 @@
 package com.yslee.subwaywhen.feature.setting
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -7,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.R
@@ -21,6 +26,7 @@ import com.yslee.subwaywhen.feature.setting.component.SettingToggleRow
 import com.yslee.subwaywhen.feature.setting.modal.ContentsModal
 import com.yslee.subwaywhen.feature.setting.modal.LicenseModal
 import com.yslee.subwaywhen.feature.setting.modal.TrainIconModal
+import com.yslee.subwaywhen.feature.setting.modal.WorkAlarmModal
 import com.yslee.subwaywhen.ui.common.CommonTopBarScreen
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.theme.Dimens
@@ -40,12 +46,23 @@ fun SettingScreen(
     )
 }
 
+private fun checkNotificationPermission(context: android.content.Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context, Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
+}
+
 @Composable
 private fun SettingScreenContent(
     uiState: SettingUiState,
     onIntent: (SettingIntent) -> Unit,
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
+    val context = LocalContext.current
     LaunchedEffect(uiState.activeModal) {
         onTabBarVisibilityChange(uiState.activeModal == null)
     }
@@ -67,7 +84,7 @@ private fun SettingScreenContent(
         MainBgCard(modifier = Modifier.fillMaxWidth()) {
             SettingArrowRow(
                 title = stringResource(R.string.setting_work_alarm),
-                onTap = { onIntent(SettingIntent.WorkAlarmTapped) },
+                onTap = { onIntent(SettingIntent.WorkAlarmOpened(hasPermission = checkNotificationPermission(context))) },
             )
         }
         Spacer(Modifier.height(10.dp))
@@ -155,6 +172,22 @@ private fun SettingScreenContent(
         SettingModalType.Contents -> ContentsModal(
             contents = uiState.modalContents,
             isLoading = uiState.isModalLoading,
+            onDismiss = { onIntent(SettingIntent.ModalDismissed) },
+        )
+        SettingModalType.WorkAlarm -> WorkAlarmModal(
+            hasPermission = uiState.hasNotificationPermission,
+            isWeekendIncluded = uiState.isWeekendIncluded,
+            groupOneStation = uiState.workAlarmGroupOneStation,
+            groupTwoStation = uiState.workAlarmGroupTwoStation,
+            groupOneStations = uiState.groupOneStations,
+            groupTwoStations = uiState.groupTwoStations,
+            selectGroup = uiState.workAlarmSelectGroup,
+            onWeekendToggled = { onIntent(SettingIntent.WeekendToggled) },
+            onStationTapped = { onIntent(SettingIntent.WorkAlarmStationTapped(it)) },
+            onStationSelected = { onIntent(SettingIntent.WorkAlarmStationSelected(it)) },
+            onAlarmOff = { onIntent(SettingIntent.WorkAlarmStationReset(it)) },
+            onSelectBack = { onIntent(SettingIntent.WorkAlarmSelectPopped) },
+            onSave = { onIntent(SettingIntent.WorkAlarmSaved) },
             onDismiss = { onIntent(SettingIntent.ModalDismissed) },
         )
         null -> Unit

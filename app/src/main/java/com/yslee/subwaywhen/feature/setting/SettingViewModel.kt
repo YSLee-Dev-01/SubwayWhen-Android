@@ -2,6 +2,8 @@ package com.yslee.subwaywhen.feature.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yslee.subwaywhen.core.notification.NotificationScheduler
+import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.data.repository.LocalDataRepository
 import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +18,7 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     private val localDataRepository: LocalDataRepository,
     private val totalLoadModel: TotalLoadModel,
+    private val notificationScheduler: NotificationScheduler,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingUiState())
@@ -116,7 +119,71 @@ class SettingViewModel @Inject constructor(
                 }
             }
 
-            is SettingIntent.WorkAlarmTapped -> Unit
+            is SettingIntent.WorkAlarmOpened -> {
+                val stations = localDataRepository.saveStations.value
+                val setting = localDataRepository.saveSetting.value
+                val groupOneStations = stations.filter { it.group == SaveStationGroup.ONE }
+                val groupTwoStations = stations.filter { it.group == SaveStationGroup.TWO }
+                val selectedOne = groupOneStations.firstOrNull { it.id == setting.alertGroupOneId }
+                val selectedTwo = groupTwoStations.firstOrNull { it.id == setting.alertGroupTwoId }
+                _uiState.update {
+                    it.copy(
+                        activeModal = SettingModalType.WorkAlarm,
+                        hasNotificationPermission = intent.hasPermission,
+                        isWeekendIncluded = setting.isWeekendNotificationEnabled,
+                        workAlarmGroupOneStation = selectedOne,
+                        workAlarmGroupTwoStation = selectedTwo,
+                        workAlarmSelectGroup = null,
+                        groupOneStations = groupOneStations,
+                        groupTwoStations = groupTwoStations,
+                    )
+                }
+            }
+
+            is SettingIntent.WeekendToggled -> {
+                _uiState.update { it.copy(isWeekendIncluded = !it.isWeekendIncluded) }
+            }
+
+            is SettingIntent.WorkAlarmStationTapped -> {
+                _uiState.update { it.copy(workAlarmSelectGroup = intent.group) }
+            }
+
+            is SettingIntent.WorkAlarmStationSelected -> {
+                _uiState.update { state ->
+                    when (state.workAlarmSelectGroup) {
+                        TimeGroup.Work -> state.copy(workAlarmGroupOneStation = intent.station, workAlarmSelectGroup = null)
+                        TimeGroup.Leave -> state.copy(workAlarmGroupTwoStation = intent.station, workAlarmSelectGroup = null)
+                        null -> state
+                    }
+                }
+            }
+
+            is SettingIntent.WorkAlarmStationReset -> {
+                _uiState.update { state ->
+                    when (intent.group) {
+                        TimeGroup.Work -> state.copy(workAlarmGroupOneStation = null, workAlarmSelectGroup = null)
+                        TimeGroup.Leave -> state.copy(workAlarmGroupTwoStation = null, workAlarmSelectGroup = null)
+                    }
+                }
+            }
+
+            is SettingIntent.WorkAlarmSelectPopped -> {
+                _uiState.update { it.copy(workAlarmSelectGroup = null) }
+            }
+
+            is SettingIntent.WorkAlarmSaved -> {
+                viewModelScope.launch {
+                    val state = _uiState.value
+                    val updated = state.saveSetting.copy(
+                        alertGroupOneId = state.workAlarmGroupOneStation?.id ?: "",
+                        alertGroupTwoId = state.workAlarmGroupTwoStation?.id ?: "",
+                        isWeekendNotificationEnabled = state.isWeekendIncluded,
+                    )
+                    localDataRepository.updateSaveSetting(updated)
+                    notificationScheduler.reschedule(updated, localDataRepository.saveStations.value)
+                    // activeModal은 animatedDismiss → onDismiss → ModalDismissed 흐름에서 정리
+                }
+            }
         }
     }
 }
