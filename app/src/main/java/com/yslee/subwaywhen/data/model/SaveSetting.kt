@@ -11,4 +11,6 @@ data class SaveSetting(
     val detailVcTrainIcon: String = "🚃",
     val isWeekendNotificationEnabled: Boolean = true,
     val mainCongestionBaseStation: String = "강남",
+    val alertGroupOneId: String = "",
+    val alertGroupTwoId: String = "",
 )

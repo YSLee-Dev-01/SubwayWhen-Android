@@ -16,6 +16,8 @@ object PreferencesKeys {
     val DETAIL_VC_TRAIN_ICON = stringPreferencesKey("detail_vc_train_icon")
     val IS_WEEKEND_NOTIFICATION_ENABLED = booleanPreferencesKey("is_weekend_notification_enabled")
     val MAIN_CONGESTION_BASE_STATION = stringPreferencesKey("main_congestion_base_station")
+    val ALERT_GROUP_ONE_ID = stringPreferencesKey("alert_group_one_id")
+    val ALERT_GROUP_TWO_ID = stringPreferencesKey("alert_group_two_id")
     val SAVE_STATIONS_JSON = stringPreferencesKey("save_stations_json")
     val HOLIDAY_VERSION = intPreferencesKey("holiday_version")
     val HOLIDAY_LIST = stringSetPreferencesKey("holiday_list")

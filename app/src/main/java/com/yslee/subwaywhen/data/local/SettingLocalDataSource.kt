@@ -29,6 +29,8 @@ class SettingLocalDataSource @Inject constructor(
                 detailVcTrainIcon = prefs[PreferencesKeys.DETAIL_VC_TRAIN_ICON] ?: "🚃",
                 isWeekendNotificationEnabled = prefs[PreferencesKeys.IS_WEEKEND_NOTIFICATION_ENABLED] ?: true,
                 mainCongestionBaseStation = prefs[PreferencesKeys.MAIN_CONGESTION_BASE_STATION] ?: "강남",
+                alertGroupOneId = prefs[PreferencesKeys.ALERT_GROUP_ONE_ID] ?: "",
+                alertGroupTwoId = prefs[PreferencesKeys.ALERT_GROUP_TWO_ID] ?: "",
             )
         }
         .catch { emit(SaveSetting()) }
@@ -45,6 +47,8 @@ class SettingLocalDataSource @Inject constructor(
             prefs[PreferencesKeys.DETAIL_VC_TRAIN_ICON] = setting.detailVcTrainIcon
             prefs[PreferencesKeys.IS_WEEKEND_NOTIFICATION_ENABLED] = setting.isWeekendNotificationEnabled
             prefs[PreferencesKeys.MAIN_CONGESTION_BASE_STATION] = setting.mainCongestionBaseStation
+            prefs[PreferencesKeys.ALERT_GROUP_ONE_ID] = setting.alertGroupOneId
+            prefs[PreferencesKeys.ALERT_GROUP_TWO_ID] = setting.alertGroupTwoId
         }
     }
 
