@@ -48,6 +48,7 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 | 시간표 조회 (신분당선) | ✅ 완료 | `data/local/room/`, `data/remote/loadmodel/LoadModelImpl.kt`, `data/remote/totalload/TotalLoadModelImpl.kt` |
 | 역 편집 | ✅ 완료 | `feature/edit/EditScreen.kt`, `EditViewModel.kt` |
 | 설정 화면 | ✅ 완료 | `feature/setting/SettingScreen.kt`, `SettingViewModel.kt`, `component/`, `modal/` |
+| 출퇴근 알림 Modal | ✅ 완료 | `feature/setting/modal/WorkAlarmModal.kt`, `core/notification/` |
 
 ---
 
@@ -57,7 +58,8 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 app/src/main/java/com/yslee/subwaywhen/
 ├── core/
 │   ├── FixInfo.kt                    # DataStore 키 상수
-│   └── location/                     # 위치 권한 · GPS
+│   ├── location/                     # 위치 권한 · GPS
+│   └── notification/                 # 알림 스케줄러, AlarmReceiver, BootReceiver
 ├── data/
 │   ├── local/
 │   │   ├── room/                     # Room DB (AppDatabase, ShinbundangScheduleEntity, DAO)
@@ -102,6 +104,7 @@ app/src/main/java/com/yslee/subwaywhen/
     │   ├── MainBgCard.kt             # 메인 배경 카드
     │   ├── PrimaryButton.kt          # 주요 액션 버튼
     │   ├── StationLineCircle.kt      # 호선 색상 원형 뱃지
+    │   ├── StationRow.kt             # 역 정보 공통 Row (호선 뱃지 + 역명, null = "역 선택")
     │   ├── SubwayLineMapper.kt       # 호선명 → Color 매핑
     │   ├── TriangleShape.kt          # 삼각형 커스텀 Shape
     │   └── UpDownExceptionRow.kt     # 상하행 예외 안내 행

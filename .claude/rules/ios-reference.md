@@ -43,8 +43,8 @@
 | 시간표 조회 | `Presentation/Detail/DetailResultSchedule/` | P1 | ❌ 미시작 |
 | 그룹 관리 (출근/퇴근) | `Configuration/Entity/SaveStationGroup.swift` | P1 | ❌ 미시작 |
 | 시간 기반 그룹 필터링 | `MainViewModel` | P1 | ❌ 미시작 |
-| 설정 화면 | `Presentation/Setting/` | P1 | 🚧 미구현 |
-| 알림 (로컬 Push) | `Service/Notification/` | P2 | ❌ 미시작 |
+| 설정 화면 | `Presentation/Setting/` | P1 | ✅ 완료 |
+| 알림 (로컬 Push) | `Service/Notification/` | P2 | ✅ 완료 (출퇴근 AlarmManager 알림) |
 | 위치 기반 역 검색 | `Service/Location/` | P2 | ✅ 완료 (LocationManager) |
 | 혼잡도 정보 | `Service/Congestion/` | P2 | ❌ 미시작 |
 | 민원 접수 | `Presentation/Report/` | P3 | ❌ 미시작 |
