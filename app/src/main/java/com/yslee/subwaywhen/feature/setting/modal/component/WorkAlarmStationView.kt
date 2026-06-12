@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import com.yslee.subwaywhen.feature.setting.TimeGroup
 import com.yslee.subwaywhen.ui.common.AnimatedTapBox
 import com.yslee.subwaywhen.ui.common.StationRow
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.MainColorDark
 import com.yslee.subwaywhen.ui.theme.MainColorLight
 
@@ -41,9 +43,7 @@ fun WorkAlarmStationView(
         // 주말 포함 토글 행
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 text = "주말포함",
@@ -60,6 +60,10 @@ fun WorkAlarmStationView(
             Switch(
                 checked = isWeekendIncluded,
                 onCheckedChange = { onWeekendToggled() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.surface,
+                    checkedTrackColor = AppIconColor,
+                ),
             )
         }
 
@@ -67,9 +71,7 @@ fun WorkAlarmStationView(
 
         // 출근/퇴근 헤더 + 역 선택 버튼
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Dimens.paddingLR),
         ) {
             // 출근 열

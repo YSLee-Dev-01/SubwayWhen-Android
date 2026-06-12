@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,10 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.yslee.subwaywhen.ui.theme.MainColorDark
+import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -62,15 +64,16 @@ fun WorkAlarmModal(
             }
         } else null,
         confirmButton = { animatedDismiss ->
+            val isDark = isSystemInDarkTheme()
             PrimaryButton(
                 text = if (hasPermission) "저장" else "닫기",
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = if (isDark) MainColorDark else MainColorLight,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 onClick = {
                     if (hasPermission) onSave()
                     animatedDismiss()
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(Dimens.modalButtonHeight),
             )
         },
     ) {
@@ -123,7 +126,6 @@ private fun ExplanationBanner() {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimens.paddingInner)
             .background(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(Dimens.cornerRadius),
