@@ -3,6 +3,8 @@ package com.yslee.subwaywhen.feature.setting
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -63,6 +65,11 @@ private fun SettingScreenContent(
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        onIntent(SettingIntent.WorkAlarmOpened(hasPermission = granted))
+    }
     LaunchedEffect(uiState.activeModal) {
         onTabBarVisibilityChange(uiState.activeModal == null)
     }
@@ -84,7 +91,13 @@ private fun SettingScreenContent(
         MainBgCard(modifier = Modifier.fillMaxWidth()) {
             SettingArrowRow(
                 title = stringResource(R.string.setting_work_alarm),
-                onTap = { onIntent(SettingIntent.WorkAlarmOpened(hasPermission = checkNotificationPermission(context))) },
+                onTap = {
+                    if (checkNotificationPermission(context)) {
+                        onIntent(SettingIntent.WorkAlarmOpened(hasPermission = true))
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                },
             )
         }
         Spacer(Modifier.height(10.dp))

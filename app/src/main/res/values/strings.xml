@@ -24,7 +24,7 @@
     <string name="setting_section_detail">상세 화면</string>
     <string name="setting_section_search">검색 화면</string>
     <string name="setting_section_etc">기타</string>
-    <string name="setting_work_alarm">출근 알람</string>
+    <string name="setting_work_alarm">출퇴근 지하철역</string>
     <string name="setting_work_time">출근 시간</string>
     <string name="setting_leave_time">퇴근 시간</string>
     <string name="setting_congestion_label">혼잡도 이모지</string>

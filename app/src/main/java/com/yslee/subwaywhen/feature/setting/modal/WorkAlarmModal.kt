@@ -52,7 +52,7 @@ fun WorkAlarmModal(
     onDismiss: () -> Unit,
 ) {
     CommonModalBottomSheet(
-        mainTitle = "출퇴근 알림",
+        mainTitle = "출퇴근 지하철역",
         subTitle = if (hasPermission) "출퇴근 시간에 맞게 정해놓은 지하철역으로 알림을 주는 기능이에요."
                    else "알림 권한이 설정되어 있지 않아요.",
         onDismiss = onDismiss,
@@ -147,7 +147,7 @@ private fun NoPermissionContent() {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(140.dp),
     ) {
         LottieAnimation(
             composition = composition,
