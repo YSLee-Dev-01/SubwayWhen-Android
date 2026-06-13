@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.ui.common.AnimatedTapBox
 import com.yslee.subwaywhen.ui.common.StationRow
@@ -32,7 +31,6 @@ import com.yslee.subwaywhen.ui.theme.MainColorLight
 
 @Composable
 fun WorkAlarmSelectView(
-    title: String,
     stations: List<SaveStation>,
     selectedStation: SaveStation?,
     onBack: () -> Unit,
@@ -44,9 +42,7 @@ fun WorkAlarmSelectView(
         // 상단 바
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingInner),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             IconButton(onClick = onBack) {
                 Icon(
@@ -54,12 +50,7 @@ fun WorkAlarmSelectView(
                     contentDescription = "뒤로가기",
                 )
             }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-            )
+            Spacer(modifier = Modifier.weight(1f))
             if (stations.isNotEmpty()) {
                 IconButton(onClick = onAlarmOff) {
                     Icon(
@@ -93,7 +84,7 @@ fun WorkAlarmSelectView(
                         onClick = { onStationSelected(station) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = Dimens.paddingLR, vertical = Dimens.paddingTB),
+                            .padding(vertical = Dimens.paddingTB),
                     ) {
                         StationRow(
                             station = station,

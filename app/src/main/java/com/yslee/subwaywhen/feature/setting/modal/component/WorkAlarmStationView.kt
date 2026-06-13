@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.setting.modal.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -50,21 +53,30 @@ fun WorkAlarmStationView(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
             )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = if (isWeekendIncluded) "월 화 수 목 금 토 일" else "월 화 수 목 금",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 12.dp),
-            )
-            Switch(
-                checked = isWeekendIncluded,
-                onCheckedChange = { onWeekendToggled() },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.surface,
-                    checkedTrackColor = AppIconColor,
-                ),
-            )
+            Spacer(modifier = Modifier.width(Dimens.paddingLR))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(60.dp)
+                    .background(bgColor, RoundedCornerShape(Dimens.cornerRadius))
+                    .padding(horizontal = 15.dp),
+            ) {
+                Text(
+                    text = if (isWeekendIncluded) "월 화 수 목 금 토 일" else "월 화 수 목 금",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = isWeekendIncluded,
+                    onCheckedChange = { onWeekendToggled() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.surface,
+                        checkedTrackColor = AppIconColor,
+                    ),
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))

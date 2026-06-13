@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,7 @@ fun CommonModalBottomSheet(
     modifier: Modifier = Modifier,
     subTitle: String? = null,
     topDecoration: (@Composable () -> Unit)? = null,
+    sheetHeight: Dp? = null,
     // dismiss: animatedDismiss 콜백. sheetState.hide() 후 onDismiss() 순서로 호출해 슬라이드-다운 애니메이션을 보장한다.
     confirmButton: (@Composable (() -> Unit) -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -58,7 +60,9 @@ fun CommonModalBottomSheet(
         dragHandle = null,
         modifier = modifier.padding(horizontal = Dimens.modalHorizontalMargin),
     ) {
-        Column {
+        Column(
+            modifier = if (sheetHeight != null) Modifier.height(sheetHeight) else Modifier,
+        ) {
             if (topDecoration != null) {
                 topDecoration()
                 Spacer(modifier = Modifier.height(Dimens.disposableViewGap))
@@ -67,6 +71,7 @@ fun CommonModalBottomSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .then(if (sheetHeight != null) Modifier.weight(1f) else Modifier)
                     .clip(RoundedCornerShape(25.dp))
                     .background(color = MaterialTheme.colorScheme.surface),
             ) {
