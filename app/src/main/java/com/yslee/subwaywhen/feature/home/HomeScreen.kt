@@ -7,7 +7,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
@@ -18,6 +20,7 @@ import com.yslee.subwaywhen.feature.home.component.HomeEmptyStationCard
 import com.yslee.subwaywhen.feature.home.component.HomeGroupTabBar
 import com.yslee.subwaywhen.feature.home.component.HomeHeaderSection
 import com.yslee.subwaywhen.feature.home.component.HomeStationCard
+import com.yslee.subwaywhen.feature.home.modal.CongestionModal
 import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
 import com.yslee.subwaywhen.ui.theme.Dimens
 
@@ -26,12 +29,13 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToSearch: () -> Unit = {},
     onNavigateToDetail: (HomeCellData) -> Unit = {},
-    onCongestionTap: () -> Unit = {},
+    onTabBarVisibilityChange: (Boolean) -> Unit = {},
     onReportTap: () -> Unit = {},
     onEditTap: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
+    var isCongestionModalVisible by remember { mutableStateOf(false) }
 
     // 요일별 타이틀 메시지 랜덤 선택 — dayOfWeek 단위로 고정 (앱 세션 내 불변)
     val dayOfWeek = remember { todayDayOfWeek() }
@@ -54,7 +58,10 @@ fun HomeScreen(
             when (effect) {
                 HomeEffect.NavigateToSearch -> onNavigateToSearch()
                 is HomeEffect.NavigateToDetail -> onNavigateToDetail(effect.cell)
-                HomeEffect.NavigateToCongestion -> onCongestionTap()
+                HomeEffect.NavigateToCongestion -> {
+                    isCongestionModalVisible = true
+                    onTabBarVisibilityChange(false)
+                }
                 HomeEffect.NavigateToReport -> onReportTap()
                 HomeEffect.NavigateToEdit -> onEditTap()
             }
@@ -114,5 +121,14 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(Dimens.paddingTB + 10.dp))
             }
         }
+    }
+
+    if (isCongestionModalVisible) {
+        CongestionModal(
+            onDismiss = {
+                isCongestionModalVisible = false
+                onTabBarVisibilityChange(true)
+            },
+        )
     }
 }

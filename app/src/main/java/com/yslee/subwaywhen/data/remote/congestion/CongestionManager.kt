@@ -4,6 +4,7 @@ import android.content.Context
 import com.yslee.subwaywhen.data.local.SettingLocalDataSource
 import com.yslee.subwaywhen.data.remote.dto.congestion.CongestionDataSet
 import com.yslee.subwaywhen.data.remote.dto.congestion.CongestionLevel
+import com.yslee.subwaywhen.feature.home.modal.HourlyCongestion
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
@@ -21,8 +22,12 @@ class CongestionManager @Inject constructor(
     private val settingLocalDataSource: SettingLocalDataSource,
 ) {
     private val congestionDataSet: CongestionDataSet by lazy {
-        val json = context.assets.open("congestion_data.json").bufferedReader().readText()
-        Json.decodeFromString<CongestionDataSet>(json)
+        try {
+            val json = context.assets.open("congestion_data.json").bufferedReader().readText()
+            Json.decodeFromString<CongestionDataSet>(json)
+        } catch (e: Exception) {
+            CongestionDataSet(stations = emptyMap())
+        }
     }
 
     fun getAvailableStations(): List<String> =
@@ -30,6 +35,14 @@ class CongestionManager @Inject constructor(
 
     suspend fun getLevel(station: String, hour: Int): Int? =
         getDayData(station)?.get("$hour")?.level
+
+    suspend fun getCongestions(station: String): List<HourlyCongestion> {
+        val dayData = getDayData(station) ?: return emptyList()
+        if (dayData.isEmpty()) return emptyList()
+        return dayData.map { (key, value) ->
+            HourlyCongestion(hour = key.toIntOrNull() ?: 0, percent = value.percent, level = value.level)
+        }.sortedBy { it.hour }
+    }
 
     private suspend fun getDayData(station: String): Map<String, CongestionLevel>? {
         val stationData = congestionDataSet.stations[station]?.hourlyCongestion ?: return null

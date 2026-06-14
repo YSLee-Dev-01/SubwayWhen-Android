@@ -81,7 +81,7 @@ fun RootScaffold() {
                         }
                     },
                     onNavigateToDetail = { _ -> },
-                    onCongestionTap = {},
+                    onTabBarVisibilityChange = { isTabBarVisible = it },
                     onReportTap = {},
                     onEditTap = { childNavController.navigate(NavRoutes.Edit) },
                 )
