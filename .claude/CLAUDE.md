@@ -49,6 +49,7 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 | 역 편집 | ✅ 완료 | `feature/edit/EditScreen.kt`, `EditViewModel.kt` |
 | 설정 화면 | ✅ 완료 | `feature/setting/SettingScreen.kt`, `SettingViewModel.kt`, `component/`, `modal/` |
 | 출퇴근 알림 Modal | ✅ 완료 | `feature/setting/modal/WorkAlarmModal.kt`, `core/notification/` |
+| 혼잡도 Modal | ✅ 완료 | `feature/home/modal/CongestionModal.kt`, `data/remote/congestion/CongestionManager.kt` |
 
 ---
 

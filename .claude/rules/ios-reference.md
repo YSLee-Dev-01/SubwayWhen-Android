@@ -46,7 +46,7 @@
 | 설정 화면 | `Presentation/Setting/` | P1 | ✅ 완료 |
 | 알림 (로컬 Push) | `Service/Notification/` | P2 | ✅ 완료 (출퇴근 AlarmManager 알림) |
 | 위치 기반 역 검색 | `Service/Location/` | P2 | ✅ 완료 (LocationManager) |
-| 혼잡도 정보 | `Service/Congestion/` | P2 | ❌ 미시작 |
+| 혼잡도 정보 | `Service/Congestion/` | P2 | ✅ 완료 (CongestionModal + CongestionManager) |
 | 민원 접수 | `Presentation/Report/` | P3 | ❌ 미시작 |
 | 실시간 열차 위치 | `Presentation/Realtime/` | P3 | ❌ 미시작 |
 | 홈 위젯 | `SubwayWhenHomeWidget/` | P3 | ❌ 미시작 |
