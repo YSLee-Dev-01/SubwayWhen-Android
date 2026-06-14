@@ -84,6 +84,8 @@ private fun SettingScreenContent(
             workTime = uiState.saveSetting.mainGroupOneTime,
             leaveTime = uiState.saveSetting.mainGroupTwoTime,
             expandedGroup = uiState.expandedTimeGroup,
+            workHasAlert = uiState.saveSetting.alertGroupOneId.isNotEmpty(),
+            leaveHasAlert = uiState.saveSetting.alertGroupTwoId.isNotEmpty(),
             onGroupTapped = { onIntent(SettingIntent.TimeGroupTapped(it)) },
             onSave = { group, time -> onIntent(SettingIntent.TimeSaved(group, time)) },
         )
