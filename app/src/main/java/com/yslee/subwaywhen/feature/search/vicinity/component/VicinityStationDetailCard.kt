@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
+import com.yslee.subwaywhen.feature.search.vicinity.LiveLoading
 import com.yslee.subwaywhen.ui.common.StationLineCircle
 import com.yslee.subwaywhen.ui.common.subwayLineColor
 import com.yslee.subwaywhen.ui.common.subwayLineUpDownText
@@ -67,7 +68,7 @@ fun VicinityStationDetailCard(
     station: VicinityTransformData,
     upArrival: List<RealtimeStationArrival>,
     downArrival: List<RealtimeStationArrival>,
-    liveLoading: Pair<Boolean, Boolean>,
+    liveLoading: LiveLoading,
     trainIcon: String,
     onClose: () -> Unit,
     onRefresh: () -> Unit,
@@ -79,22 +80,22 @@ fun VicinityStationDetailCard(
     // iOS: .scaleEffect(y: loading ? 0.2 : 1) / .opacity(loading ? 0 : 1) 대응
     // .animation(.easeInOut(duration: 0.3), value: nowLiveDataLoading)
     val upBarScaleY by animateFloatAsState(
-        targetValue = if (liveLoading.first) 0.2f else 1f,
+        targetValue = if (liveLoading.up) 0.2f else 1f,
         animationSpec = tween(durationMillis = 300),
         label = "upBarScaleY",
     )
     val upCircleAlpha by animateFloatAsState(
-        targetValue = if (liveLoading.first) 0f else 1f,
+        targetValue = if (liveLoading.up) 0f else 1f,
         animationSpec = tween(durationMillis = 300),
         label = "upCircleAlpha",
     )
     val downBarScaleY by animateFloatAsState(
-        targetValue = if (liveLoading.second) 0.2f else 1f,
+        targetValue = if (liveLoading.down) 0.2f else 1f,
         animationSpec = tween(durationMillis = 300),
         label = "downBarScaleY",
     )
     val downCircleAlpha by animateFloatAsState(
-        targetValue = if (liveLoading.second) 0f else 1f,
+        targetValue = if (liveLoading.down) 0f else 1f,
         animationSpec = tween(durationMillis = 300),
         label = "downCircleAlpha",
     )
@@ -151,7 +152,7 @@ fun VicinityStationDetailCard(
                                 )
                             }
                             // 열차 아이콘 (로딩 중 숨김, code 기반 위치)
-                            if (!liveLoading.first) {
+                            if (!liveLoading.up) {
                                 val code = upArrival.firstOrNull()?.code ?: "99"
                                 if (code != "99" && code.isNotEmpty()) {
                                     TrainIcon(
@@ -166,7 +167,7 @@ fun VicinityStationDetailCard(
 
                         // 인접역 이름 (iOS: backStationName = statnFid 조회)
                         Text(
-                            text = if (liveLoading.first) "-"
+                            text = if (liveLoading.up) "-"
                                    else upArrival.firstOrNull()?.backStationName?.ifEmpty { "-" } ?: "-",
                             fontSize = Dimens.fontSizeSmall,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -218,7 +219,7 @@ fun VicinityStationDetailCard(
                                         .graphicsLayer { alpha = downCircleAlpha },
                                 )
                             }
-                            if (!liveLoading.second) {
+                            if (!liveLoading.down) {
                                 val code = downArrival.firstOrNull()?.code ?: "99"
                                 if (code != "99" && code.isNotEmpty()) {
                                     TrainIcon(
@@ -233,7 +234,7 @@ fun VicinityStationDetailCard(
 
                         // 인접역 이름 (iOS: backStationName = statnFid 조회)
                         Text(
-                            text = if (liveLoading.second) "-"
+                            text = if (liveLoading.down) "-"
                                    else downArrival.firstOrNull()?.backStationName?.ifEmpty { "-" } ?: "-",
                             fontSize = Dimens.fontSizeSmall,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -263,11 +264,11 @@ fun VicinityStationDetailCard(
                         ) {
                             val upData = upArrival.firstOrNull()
                             val upDirection = when {
-                                liveLoading.first || upData == null -> "-"
+                                liveLoading.up || upData == null -> "-"
                                 else -> "${if (upData.isFast == "급행") "(급)" else ""}${upData.lastStation}행 (${subwayLineUpDownText(station.lineColorName, isUp = true)})"
                             }
                             val upStatus = when {
-                                liveLoading.first -> "🔄 로딩 중"
+                                liveLoading.up -> "🔄 로딩 중"
                                 upData == null -> "⚠️ 정보없음"
                                 else -> upData.useState
                             }
@@ -304,11 +305,11 @@ fun VicinityStationDetailCard(
                         ) {
                             val downData = downArrival.firstOrNull()
                             val downDirection = when {
-                                liveLoading.second || downData == null -> "-"
+                                liveLoading.down || downData == null -> "-"
                                 else -> "${if (downData.isFast == "급행") "(급)" else ""}${downData.lastStation}행 (${subwayLineUpDownText(station.lineColorName, isUp = false)})"
                             }
                             val downStatus = when {
-                                liveLoading.second -> "🔄 로딩 중"
+                                liveLoading.down -> "🔄 로딩 중"
                                 downData == null -> "⚠️ 정보없음"
                                 else -> downData.useState
                             }
@@ -451,7 +452,7 @@ private fun VicinityStationDetailCardLightPreview() {
                     trainCode = "2346",
                 ),
             ),
-            liveLoading = Pair(false, false),
+            liveLoading = LiveLoading(false, false),
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
@@ -498,7 +499,7 @@ private fun VicinityStationDetailCardDarkPreview() {
                     trainCode = "2346",
                 ),
             ),
-            liveLoading = Pair(false, false),
+            liveLoading = LiveLoading(false, false),
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
@@ -515,7 +516,7 @@ private fun VicinityStationDetailCardLoadingPreview() {
             station = VicinityTransformData(id = "1", name = "강남", line = "2호선", distance = "150m"),
             upArrival = emptyList(),
             downArrival = emptyList(),
-            liveLoading = Pair(true, true),
+            liveLoading = LiveLoading(true, true),
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
@@ -532,7 +533,7 @@ private fun VicinityStationDetailCardEmptyPreview() {
             station = VicinityTransformData(id = "1", name = "한성대입구", line = "4호선", distance = "500m"),
             upArrival = emptyList(),
             downArrival = emptyList(),
-            liveLoading = Pair(false, false),
+            liveLoading = LiveLoading(false, false),
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},

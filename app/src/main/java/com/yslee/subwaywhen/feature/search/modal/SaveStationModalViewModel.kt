@@ -35,12 +35,12 @@ class SaveStationModalViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<SaveStationModalEffect>()
     val effect: SharedFlow<SaveStationModalEffect> = _effect.asSharedFlow()
 
-    fun initStation(station: SearchStationInfo) {
-        _uiState.update { it.copy(station = station) }
-    }
-
     fun onIntent(intent: SaveStationModalIntent) {
         when (intent) {
+            is SaveStationModalIntent.InitStation -> {
+                _uiState.update { it.copy(station = intent.station) }
+            }
+
             is SaveStationModalIntent.GroupToggled -> {
                 _uiState.update {
                     it.copy(

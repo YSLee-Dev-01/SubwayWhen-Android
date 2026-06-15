@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +39,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     var isCongestionModalVisible by remember { mutableStateOf(false) }
+    var importantDetail: Pair<String, String>? by remember { mutableStateOf(null) }
 
     // 요일별 타이틀 메시지 랜덤 선택 — dayOfWeek 단위로 고정 (앱 세션 내 불변)
     val dayOfWeek = remember { todayDayOfWeek() }
@@ -64,6 +68,7 @@ fun HomeScreen(
                 }
                 HomeEffect.NavigateToReport -> onReportTap()
                 HomeEffect.NavigateToEdit -> onEditTap()
+                is HomeEffect.ShowImportantDetail -> importantDetail = Pair(effect.title, effect.contents)
             }
         }
     }
@@ -88,6 +93,8 @@ fun HomeScreen(
                 onCongestionTap = { viewModel.onIntent(HomeIntent.CongestionTap) },
                 onReportTap = { viewModel.onIntent(HomeIntent.ReportTap) },
                 onEditTap = { viewModel.onIntent(HomeIntent.EditTap) },
+                importantData = uiState.importantData,
+                onImportantTap = { viewModel.onIntent(HomeIntent.ImportantTap) },
             )
             Spacer(modifier = Modifier.height(10.dp))
         }
@@ -111,7 +118,7 @@ fun HomeScreen(
         } else {
             itemsIndexed(
                 items = uiState.cells,
-                key = { _, cell -> "${cell.stationIndex}_${cell.subIndex}" },
+                key = { _, cell -> "${cell.stationIndex}_${cell.updnLine}" },
             ) { _, cell ->
                 HomeStationCard(
                     cell = cell,
@@ -128,6 +135,17 @@ fun HomeScreen(
             onDismiss = {
                 isCongestionModalVisible = false
                 onTabBarVisibilityChange(true)
+            },
+        )
+    }
+
+    importantDetail?.let { (title, contents) ->
+        AlertDialog(
+            onDismissRequest = { importantDetail = null },
+            title = { Text("중요 알림") },
+            text = { Text("[$title]\n$contents") },
+            confirmButton = {
+                TextButton(onClick = { importantDetail = null }) { Text("확인") }
             },
         )
     }

@@ -10,4 +10,6 @@ interface FirebaseDataSource {
     suspend fun getSearchQueryRecommendList(): List<SearchQueryRecommendData>?
     suspend fun getKorailTrainNumberList(): List<KorailTrainNumber>?
     suspend fun getHolidayList(): HolidayData?
+    // Returns (title, contents) or null if no announcement (title == "Nil" or failure)
+    suspend fun getImportantData(): Pair<String, String>?
 }

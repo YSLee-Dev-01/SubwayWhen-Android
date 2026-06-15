@@ -83,4 +83,18 @@ class FirebaseDataSourceImpl @Inject constructor(
         null
     }
 
+    override suspend fun getImportantData(): Pair<String, String>? = try {
+        val snapshot = database.reference.child("SubwayWhen/ImportantData").get().await()
+        @Suppress("UNCHECKED_CAST")
+        val list = snapshot.getValue(Any::class.java)
+            ?.let { it as? List<*> }
+            ?.filterIsInstance<String>()
+        if (list != null && list.size >= 2 && list[0] != "Nil") {
+            Pair(list[0], list[1])
+        } else null
+    } catch (e: Exception) {
+        AppLogger.Network.log(LogLevel.ERROR, "getImportantData failed: ${e.message}")
+        null
+    }
+
 }

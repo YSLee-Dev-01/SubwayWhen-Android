@@ -21,7 +21,7 @@ fun SaveStation.toLoadingCell(index: Int): HomeCellData = HomeCellData(
     arrivalTime = "",
     subPrevious = "",
     code = "",
-    isFast = "",
+    isFast = null,
     line = line,
     lineCode = lineCode,
     korailCode = korailCode,
@@ -62,7 +62,7 @@ fun LiveStationModel.toRealCells(index: Int, base: SaveStation): List<HomeCellDa
             arrivalTime = arrival.arrivalTime,
             subPrevious = arrival.subPrevious,
             code = arrival.code,
-            isFast = arrival.isFast ?: "",
+            isFast = arrival.isFast?.ifEmpty { null },
             line = base.line,
             lineCode = base.lineCode,
             korailCode = base.korailCode,
@@ -129,7 +129,7 @@ fun List<ProcessedKorailSchedule>.toScheduleCell(prev: HomeCellData): HomeCellDa
             lastStation = if (next.lastStation.isNotEmpty()) "${next.lastStation}행" else prev.lastStation,
             stateMSG = "%02d:%02d".format(h, m),
             subPrevious = "${remainingMin}분",
-            isFast = next.isFast,
+            isFast = next.isFast.ifEmpty { null },
         )
     } else {
         prev.copy(
@@ -166,7 +166,7 @@ fun List<ProcessedShinbundangSchedule>.toScheduleCell(prev: HomeCellData): HomeC
             lastStation = if (next.endStation.isNotEmpty()) "${next.endStation}행" else prev.lastStation,
             stateMSG = "%02d:%02d".format(h, m),
             subPrevious = "${remainingMin}분",
-            isFast = "",
+            isFast = null,
         )
     } else {
         prev.copy(

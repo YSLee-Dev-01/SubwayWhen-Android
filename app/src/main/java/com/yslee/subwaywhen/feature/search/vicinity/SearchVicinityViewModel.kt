@@ -105,7 +105,7 @@ class SearchVicinityViewModel @Inject constructor(
                             tappedIndex = null,
                             upLiveArrival = emptyList(),
                             downLiveArrival = emptyList(),
-                            liveLoading = Pair(false, false)
+                            liveLoading = LiveLoading(false, false)
                         )
                     }
                 } else {
@@ -143,6 +143,19 @@ class SearchVicinityViewModel @Inject constructor(
 
             is VicinityIntent.DialogDismissed -> {
                 _uiState.update { it.copy(showRefreshCooldownDialog = false, errorDialog = null) }
+            }
+
+            is VicinityIntent.AddStationTapped -> {
+                val station = _uiState.value.vicinityStations.getOrNull(intent.index) ?: return
+                val hasUp = _uiState.value.upLiveArrival.any { it.code.isNotEmpty() }
+                val hasDown = _uiState.value.downLiveArrival.any { it.code.isNotEmpty() }
+                viewModelScope.launch {
+                    if (hasUp || hasDown) {
+                        _effect.emit(VicinityEffect.SearchStation(station.name))
+                    } else {
+                        _effect.emit(VicinityEffect.NoLiveDataError)
+                    }
+                }
             }
         }
     }
@@ -204,13 +217,13 @@ class SearchVicinityViewModel @Inject constructor(
     }
 
     private fun loadLiveArrival(station: VicinityTransformData) = viewModelScope.launch {
-        _uiState.update { it.copy(liveLoading = Pair(true, true)) }
+        _uiState.update { it.copy(liveLoading = LiveLoading(true, true)) }
         val (upArrivals, downArrivals) = vicinityRepository.loadLiveArrival(station.name, station.line)
         _uiState.update {
             it.copy(
                 upLiveArrival = upArrivals,
                 downLiveArrival = downArrivals,
-                liveLoading = Pair(false, false)
+                liveLoading = LiveLoading(false, false)
             )
         }
     }

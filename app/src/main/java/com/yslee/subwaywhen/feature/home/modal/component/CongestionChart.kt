@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
@@ -108,12 +107,14 @@ fun CongestionChart(
     }
 
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val errorColor = MaterialTheme.colorScheme.error
 
-    val redDotComponent = rememberShapeComponent(fill = fill(Color.Red), shape = CorneredShape.Pill)
+    val redDotComponent = rememberShapeComponent(fill = fill(errorColor), shape = CorneredShape.Pill)
     val redPoint = LineCartesianLayer.point(component = redDotComponent, size = 8.dp)
 
     val lineSpec = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(fill(AppIconColor)),
+        pointConnector = LineCartesianLayer.PointConnector.cubic(),
         pointProvider = remember(nowHour, redPoint) {
             object : LineCartesianLayer.PointProvider {
                 override fun getPoint(
@@ -139,7 +140,7 @@ fun CongestionChart(
         },
     )
 
-    val nowLabelText = rememberTextComponent(color = Color.Red)
+    val nowLabelText = rememberTextComponent(color = errorColor)
     val nowMarker = rememberDefaultCartesianMarker(
         label = nowLabelText,
         valueFormatter = DefaultCartesianMarker.ValueFormatter { _, targets ->

@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.yslee.subwaywhen.data.remote.congestion.CongestionManager
 import com.yslee.subwaywhen.data.repository.LocalDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -21,6 +24,9 @@ class CongestionViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(CongestionUiState())
     val uiState: StateFlow<CongestionUiState> = _uiState.asStateFlow()
+
+    private val _effect = MutableSharedFlow<CongestionEffect>()
+    val effect: SharedFlow<CongestionEffect> = _effect.asSharedFlow()
 
     fun onIntent(intent: CongestionIntent) {
         when (intent) {

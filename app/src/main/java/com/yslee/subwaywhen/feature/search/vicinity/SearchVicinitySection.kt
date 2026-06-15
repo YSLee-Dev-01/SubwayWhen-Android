@@ -33,7 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,13 +88,31 @@ fun SearchVicinitySection(
         viewModel.onIntent(VicinityIntent.AuthResultReceived(granted))
     }
 
+    var showNoLiveDataError by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        viewModel.onIntent(VicinityIntent.OnAppear)
         viewModel.effect.collect { effect ->
             when (effect) {
                 is VicinityEffect.SearchStation -> onStationSearch(effect.name)
+                is VicinityEffect.NoLiveDataError -> showNoLiveDataError = true
             }
         }
+    }
+    LaunchedEffect("appear") {
+        viewModel.onIntent(VicinityIntent.OnAppear)
+    }
+
+    if (showNoLiveDataError) {
+        AlertDialog(
+            onDismissRequest = { showNoLiveDataError = false },
+            title = { Text("실시간 정보 없음") },
+            text = { Text("실시간 열차 정보가 확인되지 않아 저장할 수 없어요.") },
+            confirmButton = {
+                TextButton(onClick = { showNoLiveDataError = false }) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
+        )
     }
 
     if (state.showRefreshCooldownDialog) {
@@ -309,7 +329,7 @@ private fun SearchVicinitySectionContent(
                                 trainIcon = state.trainIcon,
                                 onClose = { onIntent(VicinityIntent.StationTapped(null)) },
                                 onRefresh = { onIntent(VicinityIntent.LiveRefreshTapped) },
-                                onAddStation = { onStationSearch(state.vicinityStations[lastSelectedIdx].name) },
+                                onAddStation = { onIntent(VicinityIntent.AddStationTapped(lastSelectedIdx)) },
                             )
                         }
                     }
@@ -468,7 +488,7 @@ private fun PreviewStationSelectedLight() {
                 tappedIndex = 0,
                 upLiveArrival = previewArrivals,
                 downLiveArrival = previewArrivals,
-                liveLoading = Pair(false, false),
+                liveLoading = LiveLoading(false, false),
             ),
             onPermissionRequest = {},
             onIntent = {},
@@ -488,7 +508,7 @@ private fun PreviewStationSelectedDark() {
                 tappedIndex = 0,
                 upLiveArrival = previewArrivals,
                 downLiveArrival = previewArrivals,
-                liveLoading = Pair(false, false),
+                liveLoading = LiveLoading(false, false),
             ),
             onPermissionRequest = {},
             onIntent = {},

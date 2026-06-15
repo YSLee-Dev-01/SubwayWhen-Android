@@ -3,10 +3,10 @@ package com.yslee.subwaywhen.ui.common
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
@@ -43,7 +43,7 @@ private fun TriangleShapeLightPreview() {
         Box(
             modifier = Modifier
                 .size(width = 60.dp, height = 40.dp)
-                .background(color = Color.Black, shape = TriangleShape)
+                .background(color = MaterialTheme.colorScheme.onBackground, shape = TriangleShape)
         )
     }
 }
@@ -55,7 +55,7 @@ private fun TriangleShapeDarkPreview() {
         Box(
             modifier = Modifier
                 .size(width = 60.dp, height = 40.dp)
-                .background(color = Color.White, shape = TriangleShape)
+                .background(color = MaterialTheme.colorScheme.onBackground, shape = TriangleShape)
         )
     }
 }

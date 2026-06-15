@@ -11,6 +11,7 @@ enum class SettingToggleField { AutoReload, ScheduleAutoTime, SearchOverlap }
 
 data class SettingUiState(
     val saveSetting: SaveSetting = SaveSetting(),
+    val allStations: List<SaveStation> = emptyList(),
     val expandedTimeGroup: TimeGroup? = null,
     val activeModal: SettingModalType? = null,
     val modalLicenses: List<String> = emptyList(),

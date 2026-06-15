@@ -28,16 +28,16 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _internal = MutableStateFlow(SearchUiState(recommendStations = SearchRepository.DEFAULT_RECOMMEND))
+    private val _uiState = MutableStateFlow(SearchUiState(recommendStations = SearchRepository.DEFAULT_RECOMMEND))
 
-    val uiState: StateFlow<SearchUiState> = _internal.asStateFlow()
+    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _internal.update { it.copy(recommendStations = repository.recommendStations()) }
+            _uiState.update { it.copy(recommendStations = repository.recommendStations()) }
         }
         viewModelScope.launch {
-            _internal.update { it.copy(nowQueryRecommendList = repository.searchQueryRecommendList()) }
+            _uiState.update { it.copy(nowQueryRecommendList = repository.searchQueryRecommendList()) }
         }
         _searchQuery
             .debounce(700L)
@@ -53,11 +53,11 @@ class SearchViewModel @Inject constructor(
             is SearchIntent.OnAppear -> Unit
 
             is SearchIntent.EnterSearchMode ->
-                _internal.update { it.copy(isSearchMode = true) }
+                _uiState.update { it.copy(isSearchMode = true) }
 
             is SearchIntent.ExitSearchMode -> {
                 _searchQuery.value = ""
-                _internal.update {
+                _uiState.update {
                     it.copy(
                         isSearchMode = false,
                         searchQuery = "",
@@ -70,7 +70,7 @@ class SearchViewModel @Inject constructor(
 
             is SearchIntent.QueryChanged -> {
                 _searchQuery.value = intent.text
-                _internal.update {
+                _uiState.update {
                     it.copy(
                         searchQuery = intent.text,
                         isSearchLoading = intent.text.isNotEmpty(),
@@ -81,14 +81,14 @@ class SearchViewModel @Inject constructor(
             }
 
             is SearchIntent.RecommendStationTapped -> {
-                _internal.update {
+                _uiState.update {
                     it.copy(isSearchMode = true, searchQuery = intent.name, isSearchLoading = true)
                 }
                 _searchQuery.value = intent.name
             }
 
             is SearchIntent.QueryRecommendStationTapped -> {
-                _internal.update {
+                _uiState.update {
                     it.copy(
                         isSearchMode = true,
                         searchQuery = intent.item.stationName,
@@ -99,28 +99,28 @@ class SearchViewModel @Inject constructor(
             }
 
             is SearchIntent.ResultStationTapped -> {
-                _internal.update { it.copy(selectedStation = intent.item) }
+                _uiState.update { it.copy(selectedStation = intent.item) }
             }
 
             is SearchIntent.ModalDismissed -> {
-                _internal.update { it.copy(selectedStation = null) }
+                _uiState.update { it.copy(selectedStation = null) }
             }
 
             is SearchIntent.SaveCompleted -> {
-                _internal.update { it.copy(selectedStation = null, isSaveCompletedModalVisible = true) }
+                _uiState.update { it.copy(selectedStation = null, isSaveCompletedModalVisible = true) }
             }
 
             is SearchIntent.SaveCompletedDismissed -> {
-                _internal.update { it.copy(isSaveCompletedModalVisible = false) }
+                _uiState.update { it.copy(isSaveCompletedModalVisible = false) }
             }
 
             is SearchIntent.VicinityStationSelected -> {
-                _internal.update {
+                _uiState.update {
                     it.copy(
                         isSearchMode = true,
                         isSearchLoading = true,
                         vicinityAutoOpen = true,
-                        searchQuery = intent.stationName,  // 검색창에 역 이름 표시
+                        searchQuery = intent.stationName,
                     )
                 }
                 _searchQuery.value = intent.stationName
@@ -130,7 +130,7 @@ class SearchViewModel @Inject constructor(
 
     private suspend fun performSearch(query: String) {
         if (query.isEmpty()) {
-            _internal.update {
+            _uiState.update {
                 it.copy(searchResult = emptyList(), isSearchLoading = false, filteredQueryRecommendList = emptyList())
             }
             return
@@ -139,10 +139,10 @@ class SearchViewModel @Inject constructor(
         analytics.logEvent("SearchVC_Search") {
             param("Search_Station", query)
         }
-        val filtered = _internal.value.nowQueryRecommendList.filter { it.queryName == query }
+        val filtered = _uiState.value.nowQueryRecommendList.filter { it.queryName == query }
         val result = repository.searchStations(query)
-        val autoOpen = _internal.value.vicinityAutoOpen
-        _internal.update {
+        val autoOpen = _uiState.value.vicinityAutoOpen
+        _uiState.update {
             it.copy(
                 searchResult = result,
                 isSearchLoading = false,

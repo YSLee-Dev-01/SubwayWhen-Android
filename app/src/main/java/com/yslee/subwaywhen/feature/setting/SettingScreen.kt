@@ -5,14 +5,19 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,6 +70,7 @@ private fun SettingScreenContent(
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -73,6 +79,11 @@ private fun SettingScreenContent(
     LaunchedEffect(uiState.activeModal) {
         onTabBarVisibilityChange(uiState.activeModal == null)
     }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } },
+    ) {
     CommonTopBarScreen(
         title = stringResource(R.string.setting_title),
         bottomPadding = Dimens.tabBarBottomPadding,
@@ -207,6 +218,7 @@ private fun SettingScreenContent(
         )
         null -> Unit
     }
+    } // Box
 }
 
 @Preview(name = "SettingScreen - Light", showBackground = true)

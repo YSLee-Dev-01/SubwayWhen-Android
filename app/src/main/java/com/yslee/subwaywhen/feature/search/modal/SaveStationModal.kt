@@ -57,7 +57,7 @@ fun SaveStationModal(
     var showAlreadyExistsDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(station) {
-        viewModel.initStation(station)
+        viewModel.onIntent(SaveStationModalIntent.InitStation(station))
     }
 
     LaunchedEffect(Unit) {

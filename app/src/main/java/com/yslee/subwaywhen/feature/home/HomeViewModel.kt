@@ -2,9 +2,11 @@ package com.yslee.subwaywhen.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.congestion.CongestionManager
+import com.yslee.subwaywhen.data.remote.firebase.FirebaseDataSource
 import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
 import com.yslee.subwaywhen.data.repository.LocalDataRepository
 import com.yslee.subwaywhen.feature.home.mapper.timeGroup
@@ -31,6 +33,7 @@ class HomeViewModel @Inject constructor(
     private val totalLoadModel: TotalLoadModel,
     private val localDataRepository: LocalDataRepository,
     private val congestionManager: CongestionManager,
+    private val firebaseDataSource: FirebaseDataSource,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -44,6 +47,15 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val data = firebaseDataSource.getImportantData()
+            if (data != null) {
+                _uiState.update { it.copy(importantData = data) }
+            }
+        }
+        viewModelScope.launch {
+            var prevStations: List<SaveStation>? = null
+            var prevOneTime: Int? = null
+            var prevTwoTime: Int? = null
             combine(
                 localDataRepository.saveStations,
                 localDataRepository.saveSetting,
@@ -58,7 +70,15 @@ class HomeViewModel @Inject constructor(
                     if (autoGroup != null) {
                         _uiState.update { it.copy(currentGroup = autoGroup) }
                     }
-                    loadGroupData()
+                    val stationsChanged = stations != prevStations
+                    val groupTimeChanged = setting.mainGroupOneTime != prevOneTime ||
+                        setting.mainGroupTwoTime != prevTwoTime
+                    if (stationsChanged || groupTimeChanged) {
+                        loadGroupData(stations)
+                    }
+                    prevStations = stations
+                    prevOneTime = setting.mainGroupOneTime
+                    prevTwoTime = setting.mainGroupTwoTime
                 }
         }
     }
@@ -80,14 +100,18 @@ class HomeViewModel @Inject constructor(
             HomeIntent.ReportTap -> emitEffect(HomeEffect.NavigateToReport)
             HomeIntent.EditTap -> emitEffect(HomeEffect.NavigateToEdit)
             HomeIntent.EmptyAddTap -> emitEffect(HomeEffect.NavigateToSearch)
+            HomeIntent.ImportantTap -> {
+                val data = _uiState.value.importantData ?: return
+                emitEffect(HomeEffect.ShowImportantDetail(data.first, data.second))
+            }
         }
     }
 
-    private fun loadGroupData() {
+    private fun loadGroupData(allStations: List<SaveStation>? = null) {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             val currentGroup = _uiState.value.currentGroup
-            val stations = localDataRepository.saveStations.value
+            val stations = (allStations ?: localDataRepository.saveStations.value)
                 .filter { it.group == currentGroup }
 
             // 즉시 로딩 카드 표시

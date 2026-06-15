@@ -7,6 +7,8 @@ enum class VicinityAuthStatus {
     Unknown, Denied, Granted
 }
 
+data class LiveLoading(val up: Boolean, val down: Boolean)
+
 data class VicinityUiState(
     val authStatus: VicinityAuthStatus = VicinityAuthStatus.Unknown,
     val isVicinityLoading: Boolean = false,
@@ -14,7 +16,7 @@ data class VicinityUiState(
     val tappedIndex: Int? = null,
     val upLiveArrival: List<RealtimeStationArrival> = emptyList(),
     val downLiveArrival: List<RealtimeStationArrival> = emptyList(),
-    val liveLoading: Pair<Boolean, Boolean> = Pair(false, false),
+    val liveLoading: LiveLoading = LiveLoading(false, false),
     val lastSearchTime: Long? = null,
     val showRefreshCooldownDialog: Boolean = false,
     val refreshCooldownSec: Int = 0,
@@ -34,8 +36,10 @@ sealed interface VicinityIntent {
     data object ListModalDismissed : VicinityIntent
     data class ListStationTapped(val index: Int) : VicinityIntent
     data object DialogDismissed : VicinityIntent
+    data class AddStationTapped(val index: Int) : VicinityIntent
 }
 
 sealed interface VicinityEffect {
     data class SearchStation(val name: String) : VicinityEffect
+    data object NoLiveDataError : VicinityEffect
 }

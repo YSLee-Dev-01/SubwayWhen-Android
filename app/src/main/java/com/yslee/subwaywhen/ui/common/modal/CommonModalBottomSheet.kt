@@ -140,7 +140,7 @@ private fun CommonModalBottomSheetLightPreview() {
                 ModalSubButton(
                     text = "확인",
                     bgColor = Color(0xFF2196F3),
-                    textColor = Color.White,
+                    textColor = MaterialTheme.colorScheme.onPrimary,
                     onClick = dismiss,
                     modifier = Modifier.fillMaxWidth(),
                 )

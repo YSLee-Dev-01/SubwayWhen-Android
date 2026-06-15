@@ -7,15 +7,21 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.ui.common.PrimaryButton
@@ -45,7 +53,7 @@ fun TrainIconModal(
 ) {
     var selected by remember(currentIcon) { mutableStateOf(currentIcon) }
     val isDark = isSystemInDarkTheme()
-    val unselectedBg = if (isDark) MainColorDark else MainColorLight
+    val mainColor = if (isDark) MainColorDark else MainColorLight
 
     CommonModalBottomSheet(
         mainTitle = "열차 아이콘",
@@ -54,13 +62,88 @@ fun TrainIconModal(
         confirmButton = { animatedDismiss ->
             PrimaryButton(
                 text = "확인",
-                containerColor = if (isDark) MainColorDark else MainColorLight,
+                containerColor = mainColor,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 onClick = { onIconSelected(selected); animatedDismiss() },
                 modifier = Modifier.fillMaxWidth().height(Dimens.modalButtonHeight),
             )
         },
     ) {
+        // 선택 아이콘 미리보기 (iOS SettingTrainIconModalView 대응)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .clip(RoundedCornerShape(Dimens.cornerRadius))
+                .background(mainColor),
+        ) {
+            // 선로
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .height(5.dp)
+                    .offset(y = (-5).dp)
+                    .background(AppIconColor),
+            )
+            // 역 원 + 아이콘 + 레이블
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .offset(y = 5.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // 현재역 원
+                    Box(
+                        modifier = Modifier
+                            .size(15.dp)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                            .border(1.dp, AppIconColor, CircleShape),
+                    )
+                    // 다음역 원 + 선택 아이콘 오버레이
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(15.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .background(MaterialTheme.colorScheme.surface, CircleShape)
+                                .border(1.dp, AppIconColor, CircleShape),
+                        )
+                        Text(
+                            text = selected,
+                            fontSize = Dimens.fontSizeBigTitle,
+                            modifier = Modifier.offset(y = (-13).dp),
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "현재역",
+                        fontSize = Dimens.fontSizeSmall,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text(
+                        text = "다음역",
+                        fontSize = Dimens.fontSizeSmall,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -78,7 +161,7 @@ fun TrainIconModal(
                         modifier = Modifier
                             .fillMaxSize(0.85f)
                             .background(
-                                color = if (isSelected) AppIconColor.copy(alpha = 0.1f) else unselectedBg,
+                                color = if (isSelected) AppIconColor.copy(alpha = 0.1f) else mainColor,
                                 shape = CircleShape,
                             )
                             .then(

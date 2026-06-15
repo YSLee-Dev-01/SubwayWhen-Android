@@ -10,6 +10,7 @@ data class SaveStationModalUiState(
 )
 
 sealed interface SaveStationModalIntent {
+    data class InitStation(val station: SearchStationInfo) : SaveStationModalIntent
     data object GroupToggled : SaveStationModalIntent
     data class ExceptionChanged(val text: String) : SaveStationModalIntent
     data object UpButtonTapped : SaveStationModalIntent

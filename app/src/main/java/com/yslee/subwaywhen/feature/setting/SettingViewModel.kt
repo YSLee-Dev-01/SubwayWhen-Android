@@ -30,6 +30,11 @@ class SettingViewModel @Inject constructor(
                 _uiState.update { it.copy(saveSetting = setting) }
             }
         }
+        viewModelScope.launch {
+            localDataRepository.saveStations.collect { stations ->
+                _uiState.update { it.copy(allStations = stations) }
+            }
+        }
     }
 
     fun onIntent(intent: SettingIntent) {
@@ -120,8 +125,9 @@ class SettingViewModel @Inject constructor(
             }
 
             is SettingIntent.WorkAlarmOpened -> {
-                val stations = localDataRepository.saveStations.value
-                val setting = localDataRepository.saveSetting.value
+                val state = _uiState.value
+                val stations = state.allStations
+                val setting = state.saveSetting
                 val groupOneStations = stations.filter { it.group == SaveStationGroup.ONE }
                 val groupTwoStations = stations.filter { it.group == SaveStationGroup.TWO }
                 val selectedOne = groupOneStations.firstOrNull { it.id == setting.alertGroupOneId }
@@ -180,7 +186,7 @@ class SettingViewModel @Inject constructor(
                         isWeekendNotificationEnabled = state.isWeekendIncluded,
                     )
                     localDataRepository.updateSaveSetting(updated)
-                    notificationScheduler.reschedule(updated, localDataRepository.saveStations.value)
+                    notificationScheduler.reschedule(updated, _uiState.value.allStations)
                     // activeModal은 animatedDismiss → onDismiss → ModalDismissed 흐름에서 정리
                 }
             }

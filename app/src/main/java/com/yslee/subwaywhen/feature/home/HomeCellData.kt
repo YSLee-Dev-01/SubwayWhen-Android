@@ -16,7 +16,7 @@ data class HomeCellData(
     val arrivalTime: String,
     val subPrevious: String,
     val code: String,
-    val isFast: String,
+    val isFast: String?,
     val line: String,
     val lineCode: String,
     val korailCode: String,

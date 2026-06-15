@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.data.model.SaveStation
@@ -41,7 +40,7 @@ fun StationRow(
     ) {
         StationLineCircle(
             title = if (station != null) subwayLineDisplayName(station.line) else "?",
-            lineColor = if (station != null) subwayLineColor(station.line) else Color.Gray,
+            lineColor = if (station != null) subwayLineColor(station.line) else MaterialTheme.colorScheme.onSurfaceVariant,
             size = Dimens.stationLineCircleSize,
             isFilled = true,
             fontSize = Dimens.fontSizeSmall,

@@ -11,3 +11,5 @@ sealed interface CongestionIntent {
     data object OnAppear : CongestionIntent
     data class StationTap(val station: String) : CongestionIntent
 }
+
+sealed interface CongestionEffect

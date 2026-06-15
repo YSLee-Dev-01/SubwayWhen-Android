@@ -30,8 +30,19 @@ fun HomeHeaderSection(
     onReportTap: () -> Unit,
     onEditTap: () -> Unit,
     modifier: Modifier = Modifier,
+    importantData: Pair<String, String>? = null,
+    onImportantTap: () -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
+        // 중요 공지 배너 (Firebase 공지가 있을 때만 표시)
+        if (importantData != null) {
+            HomeImportantCard(
+                title = importantData.first,
+                onTap = onImportantTap,
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
         // 혼잡도 카드
         HomeCongestionCard(
             congestionEmoji = congestionEmoji,
