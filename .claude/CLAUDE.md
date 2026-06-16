@@ -50,6 +50,7 @@ iOS 원본 프로젝트를 기능 기준으로 삼되, 아키텍처는 Android �
 | 설정 화면 | ✅ 완료 | `feature/setting/SettingScreen.kt`, `SettingViewModel.kt`, `component/`, `modal/` |
 | 출퇴근 알림 Modal | ✅ 완료 | `feature/setting/modal/WorkAlarmModal.kt`, `core/notification/` |
 | 혼잡도 Modal | ✅ 완료 | `feature/home/modal/CongestionModal.kt`, `data/remote/congestion/CongestionManager.kt` |
+| 역 상세 (Detail) | ✅ 완료 | `feature/detail/DetailScreen.kt`, `DetailViewModel.kt`, `DetailContract.kt`, `mapper/DetailMapper.kt`, `component/`, `resultschedule/` |
 
 ---
 
@@ -81,6 +82,14 @@ app/src/main/java/com/yslee/subwaywhen/
 │   │   ├── EditScreen.kt             # Composable 진입점
 │   │   ├── EditViewModel.kt          # 비즈니스 로직
 │   │   └── component/               # EditStationRow, NotSaveAlertDialog
+│   ├── detail/                       # 역 상세 화면
+│   │   ├── DetailContract.kt         # UiState, Intent, Effect
+│   │   ├── DetailScreen.kt           # Composable 진입점
+│   │   ├── DetailSendModel.kt        # 진입 파라미터 모델 (@Serializable)
+│   │   ├── DetailViewModel.kt        # 실시간/시간표 로드, 15초 타이머
+│   │   ├── component/               # DetailArrivalSection, DetailTrainPositionView, DetailTimerRefreshView, DetailScheduleSection
+│   │   ├── mapper/                  # DetailMapper (DTO → 표시 모델)
+│   │   └── resultschedule/          # 시간표 전체 보기 (Contract/Screen/ViewModel + component/)
 │   ├── home/                         # 메인 화면
 │   ├── search/
 │   │   ├── component/                # SearchTextField, 결과/추천 섹션

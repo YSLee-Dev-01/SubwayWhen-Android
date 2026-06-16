@@ -93,9 +93,19 @@ class TotalLoadModelImpl @Inject constructor(
         // iOS: 공항철도(1065)는 nextAndBackStationSearch에서 back/next 반전
         val isAirport = lineCode == "1065"
         val up   = filtered.filter { it.upDown == upDirectionText(line) }
-            .map { it.copy(backStationName = if (isAirport) lookupStationName(it.nextStationId) else lookupStationName(it.backStationId)) }
+            .map {
+                it.copy(
+                    backStationName = if (isAirport) lookupStationName(it.nextStationId) else lookupStationName(it.backStationId),
+                    nextStationName = if (isAirport) lookupStationName(it.backStationId) else lookupStationName(it.nextStationId),
+                )
+            }
         val down = filtered.filter { it.upDown == downDirectionText(line) }
-            .map { it.copy(backStationName = if (isAirport) lookupStationName(it.nextStationId) else lookupStationName(it.backStationId)) }
+            .map {
+                it.copy(
+                    backStationName = if (isAirport) lookupStationName(it.nextStationId) else lookupStationName(it.backStationId),
+                    nextStationName = if (isAirport) lookupStationName(it.backStationId) else lookupStationName(it.nextStationId),
+                )
+            }
         return Pair(up, down)
     }
 

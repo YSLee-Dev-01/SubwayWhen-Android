@@ -34,11 +34,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import android.net.Uri
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import com.yslee.subwaywhen.feature.detail.DetailScreen
+import com.yslee.subwaywhen.feature.detail.DetailSendModel
+import com.yslee.subwaywhen.feature.detail.toDetailSendModel
+import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleScreen
 import com.yslee.subwaywhen.feature.edit.EditScreen
 import com.yslee.subwaywhen.feature.home.HomeScreen
 import com.yslee.subwaywhen.feature.search.SearchScreen
@@ -80,7 +89,11 @@ fun RootScaffold() {
                             restoreState = true
                         }
                     },
-                    onNavigateToDetail = { _ -> },
+                    onNavigateToDetail = { cell ->
+                        val model = cell.toDetailSendModel()
+                        val encoded = Uri.encode(Json.encodeToString(model))
+                        childNavController.navigate(NavRoutes.detailRoute(encoded))
+                    },
                     onTabBarVisibilityChange = { isTabBarVisible = it },
                     onReportTap = {},
                     onEditTap = { childNavController.navigate(NavRoutes.Edit) },
@@ -99,6 +112,42 @@ fun RootScaffold() {
             ) {
                 EditScreen(
                     onNavigateBack = { childNavController.popBackStack() },
+                    onTabBarVisibilityChange = { isTabBarVisible = it },
+                )
+            }
+            composable(
+                route = NavRoutes.Detail,
+                arguments = listOf(navArgument(NavRoutes.ARG_DETAIL_MODEL) { type = NavType.StringType }),
+                enterTransition = { slideInHorizontally(tween(Dimens.animationDurationMs)) { it } },
+                popExitTransition = { slideOutHorizontally(tween(Dimens.animationDurationMs)) { it } },
+            ) { backStackEntry ->
+                val encoded = backStackEntry.arguments?.getString(NavRoutes.ARG_DETAIL_MODEL) ?: return@composable
+                val sendModel = Json.decodeFromString<DetailSendModel>(encoded)
+                DetailScreen(
+                    sendModel = sendModel,
+                    onBack = { childNavController.popBackStack() },
+                    onScheduleMoreTap = { scheduleItems ->
+                        val encodedItems = Uri.encode(Json.encodeToString(scheduleItems))
+                        childNavController.navigate(NavRoutes.detailResultScheduleRoute(encodedItems))
+                    },
+                    onTabBarVisibilityChange = { isTabBarVisible = it },
+                )
+            }
+            composable(
+                route = NavRoutes.DetailResultSchedule,
+                arguments = listOf(navArgument(NavRoutes.ARG_RESULT_SCHEDULE_MODEL) { type = NavType.StringType }),
+                enterTransition = { slideInHorizontally(tween(Dimens.animationDurationMs)) { it } },
+                popExitTransition = { slideOutHorizontally(tween(Dimens.animationDurationMs)) { it } },
+            ) {
+                DetailResultScheduleScreen(
+                    onBack = { childNavController.popBackStack() },
+                    onNavigateBackWithException = { exception ->
+                        // Detail 화면으로 돌아가며 제외 행 갱신
+                        childNavController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("exceptionLastStation", exception)
+                        childNavController.popBackStack()
+                    },
                     onTabBarVisibilityChange = { isTabBarVisible = it },
                 )
             }

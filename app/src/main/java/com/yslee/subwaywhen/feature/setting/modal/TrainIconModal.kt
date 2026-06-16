@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -32,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -78,68 +78,76 @@ fun TrainIconModal(
                 .clip(RoundedCornerShape(Dimens.cornerRadius))
                 .background(mainColor),
         ) {
-            // 선로
+            // 선로 + 역 원 + 열차 아이콘 (레이어 순서로 z-order 보장)
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
-                    .height(5.dp)
-                    .offset(y = (-5).dp)
-                    .background(AppIconColor),
-            )
-            // 역 원 + 아이콘 + 레이블
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
-                    .offset(y = 5.dp),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+                    .padding(horizontal = 10.dp),
             ) {
+                // 레이어 1: 선로
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(5.dp)
+                        .background(AppIconColor),
+                )
+                // 레이어 2: 역 원형들
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    // 현재역 원
                     Box(
                         modifier = Modifier
                             .size(15.dp)
                             .background(MaterialTheme.colorScheme.surface, CircleShape)
                             .border(1.dp, AppIconColor, CircleShape),
                     )
-                    // 다음역 원 + 선택 아이콘 오버레이
+                    Box(
+                        modifier = Modifier
+                            .size(15.dp)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                            .border(1.dp, AppIconColor, CircleShape),
+                    )
+                }
+                // 레이어 3: 열차 아이콘 (항상 원형 위에 그려짐)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Spacer(Modifier.size(15.dp))
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.size(15.dp),
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(15.dp)
-                                .background(MaterialTheme.colorScheme.surface, CircleShape)
-                                .border(1.dp, AppIconColor, CircleShape),
-                        )
                         Text(
                             text = selected,
-                            fontSize = Dimens.fontSizeBigTitle,
+                            fontSize = (Dimens.fontSizeBigTitle.value * 2).sp,
                             modifier = Modifier.offset(y = (-13).dp),
                         )
                     }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = "현재역",
-                        fontSize = Dimens.fontSizeSmall,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        text = "다음역",
-                        fontSize = Dimens.fontSizeSmall,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
+            }
+            // 레이블 (하단)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "현재역",
+                    fontSize = Dimens.fontSizeSmall,
+                    fontWeight = FontWeight.Medium,
+                )
+                Text(
+                    text = "다음역",
+                    fontSize = Dimens.fontSizeSmall,
+                    fontWeight = FontWeight.Medium,
+                )
             }
         }
         Spacer(Modifier.height(8.dp))
