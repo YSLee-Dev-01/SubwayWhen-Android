@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.detail.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,25 +8,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.feature.detail.DetailScheduleItem
-import com.yslee.subwaywhen.ui.common.AnimatedTapBox
-import com.yslee.subwaywhen.ui.common.AnimatedTapBoxAlignment
 import com.yslee.subwaywhen.ui.common.MainBgCard
+import com.yslee.subwaywhen.ui.common.subwayLineColor
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 @Composable
 fun DetailScheduleSection(
     scheduleItems: List<DetailScheduleItem>,
+    lineNumber: String,
     isUnowned: Boolean,
     scheduleError: Boolean,
     onScheduleMoreTap: () -> Unit,
@@ -80,7 +85,7 @@ fun DetailScheduleSection(
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     rowItems.forEach { item ->
-                                        Box(modifier = Modifier.weight(1f)) { ScheduleItemCell(item) }
+                                        Box(modifier = Modifier.weight(1f)) { ScheduleItemCell(item, lineNumber) }
                                     }
                                     if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
                                 }
@@ -94,30 +99,27 @@ fun DetailScheduleSection(
 }
 
 @Composable
-private fun ScheduleItemCell(item: DetailScheduleItem) {
-    AnimatedTapBox(
-        bgColor = MaterialTheme.colorScheme.surfaceVariant,
-        pressedColor = MaterialTheme.colorScheme.outline,
-        alignment = AnimatedTapBoxAlignment.Fill,
-        horizontalPadding = 8.dp,
-        verticalPadding = 6.dp,
-        onClick = {},
+private fun ScheduleItemCell(item: DetailScheduleItem, lineNumber: String) {
+    val bgColor = subwayLineColor(lineNumber) ?: MaterialTheme.colorScheme.primary
+    val fastLabel = if (item.isFast) "(급)" else ""
+    val title = "⏱️ $fastLabel${item.destination}행 ${item.timeLabel}"
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(bgColor, RoundedCornerShape(Dimens.cornerRadius))
+            .padding(start = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            val fastLabel = if (item.isFast) " (급)" else ""
-            Text(
-                text = "${item.minutesLater}분 후",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = "${item.timeLabel} ${item.destination}행$fastLabel",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-            )
-        }
+        Text(
+            text = title,
+            color = Color.White,
+            fontSize = Dimens.fontSizeSmall,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -147,6 +149,7 @@ private fun DetailScheduleSectionLightPreview() {
                 DetailScheduleItem(8, "09:20", "구파발", true),
                 DetailScheduleItem(13, "09:25", "연신내", false),
             ),
+            lineNumber = "03호선",
             isUnowned = false,
             scheduleError = false,
             onScheduleMoreTap = {},
@@ -161,6 +164,7 @@ private fun DetailScheduleSectionUnownedPreview() {
     SubwayWhenTheme(darkTheme = false) {
         DetailScheduleSection(
             scheduleItems = emptyList(),
+            lineNumber = "03호선",
             isUnowned = true,
             scheduleError = false,
             onScheduleMoreTap = {},

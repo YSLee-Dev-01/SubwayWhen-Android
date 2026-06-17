@@ -109,6 +109,7 @@ fun DetailScreen(
         item {
             DetailScheduleSection(
                 scheduleItems = uiState.scheduleItems,
+                lineNumber = sendModel.lineNumber,
                 isUnowned = uiState.isUnowned,
                 scheduleError = uiState.scheduleError,
                 onScheduleMoreTap = { viewModel.onIntent(DetailIntent.ScheduleMoreTap) },

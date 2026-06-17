@@ -152,7 +152,7 @@ private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber:
             modifier = Modifier
                 .fillMaxWidth(0.65f)
                 .background(color = bgColor, shape = RoundedCornerShape(15.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 3.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(

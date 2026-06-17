@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,11 @@ fun DetailTrainPositionView(
         animationSpec = tween(durationMillis = Dimens.animationDurationMs),
         label = "trainPosition",
     )
+    val prevAlpha by animateFloatAsState(
+        targetValue = if (statusCode == "99") 1f else 0f,
+        animationSpec = tween(durationMillis = Dimens.animationDurationMs),
+        label = "prevAlpha",
+    )
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth().height(73.dp),
@@ -66,6 +72,7 @@ fun DetailTrainPositionView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 20.dp)
                 .height(5.dp)
                 .align(Alignment.TopCenter)
                 .offset(y = 27.dp)
@@ -84,7 +91,7 @@ fun DetailTrainPositionView(
             StationMarkerColumn(name = currentStationName, lineColor = lineColor, align = Alignment.CenterHorizontally)
 
             if (prevStationName.isNotEmpty()) {
-                StationMarkerColumn(name = prevStationName, lineColor = lineColor, align = Alignment.CenterHorizontally)
+                StationMarkerColumn(name = prevStationName, lineColor = lineColor, align = Alignment.CenterHorizontally, alpha = prevAlpha)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -101,7 +108,7 @@ fun DetailTrainPositionView(
                 .align(Alignment.TopStart)
                 .offset(
                     x = (offsetX - 12.dp).coerceAtLeast(0.dp),
-                    y = 2.dp,
+                    y = 12.dp,
                 ),
             style = MaterialTheme.typography.bodyLarge,
         )
@@ -113,8 +120,10 @@ private fun StationMarkerColumn(
     name: String,
     lineColor: Color,
     align: Alignment.Horizontal,
+    alpha: Float = 1f,
 ) {
     Column(
+        modifier = Modifier.alpha(alpha),
         horizontalAlignment = align,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
