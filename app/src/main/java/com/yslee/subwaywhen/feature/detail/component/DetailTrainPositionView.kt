@@ -62,22 +62,22 @@ fun DetailTrainPositionView(
     ) {
         val offsetX = with(LocalDensity.current) { (maxWidth.toPx() * animatedPosition).toDp() }
 
-        // 호선색 트랙 바
+        // 호선색 트랙 바 (원형 수직 중심에 맞춤)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(5.dp)
-                .align(Alignment.BottomCenter)
-                .offset(y = (-9).dp)
+                .align(Alignment.TopCenter)
+                .offset(y = 27.dp)
                 .background(lineColor, RoundedCornerShape(50)),
         )
 
-        // 역 마커 Row
+        // 역 마커 Row (트랙 바보다 나중에 그려 위에 표시)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
-                .padding(top = 11.dp),
+                .padding(top = 22.dp),
             horizontalArrangement = Arrangement.spacedBy(30.dp),
             verticalAlignment = Alignment.Top,
         ) {
@@ -94,14 +94,14 @@ fun DetailTrainPositionView(
             }
         }
 
-        // 열차 이모지 오버레이
+        // 열차 이모지 오버레이 (트랙 바 중심 위에 위치)
         Text(
             text = if (isFast) "🚄" else "🚇",
             modifier = Modifier
-                .align(Alignment.BottomStart)
+                .align(Alignment.TopStart)
                 .offset(
                     x = (offsetX - 12.dp).coerceAtLeast(0.dp),
-                    y = (-15).dp,
+                    y = 2.dp,
                 ),
             style = MaterialTheme.typography.bodyLarge,
         )

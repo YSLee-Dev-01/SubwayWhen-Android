@@ -21,7 +21,7 @@ fun RealtimeStationArrival.toDetailArrivalItem() = DetailArrivalItem(
     isFast = isFast == "급행" || isFast == "ITX",
     statusCode = code,
     prevStationName = backStationName,
-    nextStationName = "",
+    nextStationName = previousStation ?: "",
 )
 
 private fun RealtimeStationArrival.resolveUseTime(): String {

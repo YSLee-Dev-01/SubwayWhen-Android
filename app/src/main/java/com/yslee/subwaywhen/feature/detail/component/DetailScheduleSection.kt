@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,7 +51,7 @@ fun DetailScheduleSection(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    if (!isUnowned) {
+                    if (!isUnowned && scheduleItems.isNotEmpty()) {
                         Text(
                             text = "···",
                             style = MaterialTheme.typography.bodyMedium,
@@ -74,16 +72,18 @@ fun DetailScheduleSection(
                         ScheduleEmptyText("운행 중인 열차가 없어요.")
                     }
                     else -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                            // 그리드 내 스크롤 비활성화 (LazyColumn 내부에 위치)
-                            userScrollEnabled = false,
-                        ) {
-                            items(scheduleItems) { item ->
-                                ScheduleItemCell(item)
+                        val rows = scheduleItems.chunked(2)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            rows.forEach { rowItems ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    rowItems.forEach { item ->
+                                        Box(modifier = Modifier.weight(1f)) { ScheduleItemCell(item) }
+                                    }
+                                    if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }

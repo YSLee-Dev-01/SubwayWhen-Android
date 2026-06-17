@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -39,11 +40,12 @@ fun UpDownExceptionRow(
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         MainBgCard(modifier = Modifier.weight(1f)) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.height(40.dp),
+                modifier = Modifier.fillMaxWidth().height(40.dp),
             ) {
                 Text(
                     text = upDownText,
@@ -65,7 +67,7 @@ fun UpDownExceptionRow(
         ) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.height(40.dp),
+                modifier = Modifier.fillMaxWidth().height(40.dp),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

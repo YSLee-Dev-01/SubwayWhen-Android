@@ -15,7 +15,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.feature.detail.component.DetailArrivalSection
 import com.yslee.subwaywhen.feature.detail.component.DetailScheduleSection
 import com.yslee.subwaywhen.feature.detail.component.DetailStationHeaderView
-import com.yslee.subwaywhen.feature.detail.component.DetailTimerRefreshView
 import com.yslee.subwaywhen.feature.detail.component.DetailTrainPositionView
 import com.yslee.subwaywhen.ui.common.CommonTopBar
 import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
@@ -99,15 +98,9 @@ fun DetailScreen(
                 secondArrival = uiState.secondArrival,
                 arrivalError = uiState.arrivalError,
                 lineNumber = sendModel.lineNumber,
-                onRealtimeTap = { viewModel.onIntent(DetailIntent.RealtimeTap) },
-            )
-            Spacer(modifier = Modifier.height(Dimens.paddingTB))
-        }
-
-        item {
-            DetailTimerRefreshView(
                 timerCount = uiState.timerCount,
                 isRefreshCooldown = uiState.isRefreshCooldown,
+                onRealtimeTap = { viewModel.onIntent(DetailIntent.RealtimeTap) },
                 onRefresh = { viewModel.onIntent(DetailIntent.Refresh) },
             )
             Spacer(modifier = Modifier.height(Dimens.paddingTB))

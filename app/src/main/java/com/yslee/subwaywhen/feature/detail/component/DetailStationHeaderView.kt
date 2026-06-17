@@ -29,34 +29,39 @@ fun DetailStationHeaderView(
 ) {
     val lineColor = subwayLineColor(lineNumber) ?: Color.Gray
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .background(color = lineColor, shape = RoundedCornerShape(15.dp)),
+        modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .height(50.dp)
+                .background(color = lineColor, shape = RoundedCornerShape(20.dp)),
+            contentAlignment = Alignment.Center,
         ) {
-            if (prevStationName.isNotEmpty()) {
-                Text(
-                    text = prevStationName,
-                    color = Color.White,
-                    fontSize = Dimens.fontSizeSmall,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            if (nextStationName.isNotEmpty()) {
-                Text(
-                    text = nextStationName,
-                    color = Color.White,
-                    fontSize = Dimens.fontSizeSmall,
-                    fontWeight = FontWeight.SemiBold,
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (prevStationName.isNotEmpty()) {
+                    Text(
+                        text = prevStationName,
+                        color = Color.White,
+                        fontSize = Dimens.fontSizeSmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                if (nextStationName.isNotEmpty()) {
+                    Text(
+                        text = nextStationName,
+                        color = Color.White,
+                        fontSize = Dimens.fontSizeSmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
         StationLineCircle(
