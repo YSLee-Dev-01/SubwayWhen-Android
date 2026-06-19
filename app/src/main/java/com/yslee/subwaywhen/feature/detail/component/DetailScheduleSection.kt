@@ -7,10 +7,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,13 +38,28 @@ fun DetailScheduleSection(
     lineNumber: String,
     isUnowned: Boolean,
     scheduleError: Boolean,
+    isScheduleLoading: Boolean,
     onScheduleMoreTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scheduleTitle = when {
+        isScheduleLoading -> "📡 시간표를 가져오고 있어요."
+        isUnowned -> "ℹ️ 시간표를 지원하지 않는 노선이에요."
+        scheduleError || scheduleItems.isEmpty() -> "⚠️ 시간표를 불러올 수 없어요."
+        else -> "${scheduleItems.first().destination}행 ${scheduleItems.first().timeLabel}"
+    }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Dimens.paddingTB),
     ) {
+        Text(
+            text = "시간표",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
         MainBgCard(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.padding(Dimens.paddingInner),
@@ -51,12 +71,15 @@ fun DetailScheduleSection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "시간표",
+                        text = scheduleTitle,
                         style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
                     )
-                    if (!isUnowned && scheduleItems.isNotEmpty()) {
+                    if (!isScheduleLoading && !isUnowned && scheduleItems.isNotEmpty()) {
                         Text(
                             text = "···",
                             style = MaterialTheme.typography.bodyMedium,
@@ -66,28 +89,44 @@ fun DetailScheduleSection(
                     }
                 }
 
-                when {
-                    isUnowned -> {
-                        ScheduleEmptyText("이 노선은 시간표 정보를 제공하지 않아요.")
-                    }
-                    scheduleError -> {
-                        ScheduleEmptyText("시간표 정보를 불러오지 못했어요.")
-                    }
-                    scheduleItems.isEmpty() -> {
-                        ScheduleEmptyText("운행 중인 열차가 없어요.")
-                    }
-                    else -> {
-                        val rows = scheduleItems.chunked(2)
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            rows.forEach { rowItems ->
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
-                                    rowItems.forEach { item ->
-                                        Box(modifier = Modifier.weight(1f)) { ScheduleItemCell(item, lineNumber) }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    when {
+                        isScheduleLoading -> {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(28.dp),
+                            )
+                        }
+                        isUnowned -> {
+                            ScheduleEmptyText("이 노선은 시간표 정보를 제공하지 않아요.")
+                        }
+                        scheduleError -> {
+                            ScheduleEmptyText("시간표 정보를 불러오지 못했어요.")
+                        }
+                        scheduleItems.isEmpty() -> {
+                            ScheduleEmptyText("운행 중인 열차가 없어요.")
+                        }
+                        else -> {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                items(scheduleItems.chunked(2)) { rowItems ->
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                    ) {
+                                        rowItems.forEach { item ->
+                                            Box(modifier = Modifier.weight(1f)) {
+                                                ScheduleItemCell(item, lineNumber)
+                                            }
+                                        }
+                                        if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
                                     }
-                                    if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
                                 }
                             }
                         }
@@ -125,18 +164,11 @@ private fun ScheduleItemCell(item: DetailScheduleItem, lineNumber: String) {
 
 @Composable
 private fun ScheduleEmptyText(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
+    Text(
+        text = message,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Preview(name = "DetailScheduleSection - Light", showBackground = true)
@@ -152,6 +184,23 @@ private fun DetailScheduleSectionLightPreview() {
             lineNumber = "03호선",
             isUnowned = false,
             scheduleError = false,
+            isScheduleLoading = false,
+            onScheduleMoreTap = {},
+            modifier = Modifier.padding(16.dp),
+        )
+    }
+}
+
+@Preview(name = "DetailScheduleSection - Loading", showBackground = true)
+@Composable
+private fun DetailScheduleSectionLoadingPreview() {
+    SubwayWhenTheme(darkTheme = false) {
+        DetailScheduleSection(
+            scheduleItems = emptyList(),
+            lineNumber = "03호선",
+            isUnowned = false,
+            scheduleError = false,
+            isScheduleLoading = true,
             onScheduleMoreTap = {},
             modifier = Modifier.padding(16.dp),
         )
@@ -167,6 +216,7 @@ private fun DetailScheduleSectionUnownedPreview() {
             lineNumber = "03호선",
             isUnowned = true,
             scheduleError = false,
+            isScheduleLoading = false,
             onScheduleMoreTap = {},
             modifier = Modifier.padding(16.dp),
         )

@@ -3,6 +3,7 @@ package com.yslee.subwaywhen.feature.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yslee.subwaywhen.data.local.SettingLocalDataSource
 import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.data.network.NetworkResult
 import com.yslee.subwaywhen.data.remote.totalload.TotalLoadModel
@@ -29,6 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val totalLoadModel: TotalLoadModel,
+    private val settingLocalDataSource: SettingLocalDataSource,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -47,6 +49,13 @@ class DetailViewModel @Inject constructor(
     private var cooldownJob: Job? = null
 
     init {
+        viewModelScope.launch {
+            settingLocalDataSource.getSaveSetting()
+                .collect { setting ->
+                    _uiState.update { it.copy(trainIcon = setting.detailVcTrainIcon) }
+                }
+        }
+
         // DetailResultSchedule에서 제외 행 설정 후 돌아올 때 반영
         viewModelScope.launch {
             savedStateHandle.getStateFlow("exceptionLastStation", "")
@@ -75,6 +84,7 @@ class DetailViewModel @Inject constructor(
             }
             DetailIntent.RealtimeTap -> { /* TODO: Realtime 화면 연결 */ }
             DetailIntent.ExceptionRowTap -> { /* 제외 행 설정은 DetailResultSchedule에서 처리 */ }
+            DetailIntent.ReportTap -> { /* TODO: 민원 접수 연결 */ }
             DetailIntent.Back -> viewModelScope.launch { _effect.emit(DetailEffect.NavigateBack) }
         }
     }

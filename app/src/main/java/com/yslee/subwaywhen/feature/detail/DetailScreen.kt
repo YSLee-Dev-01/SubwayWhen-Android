@@ -1,14 +1,20 @@
 package com.yslee.subwaywhen.feature.detail
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,7 +25,10 @@ import com.yslee.subwaywhen.feature.detail.component.DetailTrainPositionView
 import com.yslee.subwaywhen.ui.common.CommonTopBar
 import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
 import com.yslee.subwaywhen.ui.common.UpDownExceptionRow
+import com.yslee.subwaywhen.ui.common.modal.ModalSubButton
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.MainColorDark
+import com.yslee.subwaywhen.ui.theme.MainColorLight
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
 @Composable
@@ -39,7 +48,10 @@ fun DetailScreen(
     }
 
     DisposableEffect(Unit) {
-        onDispose { viewModel.onIntent(DetailIntent.OnDisappear) }
+        onDispose {
+            viewModel.onIntent(DetailIntent.OnDisappear)
+            onTabBarVisibilityChange(true)
+        }
     }
 
     LaunchedEffect(viewModel.effect) {
@@ -86,6 +98,8 @@ fun DetailScreen(
                     statusCode = first.statusCode,
                     isFast = first.isFast,
                     lineNumber = sendModel.lineNumber,
+                    trainIcon = uiState.trainIcon,
+                    isLoading = uiState.isArrivalLoading,
                 )
                 Spacer(modifier = Modifier.height(Dimens.paddingTB))
             }
@@ -100,6 +114,7 @@ fun DetailScreen(
                 lineNumber = sendModel.lineNumber,
                 timerCount = uiState.timerCount,
                 isRefreshCooldown = uiState.isRefreshCooldown,
+                isArrivalLoading = uiState.isArrivalLoading,
                 onRealtimeTap = { viewModel.onIntent(DetailIntent.RealtimeTap) },
                 onRefresh = { viewModel.onIntent(DetailIntent.Refresh) },
             )
@@ -112,8 +127,31 @@ fun DetailScreen(
                 lineNumber = sendModel.lineNumber,
                 isUnowned = uiState.isUnowned,
                 scheduleError = uiState.scheduleError,
+                isScheduleLoading = uiState.isScheduleLoading,
                 onScheduleMoreTap = { viewModel.onIntent(DetailIntent.ScheduleMoreTap) },
             )
+            Spacer(modifier = Modifier.height(Dimens.paddingTB))
+        }
+
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(Dimens.paddingTB),
+            ) {
+                Text(
+                    text = "기타",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                ModalSubButton(
+                    text = "${sendModel.lineNumber} 민원접수",
+                    bgColor = if (isSystemInDarkTheme()) MainColorDark else MainColorLight,
+                    textColor = Color.Red,
+                    onClick = { viewModel.onIntent(DetailIntent.ReportTap) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }

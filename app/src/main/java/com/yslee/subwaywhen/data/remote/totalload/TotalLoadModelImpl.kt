@@ -266,9 +266,9 @@ class TotalLoadModelImpl @Inject constructor(
      * 2호선: "내선", 9호선 반전: "하행", 그 외: "상행"
      */
     private fun upDirectionText(line: String) = when {
-        line == "2호선"          -> "내선"
+        line.endsWith("2호선") -> "내선"
         line.contains("9호선") -> "하행"
-        else                    -> "상행"
+        else                   -> "상행"
     }
 
     /**
@@ -276,9 +276,9 @@ class TotalLoadModelImpl @Inject constructor(
      * 2호선: "외선", 9호선 반전: "상행", 그 외: "하행"
      */
     private fun downDirectionText(line: String) = when {
-        line == "2호선"          -> "외선"
+        line.endsWith("2호선") -> "외선"
         line.contains("9호선") -> "상행"
-        else                    -> "하행"
+        else                   -> "하행"
     }
 
     /**
@@ -287,9 +287,9 @@ class TotalLoadModelImpl @Inject constructor(
      * 미지원 노선은 "" 반환 → 필터 미적용.
      */
     private fun lineNameToCode(line: String): String {
-        // 숫자 호선: "2호선" → "1002", "9호선" → "1009"
+        // 숫자 호선: "2호선"/"02호선" → "1002", "9호선" → "1009"
         if (line.firstOrNull()?.isDigit() == true) {
-            val number = line.filter { it.isDigit() }
+            val number = line.filter { it.isDigit() }.toIntOrNull() ?: 0
             return "100$number"
         }
         return when (line) {

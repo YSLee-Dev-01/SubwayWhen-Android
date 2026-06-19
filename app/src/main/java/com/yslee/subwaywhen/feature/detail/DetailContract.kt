@@ -16,6 +16,7 @@ data class DetailUiState(
     val arrivalError: Boolean = false,
     val scheduleError: Boolean = false,
     val isUnowned: Boolean = false,
+    val trainIcon: String = "🚃",
 )
 
 data class DetailArrivalItem(
@@ -44,6 +45,7 @@ sealed interface DetailIntent {
     data object ScheduleMoreTap : DetailIntent
     data object RealtimeTap : DetailIntent
     data object ExceptionRowTap : DetailIntent
+    data object ReportTap : DetailIntent
     data object Back : DetailIntent
 }
 

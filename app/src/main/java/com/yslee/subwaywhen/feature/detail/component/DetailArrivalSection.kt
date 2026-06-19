@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,14 +48,28 @@ fun DetailArrivalSection(
     lineNumber: String,
     timerCount: Int,
     isRefreshCooldown: Boolean,
+    isArrivalLoading: Boolean,
     onRealtimeTap: () -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val titleText = when {
+        isArrivalLoading -> "📡 열차 정보를 가져오고 있어요."
+        arrivalError || firstArrival == null -> "⚠️ 실시간 정보가 없어요."
+        else -> firstArrival.statusMessage
+    }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Dimens.paddingTB),
     ) {
+        Text(
+            text = "실시간 현황",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
         MainBgCard(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.padding(Dimens.paddingInner),
@@ -65,10 +81,13 @@ fun DetailArrivalSection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "실시간 도착",
+                        text = titleText,
                         style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
                     )
 
                     Row(
@@ -116,23 +135,41 @@ fun DetailArrivalSection(
                     }
                 }
 
-                when {
-                    arrivalError -> {
-                        ArrivalEmptyText("실시간 정보를 불러오지 못했어요.")
-                    }
-                    firstArrival == null && secondArrival == null -> {
-                        ArrivalEmptyText("현재 운행 중인 열차가 없어요.")
-                    }
-                    else -> {
-                        firstArrival?.let { ArrivalBubble(it, isFirst = true, lineNumber = lineNumber) }
-                        if (exceptionLastStation.isNotEmpty()) {
-                            Text(
-                                text = "⛔ 제외 행을 설정하면 두 번째 열차 정보가 표시되지 않아요.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 108.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    when {
+                        isArrivalLoading -> {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(28.dp),
                             )
-                        } else {
-                            secondArrival?.let { ArrivalBubble(it, isFirst = false, lineNumber = lineNumber) }
+                        }
+                        arrivalError -> {
+                            ArrivalEmptyText("실시간 정보를 불러오지 못했어요.")
+                        }
+                        firstArrival == null && secondArrival == null -> {
+                            ArrivalEmptyText("현재 운행 중인 열차가 없어요.")
+                        }
+                        else -> {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                firstArrival?.let { ArrivalBubble(it, isFirst = true, lineNumber = lineNumber) }
+                                if (exceptionLastStation.isNotEmpty()) {
+                                    Text(
+                                        text = "⛔ 제외 행을 설정하면 두 번째 열차 정보가 표시되지 않아요.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                } else {
+                                    secondArrival?.let { ArrivalBubble(it, isFirst = false, lineNumber = lineNumber) }
+                                }
+                            }
                         }
                     }
                 }
@@ -153,7 +190,7 @@ private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber:
                 .fillMaxWidth(0.65f)
                 .background(color = bgColor, shape = RoundedCornerShape(15.dp))
                 .padding(horizontal = 12.dp, vertical = 3.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
             Text(
                 text = "${if (item.isFast) "🚄" else "🚇"} ${item.trainNo}열차(${item.destination}행)",
@@ -167,6 +204,8 @@ private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber:
                 text = item.statusMessage,
                 color = Color.White,
                 fontSize = Dimens.fontSizeSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -174,18 +213,11 @@ private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber:
 
 @Composable
 private fun ArrivalEmptyText(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
+    Text(
+        text = message,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Preview(name = "DetailArrivalSection - Light", showBackground = true)
@@ -200,6 +232,27 @@ private fun DetailArrivalSectionLightPreview() {
             lineNumber = "03호선",
             timerCount = 10,
             isRefreshCooldown = false,
+            isArrivalLoading = false,
+            onRealtimeTap = {},
+            onRefresh = {},
+            modifier = Modifier.padding(16.dp),
+        )
+    }
+}
+
+@Preview(name = "DetailArrivalSection - Loading", showBackground = true)
+@Composable
+private fun DetailArrivalSectionLoadingPreview() {
+    SubwayWhenTheme(darkTheme = false) {
+        DetailArrivalSection(
+            exceptionLastStation = "",
+            firstArrival = null,
+            secondArrival = null,
+            arrivalError = false,
+            lineNumber = "03호선",
+            timerCount = 15,
+            isRefreshCooldown = false,
+            isArrivalLoading = true,
             onRealtimeTap = {},
             onRefresh = {},
             modifier = Modifier.padding(16.dp),
@@ -219,6 +272,7 @@ private fun DetailArrivalSectionDarkPreview() {
             lineNumber = "07호선",
             timerCount = 5,
             isRefreshCooldown = true,
+            isArrivalLoading = false,
             onRealtimeTap = {},
             onRefresh = {},
             modifier = Modifier.padding(16.dp),
