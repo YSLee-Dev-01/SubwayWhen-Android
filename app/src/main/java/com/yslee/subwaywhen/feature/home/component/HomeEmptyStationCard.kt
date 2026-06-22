@@ -67,7 +67,7 @@ fun HomeEmptyStationCard(
                 progress = { progress },
                 modifier = Modifier
                     .padding(start = 5.dp)
-                    .size(102.dp),
+                    .size(61.dp),
             )
             Text(
                 text = stringResource(R.string.home_empty_station),

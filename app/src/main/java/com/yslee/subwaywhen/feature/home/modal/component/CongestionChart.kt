@@ -71,7 +71,7 @@ private object FixedHourItemPlacer : HorizontalAxis.ItemPlacer {
         layerDimensions: CartesianLayerDimensions,
         tickThickness: Float,
         maxLabelWidth: Float,
-    ): Float = maxLabelWidth
+    ): Float = context.density * 40f
 
     override fun getEndLayerMargin(
         context: CartesianMeasuringContext,

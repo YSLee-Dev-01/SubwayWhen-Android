@@ -4,7 +4,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +39,6 @@ fun CongestionModal(
         mainTitle = "현재 지하철 예상 혼잡도",
         subTitle = "선택된 지하철역의 예상 혼잡도를 확인할 수 있어요.",
         onDismiss = onDismiss,
-        sheetHeight = 500.dp,
         confirmButton = { animatedDismiss ->
             val isDark = isSystemInDarkTheme()
             PrimaryButton(
@@ -69,9 +67,7 @@ fun CongestionModal(
             nowHour = uiState.nowHour,
             selectedHour = selectedHour,
             onHourSelect = { selectedHour = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
