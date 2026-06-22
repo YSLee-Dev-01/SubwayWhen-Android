@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.ui.theme.Dimens
@@ -28,6 +30,9 @@ import com.yslee.subwaywhen.ui.theme.MainColorLight
 fun StationRow(
     station: SaveStation?,
     modifier: Modifier = Modifier,
+    showUpDown: Boolean = true,
+    circleSize: Dp = Dimens.stationLineCircleSize,
+    circleFontSize: TextUnit = Dimens.fontSizeSmall,
     trailingContent: @Composable (() -> Unit)? = null,
 ) {
     val bgColor = if (isSystemInDarkTheme()) MainColorDark else MainColorLight
@@ -36,14 +41,14 @@ fun StationRow(
         modifier = modifier
             .clip(RoundedCornerShape(Dimens.cornerRadius))
             .background(color = bgColor)
-            .padding(horizontal = Dimens.paddingInner, vertical = 10.dp),
+            .padding(horizontal = Dimens.paddingInner, vertical = 11.dp),
     ) {
         StationLineCircle(
             title = if (station != null) subwayLineDisplayName(station.line) else "?",
             lineColor = if (station != null) subwayLineColor(station.line) else MaterialTheme.colorScheme.onSurfaceVariant,
-            size = Dimens.stationLineCircleSize,
+            size = circleSize,
             isFilled = true,
-            fontSize = Dimens.fontSizeSmall,
+            fontSize = circleFontSize,
         )
 
         Spacer(modifier = Modifier.width(Dimens.paddingInner))
@@ -58,7 +63,7 @@ fun StationRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (station != null) {
+        if (station != null && showUpDown) {
             Text(
                 text = station.updnLine,
                 style = MaterialTheme.typography.bodyMedium,

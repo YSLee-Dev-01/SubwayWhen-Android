@@ -72,7 +72,7 @@ fun SearchResultSection(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 7.5.dp),
+                            .padding(vertical = Dimens.paddingTB),
                     ) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.primary,
@@ -115,9 +115,9 @@ fun SearchResultSection(
                                     StationLineCircle(
                                         title = subwayLineDisplayName(item.line),
                                         lineColor = subwayLineColor(item.line),
-                                        size = Dimens.stationLineCircleSize,
+                                        size = Dimens.stationCircleSizeSmall,
                                         isFilled = true,
-                                        fontSize = Dimens.fontSizeSmall,
+                                        fontSize = Dimens.stationCircleSmallFontSize,
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(

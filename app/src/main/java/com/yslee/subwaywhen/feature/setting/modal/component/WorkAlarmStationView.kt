@@ -98,6 +98,9 @@ fun WorkAlarmStationView(
                     StationRow(
                         station = groupOneStation,
                         modifier = Modifier.fillMaxWidth(),
+                        showUpDown = false,
+                        circleSize = Dimens.stationCircleSizeSmall,
+                        circleFontSize = Dimens.stationCircleSmallFontSize,
                     )
                 }
             }
@@ -114,6 +117,9 @@ fun WorkAlarmStationView(
                     StationRow(
                         station = groupTwoStation,
                         modifier = Modifier.fillMaxWidth(),
+                        showUpDown = false,
+                        circleSize = Dimens.stationCircleSizeSmall,
+                        circleFontSize = Dimens.stationCircleSmallFontSize,
                     )
                 }
             }

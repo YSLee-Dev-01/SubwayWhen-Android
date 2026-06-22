@@ -56,7 +56,7 @@ private fun EditStationRowContent(
     // outer Row: -버튼 / StationRow / 드래그핸들
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = Dimens.paddingTB),
+        modifier = Modifier.padding(vertical = 6.dp),
     ) {
         // 좌측: 빨간 원형 "−" 삭제 버튼
         Box(
@@ -84,6 +84,8 @@ private fun EditStationRowContent(
         StationRow(
             station = station,
             modifier = Modifier.weight(1f),
+            circleSize = Dimens.stationCircleSizeSmall,
+            circleFontSize = Dimens.stationCircleSmallFontSize,
         )
 
         Spacer(modifier = Modifier.width(8.dp))

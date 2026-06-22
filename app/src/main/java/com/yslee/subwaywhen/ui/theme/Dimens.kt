@@ -15,6 +15,8 @@ object Dimens {
     val titleOffsetY = 7.5.dp
     val searchSectionGap = 15.dp
     val stationLineCircleSize = 70.dp
+    val stationCircleSizeSmall = 52.dp  // Edit/Search결과/출퇴근 셀 축소용
+    val stationCircleSmallFontSize = 12.sp  // 소형 원형 뱃지 전용 폰트
     val vicinityStationCircleSize = 45.dp
     val vicinityStationCircleSizeLarge = 65.dp
     val tabBarBottomPadding = 80.dp

@@ -58,14 +58,16 @@ fun SearchQueryRecommendSection(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 5.dp),
                         ) {
                             StationLineCircle(
                                 title = subwayLineDisplayName(item.line),
                                 lineColor = subwayLineColor(item.line),
-                                size = Dimens.stationLineCircleSize,
+                                size = Dimens.stationCircleSizeSmall,
                                 isFilled = true,
-                                fontSize = Dimens.fontSizeSmall,
+                                fontSize = Dimens.stationCircleSmallFontSize,
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -81,6 +82,7 @@ fun WorkAlarmSelectView(
                     AnimatedTapBox(
                         bgColor = bgColor,
                         pressedColor = pressedColor,
+                        verticalPadding = 0.dp,
                         onClick = { onStationSelected(station) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -89,6 +91,8 @@ fun WorkAlarmSelectView(
                         StationRow(
                             station = station,
                             modifier = Modifier.fillMaxWidth(),
+                            circleSize = Dimens.stationCircleSizeSmall,
+                            circleFontSize = Dimens.stationCircleSmallFontSize,
                             trailingContent = if (station.id == selectedStation?.id) {
                                 {
                                     Icon(
