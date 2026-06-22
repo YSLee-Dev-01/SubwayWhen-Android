@@ -22,6 +22,10 @@ class LocationManagerImpl @Inject constructor(
         ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
     override suspend fun locationRequest(): LocationData? =
@@ -30,7 +34,7 @@ class LocationManagerImpl @Inject constructor(
             val location = fusedLocationProviderClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 cancellationTokenSource.token
-            ).await()
+            ).await() ?: fusedLocationProviderClient.lastLocation.await()
             location?.let { LocationData(lat = it.latitude, lon = it.longitude) }
         } catch (e: Exception) {
             null
