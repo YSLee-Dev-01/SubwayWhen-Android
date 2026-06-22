@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -78,7 +77,6 @@ fun CommonTopBarScreen(
                     fontSize = Dimens.fontSizeMainTitle,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.offset(y = -Dimens.titleOffsetY),
                 )
             }
             content()
@@ -185,7 +183,6 @@ private fun CommonTopBarLazyContent(
                     fontWeight = FontWeight.ExtraBold,
                     lineHeight = Dimens.fontSizeMainTitle * 1.4f,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.offset(y = -Dimens.titleOffsetY),
                 )
             }
         }
