@@ -118,16 +118,11 @@ fun TrainIconModal(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(Modifier.size(15.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(15.dp),
-                    ) {
-                        Text(
-                            text = selected,
-                            fontSize = (Dimens.fontSizeBigTitle.value * 2).sp,
-                            modifier = Modifier.offset(y = (-13).dp),
-                        )
-                    }
+                    Text(
+                        text = selected,
+                        fontSize = (Dimens.fontSizeBigTitle.value * 2).sp,
+                        modifier = Modifier.offset(y = (-13).dp),
+                    )
                 }
             }
             // 레이블 (하단)
