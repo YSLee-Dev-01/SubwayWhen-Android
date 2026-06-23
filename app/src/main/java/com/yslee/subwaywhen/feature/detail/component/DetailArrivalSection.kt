@@ -59,18 +59,7 @@ fun DetailArrivalSection(
         else -> firstArrival.statusMessage
     }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Dimens.paddingTB),
-    ) {
-        Text(
-            text = "실시간 현황",
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        MainBgCard(modifier = Modifier.fillMaxWidth()) {
+    MainBgCard(modifier = modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.padding(Dimens.paddingInner),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -175,7 +164,6 @@ fun DetailArrivalSection(
                 }
             }
         }
-    }
 }
 
 @Composable
@@ -189,8 +177,8 @@ private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber:
             modifier = Modifier
                 .fillMaxWidth(0.65f)
                 .background(color = bgColor, shape = RoundedCornerShape(15.dp))
-                .padding(horizontal = 12.dp, vertical = 3.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+                .padding(horizontal = 12.dp, vertical = 2.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
                 text = "${if (item.isFast) "🚄" else "🚇"} ${item.trainNo}열차(${item.destination}행)",

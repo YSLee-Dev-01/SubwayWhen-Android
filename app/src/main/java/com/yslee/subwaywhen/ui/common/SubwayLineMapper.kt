@@ -2,6 +2,8 @@ package com.yslee.subwaywhen.ui.common
 
 import androidx.compose.ui.graphics.Color
 
+fun subwayLineTitle(line: String): String = line.trimStart('0')
+
 /**
  * iOS SubwayLineData.useLine / Assets.xcassets 기준 호선 매핑.
  * - subwayLineDisplayName: 원형 내부 표시 텍스트 (긴 이름 약어 처리)

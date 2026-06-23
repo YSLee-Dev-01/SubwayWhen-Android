@@ -25,6 +25,7 @@ import com.yslee.subwaywhen.feature.detail.component.DetailTrainPositionView
 import com.yslee.subwaywhen.ui.common.CommonTopBar
 import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
 import com.yslee.subwaywhen.ui.common.UpDownExceptionRow
+import com.yslee.subwaywhen.ui.common.subwayLineTitle
 import com.yslee.subwaywhen.ui.common.modal.ModalSubButton
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.MainColorDark
@@ -64,7 +65,7 @@ fun DetailScreen(
     }
 
     CommonTopBarLazyScreen(
-        title = "${sendModel.lineNumber} ${sendModel.stationName}",
+        title = "${subwayLineTitle(sendModel.lineNumber)} ${sendModel.stationName}",
         isLargeTitleHidden = true,
         onBack = { viewModel.onIntent(DetailIntent.Back) },
         bottomPadding = Dimens.tabBarBottomPadding,
@@ -84,6 +85,16 @@ fun DetailScreen(
                 upDownText = sendModel.upDown,
                 exceptionText = uiState.sendModel.exceptionLastStation,
                 onExceptionClick = { viewModel.onIntent(DetailIntent.ExceptionRowTap) },
+            )
+            Spacer(modifier = Modifier.height(Dimens.paddingTB))
+        }
+
+        item {
+            Text(
+                text = "실시간 현황",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(Dimens.paddingTB))
         }
@@ -145,7 +156,7 @@ fun DetailScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 ModalSubButton(
-                    text = "${sendModel.lineNumber} 민원접수",
+                    text = "${subwayLineTitle(sendModel.lineNumber)} 민원접수",
                     bgColor = if (isSystemInDarkTheme()) MainColorDark else MainColorLight,
                     textColor = Color.Red,
                     onClick = { viewModel.onIntent(DetailIntent.ReportTap) },
