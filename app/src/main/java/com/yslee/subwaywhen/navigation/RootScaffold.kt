@@ -155,7 +155,7 @@ fun RootScaffold() {
 
         AnimatedVisibility(
             visible = isTabBarVisible,
-            enter = slideInVertically(tween(Dimens.animationDurationMs)) { it } + fadeIn(tween(Dimens.animationDurationMs)),
+            enter = slideInVertically(tween(175)) { it } + fadeIn(tween(175)),
             exit = slideOutVertically(tween(Dimens.animationDurationMs)) { it } + fadeOut(tween(Dimens.animationDurationMs)),
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
