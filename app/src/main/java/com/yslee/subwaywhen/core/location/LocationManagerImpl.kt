@@ -32,7 +32,7 @@ class LocationManagerImpl @Inject constructor(
         try {
             val cancellationTokenSource = CancellationTokenSource()
             val location = fusedLocationProviderClient.getCurrentLocation(
-                Priority.PRIORITY_HIGH_ACCURACY,
+                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                 cancellationTokenSource.token
             ).await() ?: fusedLocationProviderClient.lastLocation.await()
             location?.let { LocationData(lat = it.latitude, lon = it.longitude) }
