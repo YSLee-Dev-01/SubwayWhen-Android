@@ -27,6 +27,7 @@ import com.yslee.subwaywhen.data.model.SaveStation
 import com.yslee.subwaywhen.ui.common.AnimatedTapBox
 import com.yslee.subwaywhen.ui.common.StationRow
 import com.yslee.subwaywhen.ui.theme.Dimens
+import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.MainColorDark
 import com.yslee.subwaywhen.ui.theme.MainColorLight
 
@@ -98,7 +99,7 @@ fun WorkAlarmSelectView(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = "선택됨",
-                                        tint = MaterialTheme.colorScheme.primary,
+                                        tint = AppIconColor,
                                     )
                                 }
                             } else null,

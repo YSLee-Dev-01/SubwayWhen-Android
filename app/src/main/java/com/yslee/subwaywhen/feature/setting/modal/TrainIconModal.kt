@@ -120,8 +120,8 @@ fun TrainIconModal(
                     Spacer(Modifier.size(15.dp))
                     Text(
                         text = selected,
-                        fontSize = (Dimens.fontSizeBigTitle.value * 2).sp,
-                        modifier = Modifier.offset(y = (-13).dp),
+                        fontSize = 18.sp,
+                        modifier = Modifier.offset(y = (-4).dp),
                     )
                 }
             }
