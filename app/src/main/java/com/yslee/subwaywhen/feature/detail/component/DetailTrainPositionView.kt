@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -55,7 +56,7 @@ fun DetailTrainPositionView(
     var isTrainVisible by remember { mutableStateOf(false) }
     val trainAlpha by animateFloatAsState(
         targetValue = if (isTrainVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = Dimens.animationDurationMs),
+        animationSpec = tween(durationMillis = 125),
         label = "trainFade",
     )
 
@@ -63,12 +64,21 @@ fun DetailTrainPositionView(
         if (isLoading) {
             isTrainVisible = false
         } else {
-            delay(700)
+            delay(350)
             if (statusCode.toIntOrNull() != null) isTrainVisible = true
         }
     }
 
-    Box(modifier = modifier.fillMaxWidth().height(73.dp)) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth().height(73.dp)) {
+        val trackWidth = maxWidth - Dimens.paddingLR * 2
+        val iconOffsetX = when (statusCode.toIntOrNull()) {
+            0    -> Dimens.paddingLR + 5.dp
+            1    -> Dimens.paddingLR
+            2    -> maxOf(0.dp, Dimens.paddingLR - 10.dp)
+            3    -> Dimens.paddingLR + trackWidth / 2
+            4    -> Dimens.paddingLR + trackWidth - 10.dp
+            else -> Dimens.paddingLR + trackWidth - 20.dp
+        }
         // 트랙 바 (정적)
         Box(
             modifier = Modifier
@@ -104,7 +114,7 @@ fun DetailTrainPositionView(
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = Dimens.paddingLR, y = 12.dp)
+                .offset(x = iconOffsetX, y = 12.dp)
                 .alpha(trainAlpha),
         ) {
             Text(
