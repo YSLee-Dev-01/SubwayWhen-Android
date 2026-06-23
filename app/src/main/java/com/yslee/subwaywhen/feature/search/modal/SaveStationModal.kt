@@ -123,7 +123,7 @@ private fun SaveStationModalContent(
                     lineColor = subwayLineColor(station.line),
                     size = Dimens.stationLineCircleSize,
                     isFilled = true,
-                    fontSize = Dimens.fontSizeSmall,
+                    fontSize = Dimens.fontSizeMedium,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
