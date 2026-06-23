@@ -116,7 +116,7 @@ fun HomeStationCard(
                     lineColor = lineColor,
                     size = 60.dp,
                     isFilled = true,
-                    fontSize = Dimens.fontSizeSmall,
+                    fontSize = Dimens.fontSizeMedium,
                 )
 
                 Spacer(modifier = Modifier.width(15.dp))
