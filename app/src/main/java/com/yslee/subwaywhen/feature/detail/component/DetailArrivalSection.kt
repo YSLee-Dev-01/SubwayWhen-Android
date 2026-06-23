@@ -58,6 +58,11 @@ fun DetailArrivalSection(
         arrivalError || firstArrival == null -> "⚠️ 실시간 정보가 없어요."
         else -> firstArrival.statusMessage
     }
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (isArrivalLoading) 0f else 1f,
+        animationSpec = tween(325),
+        label = "contentAlpha",
+    )
 
     MainBgCard(modifier = modifier.fillMaxWidth()) {
             Column(
@@ -74,7 +79,7 @@ fun DetailArrivalSection(
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).alpha(contentAlpha),
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                     )
@@ -127,7 +132,8 @@ fun DetailArrivalSection(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 108.dp),
+                        .heightIn(min = 108.dp)
+                        .alpha(contentAlpha),
                     contentAlignment = Alignment.Center,
                 ) {
                     when {

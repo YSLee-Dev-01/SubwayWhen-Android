@@ -1,5 +1,7 @@
 package com.yslee.subwaywhen.feature.detail.component
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +21,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,6 +46,12 @@ fun DetailScheduleSection(
     onScheduleMoreTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (isScheduleLoading) 0f else 1f,
+        animationSpec = tween(325),
+        label = "contentAlpha",
+    )
+
     val scheduleTitle = when {
         isScheduleLoading -> "📡 시간표를 가져오고 있어요."
         isUnowned -> "ℹ️ 시간표를 지원하지 않는 노선이에요."
@@ -92,7 +102,8 @@ fun DetailScheduleSection(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
+                        .height(200.dp)
+                        .alpha(contentAlpha),
                     contentAlignment = Alignment.Center,
                 ) {
                     when {
