@@ -100,7 +100,8 @@ fun DetailTrainPositionView(
             verticalAlignment = Alignment.Top,
         ) {
             StationMarkerColumn(name = currentStationName, lineColor = lineColor, align = Alignment.CenterHorizontally)
-            if (prevStationName.isNotEmpty()) {
+            val showSecondMarker = statusCode.toIntOrNull()?.let { it >= 6 } ?: true
+            if (prevStationName.isNotEmpty() && showSecondMarker) {
                 StationMarkerColumn(name = prevStationName, lineColor = lineColor, align = Alignment.CenterHorizontally)
             }
             Spacer(modifier = Modifier.weight(1f))
