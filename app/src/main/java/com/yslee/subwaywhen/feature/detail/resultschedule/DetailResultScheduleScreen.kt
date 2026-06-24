@@ -8,25 +8,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,10 +26,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,11 +35,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.feature.detail.resultschedule.component.DetailResultScheduleCell
 import com.yslee.subwaywhen.feature.detail.resultschedule.component.DetailResultScheduleHourHeader
+import com.yslee.subwaywhen.ui.common.CommonTopBar
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.common.PrimaryButton
+import com.yslee.subwaywhen.ui.common.UpDownExceptionRow
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun DetailResultScheduleScreen(
@@ -67,9 +58,18 @@ fun DetailResultScheduleScreen(
     val density = LocalDensity.current
     val scrollThreshold = remember(density) { with(density) { 25.dp.toPx() }.toInt() }
 
-    val isHeaderExpanded by remember {
+    // 큰 타이틀(item 0)이 스크롤되기 시작하면 상단바 소제목 표시
+    val isTitleVisible by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > scrollThreshold
+        }
+    }
+
+    // UpDownExceptionRow(item 1)가 스크롤 아웃되면 sticky 칩 표시
+    val isChipsExpanded by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 1 ||
+                (listState.firstVisibleItemIndex == 1 && listState.firstVisibleItemScrollOffset > scrollThreshold)
         }
     }
 
@@ -77,9 +77,12 @@ fun DetailResultScheduleScreen(
         viewModel.onIntent(DetailResultScheduleIntent.OnAppear)
     }
 
+    // push 애니메이션 완료 후 스크롤 — 동시 실행 시 버벅거림 방지
     LaunchedEffect(uiState.hourSections) {
         if (uiState.hourSections.isNotEmpty()) {
-            listState.animateScrollToItem(uiState.currentHourIndex * 2)
+            delay(350L)
+            // large_title(0) + up_down_row(1) 오프셋 2 적용
+            listState.animateScrollToItem(2 + uiState.currentHourIndex * 2)
         }
     }
 
@@ -92,12 +95,13 @@ fun DetailResultScheduleScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).statusBarsPadding()) {
         StickyScheduleHeader(
             stationName = uiState.stationName,
             upDown = uiState.upDown,
             exceptionLastStation = uiState.exceptionLastStation,
-            isExpanded = isHeaderExpanded,
+            isSubTitleVisible = isTitleVisible,
+            isExpanded = isChipsExpanded,
             onBack = { viewModel.onIntent(DetailResultScheduleIntent.Back) },
             onExceptionTap = {
                 viewModel.onIntent(DetailResultScheduleIntent.ExceptionButtonTap(uiState.exceptionLastStation))
@@ -108,6 +112,28 @@ fun DetailResultScheduleScreen(
             state = listState,
             modifier = Modifier.weight(1f),
         ) {
+            item(key = "large_title") {
+                Text(
+                    text = uiState.stationName,
+                    fontSize = Dimens.fontSizeMainTitle,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(horizontal = Dimens.paddingLR),
+                )
+                Spacer(modifier = Modifier.height(Dimens.paddingTB))
+            }
+            item(key = "up_down_row") {
+                Box(modifier = Modifier.padding(horizontal = Dimens.paddingLR)) {
+                    UpDownExceptionRow(
+                        upDownText = uiState.upDown,
+                        exceptionText = uiState.exceptionLastStation,
+                        onExceptionClick = {
+                            viewModel.onIntent(DetailResultScheduleIntent.ExceptionButtonTap(uiState.exceptionLastStation))
+                        },
+                    )
+                }
+                Spacer(modifier = Modifier.height(Dimens.paddingTB))
+            }
             uiState.hourSections.forEachIndexed { sectionIndex, section ->
                 item(key = "header_${section.hour}") {
                     DetailResultScheduleHourHeader(
@@ -162,6 +188,7 @@ private fun StickyScheduleHeader(
     stationName: String,
     upDown: String,
     exceptionLastStation: String,
+    isSubTitleVisible: Boolean,
     isExpanded: Boolean,
     onBack: () -> Unit,
     onExceptionTap: () -> Unit,
@@ -173,77 +200,23 @@ private fun StickyScheduleHeader(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp)
-                .padding(horizontal = Dimens.paddingLR),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.size(24.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                )
-            }
-            Text(
-                text = stationName,
-                fontSize = Dimens.fontSizeLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(start = 1.dp),
-            )
-        }
+        CommonTopBar(
+            title = stationName,
+            isSubTitleVisible = isSubTitleVisible,
+            onBack = onBack,
+        )
 
         AnimatedVisibility(
             visible = isExpanded,
             enter = expandVertically(spring(dampingRatio = Spring.DampingRatioLowBouncy)) + fadeIn(chipSpring),
             exit = shrinkVertically(spring(dampingRatio = Spring.DampingRatioLowBouncy)) + fadeOut(chipSpring),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp)
-                    .padding(horizontal = Dimens.paddingLR, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(Dimens.cornerRadius))
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = upDown,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-
-                val hasException = exceptionLastStation.isNotEmpty()
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(Dimens.cornerRadius))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .then(if (hasException) Modifier.clickable { onExceptionTap() } else Modifier),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = if (hasException) "${exceptionLastStation}행 제외" else "제외 행 없음",
-                        color = if (hasException) Color.Red else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
+            Box(modifier = Modifier.padding(horizontal = Dimens.paddingLR, vertical = 6.dp)) {
+                UpDownExceptionRow(
+                    upDownText = upDown,
+                    exceptionText = exceptionLastStation,
+                    onExceptionClick = onExceptionTap,
+                )
             }
         }
     }
@@ -257,6 +230,7 @@ private fun DetailResultScheduleScreenLightPreview() {
             stationName = "불광",
             upDown = "상행",
             exceptionLastStation = "노원",
+            isSubTitleVisible = true,
             isExpanded = true,
             onBack = {},
             onExceptionTap = {},

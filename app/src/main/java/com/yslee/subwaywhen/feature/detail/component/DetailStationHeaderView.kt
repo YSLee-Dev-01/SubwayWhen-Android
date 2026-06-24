@@ -67,7 +67,7 @@ fun DetailStationHeaderView(
         StationLineCircle(
             title = stationName,
             lineColor = lineColor,
-            size = 75.dp,
+            size = Dimens.stationLineCircleSize,
             isFilled = false,
         )
     }

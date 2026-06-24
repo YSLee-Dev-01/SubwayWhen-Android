@@ -49,6 +49,7 @@ class DetailViewModel @Inject constructor(
 
     private var timerJob: Job? = null
     private var cooldownJob: Job? = null
+    private var rawScheduleItems: List<DetailScheduleItem> = emptyList()
 
     init {
         viewModelScope.launch {
@@ -88,7 +89,7 @@ class DetailViewModel @Inject constructor(
                                 stationName = state.sendModel.stationName,
                                 upDown = state.sendModel.upDown,
                                 exceptionLastStation = state.sendModel.exceptionLastStation,
-                                scheduleItems = state.scheduleItems,
+                                scheduleItems = rawScheduleItems,
                             )
                         )
                     )
@@ -183,6 +184,7 @@ class DetailViewModel @Inject constructor(
             if (items == null) {
                 _uiState.update { it.copy(isScheduleLoading = false, scheduleError = true) }
             } else {
+                rawScheduleItems = items
                 _uiState.update { it.copy(isScheduleLoading = false, scheduleItems = items.filterFromNow()) }
             }
         }

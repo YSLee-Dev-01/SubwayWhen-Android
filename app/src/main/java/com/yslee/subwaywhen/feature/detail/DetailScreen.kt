@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.detail
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -52,15 +53,19 @@ fun DetailScreen(
     DisposableEffect(Unit) {
         onDispose {
             viewModel.onIntent(DetailIntent.OnDisappear)
-            onTabBarVisibilityChange(true)
         }
     }
+
+    BackHandler { viewModel.onIntent(DetailIntent.Back) }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is DetailEffect.NavigateToResultSchedule -> onScheduleMoreTap(effect.sendModel)
-                DetailEffect.NavigateBack -> onBack()
+                DetailEffect.NavigateBack -> {
+                    onTabBarVisibilityChange(true)
+                    onBack()
+                }
             }
         }
     }

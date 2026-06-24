@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.feature.detail.DetailScheduleItem
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.common.subwayLineColor
+import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 
@@ -107,7 +108,7 @@ fun DetailScheduleSection(
                 ) {
                     if (isScheduleLoading) {
                         CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AppIconColor,
                             modifier = Modifier.size(28.dp),
                         )
                     } else {

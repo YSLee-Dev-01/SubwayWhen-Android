@@ -122,9 +122,9 @@ private fun SaveStationModalContent(
                 StationLineCircle(
                     title = subwayLineDisplayName(station.line),
                     lineColor = subwayLineColor(station.line),
-                    size = Dimens.stationLineCircleSize,
+                    size = 60.dp,
                     isFilled = true,
-                    fontSize = (Dimens.fontSizeMedium.value * 1.15f).sp,
+                    fontSize = Dimens.fontSizeMedium,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(

@@ -2,7 +2,6 @@ package com.yslee.subwaywhen.navigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -85,9 +84,13 @@ fun RootScaffold() {
         ) {
             composable(
                 route = TabRoute.Home.route,
+                enterTransition = {
+                    val isTab = TabRoute.all.any { it.route == initialState.destination.route }
+                    if (isTab) fadeIn(tween(150)) else fadeIn(tween(Dimens.animationDurationMs))
+                },
                 exitTransition = {
                     val isTab = TabRoute.all.any { it.route == targetState.destination.route }
-                    if (isTab) ExitTransition.None else fadeOut(tween(Dimens.animationDurationMs))
+                    if (isTab) fadeOut(tween(150)) else fadeOut(tween(Dimens.animationDurationMs))
                 },
                 popEnterTransition = {
                     val isTab = TabRoute.all.any { it.route == initialState.destination.route }
@@ -114,9 +117,13 @@ fun RootScaffold() {
             }
             composable(
                 route = TabRoute.Search.route,
+                enterTransition = {
+                    val isTab = TabRoute.all.any { it.route == initialState.destination.route }
+                    if (isTab) fadeIn(tween(150)) else fadeIn(tween(Dimens.animationDurationMs))
+                },
                 exitTransition = {
                     val isTab = TabRoute.all.any { it.route == targetState.destination.route }
-                    if (isTab) ExitTransition.None else fadeOut(tween(Dimens.animationDurationMs))
+                    if (isTab) fadeOut(tween(150)) else fadeOut(tween(Dimens.animationDurationMs))
                 },
                 popEnterTransition = {
                     val isTab = TabRoute.all.any { it.route == initialState.destination.route }
@@ -127,9 +134,13 @@ fun RootScaffold() {
             }
             composable(
                 route = TabRoute.Setting.route,
+                enterTransition = {
+                    val isTab = TabRoute.all.any { it.route == initialState.destination.route }
+                    if (isTab) fadeIn(tween(150)) else fadeIn(tween(Dimens.animationDurationMs))
+                },
                 exitTransition = {
                     val isTab = TabRoute.all.any { it.route == targetState.destination.route }
-                    if (isTab) ExitTransition.None else fadeOut(tween(Dimens.animationDurationMs))
+                    if (isTab) fadeOut(tween(150)) else fadeOut(tween(Dimens.animationDurationMs))
                 },
                 popEnterTransition = {
                     val isTab = TabRoute.all.any { it.route == initialState.destination.route }
