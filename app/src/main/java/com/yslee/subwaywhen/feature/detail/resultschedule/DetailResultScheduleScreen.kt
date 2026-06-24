@@ -1,18 +1,45 @@
 package com.yslee.subwaywhen.feature.detail.resultschedule
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,9 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.feature.detail.resultschedule.component.DetailResultScheduleCell
 import com.yslee.subwaywhen.feature.detail.resultschedule.component.DetailResultScheduleHourHeader
-import com.yslee.subwaywhen.ui.common.AnimatedTapBox
-import com.yslee.subwaywhen.ui.common.AnimatedTapBoxAlignment
-import com.yslee.subwaywhen.ui.common.CommonTopBar
+import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
 import com.yslee.subwaywhen.ui.theme.Dimens
@@ -39,6 +64,14 @@ fun DetailResultScheduleScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
+    val density = LocalDensity.current
+    val scrollThreshold = remember(density) { with(density) { 25.dp.toPx() }.toInt() }
+
+    val isHeaderExpanded by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > scrollThreshold
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onIntent(DetailResultScheduleIntent.OnAppear)
@@ -46,7 +79,7 @@ fun DetailResultScheduleScreen(
 
     LaunchedEffect(uiState.hourSections) {
         if (uiState.hourSections.isNotEmpty()) {
-            listState.animateScrollToItem(uiState.currentHourIndex)
+            listState.animateScrollToItem(uiState.currentHourIndex * 2)
         }
     }
 
@@ -60,10 +93,15 @@ fun DetailResultScheduleScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        CommonTopBar(
-            title = "시간표",
-            isSubTitleVisible = true,
+        StickyScheduleHeader(
+            stationName = uiState.stationName,
+            upDown = uiState.upDown,
+            exceptionLastStation = uiState.exceptionLastStation,
+            isExpanded = isHeaderExpanded,
             onBack = { viewModel.onIntent(DetailResultScheduleIntent.Back) },
+            onExceptionTap = {
+                viewModel.onIntent(DetailResultScheduleIntent.ExceptionButtonTap(uiState.exceptionLastStation))
+            },
         )
 
         LazyColumn(
@@ -77,31 +115,22 @@ fun DetailResultScheduleScreen(
                         isCurrent = sectionIndex == uiState.currentHourIndex,
                     )
                 }
-                items(section.items, key = { "${section.hour}_${it.timeLabel}_${it.destination}" }) { item ->
-                    DetailResultScheduleCell(item = item)
+                item(key = "card_${section.hour}") {
+                    MainBgCard(
+                        modifier = Modifier
+                            .padding(horizontal = Dimens.paddingLR)
+                            .fillMaxWidth(),
+                    ) {
+                        Column {
+                            section.items.forEach { item ->
+                                DetailResultScheduleCell(item = item)
+                            }
+                        }
+                    }
                 }
             }
-
             item {
-                AnimatedTapBox(
-                    bgColor = MaterialTheme.colorScheme.errorContainer,
-                    pressedColor = MaterialTheme.colorScheme.error,
-                    alignment = AnimatedTapBoxAlignment.Center,
-                    horizontalPadding = Dimens.paddingLR,
-                    verticalPadding = 12.dp,
-                    onClick = {
-                        val firstDestination = uiState.hourSections.firstOrNull()?.items?.firstOrNull()?.destination ?: return@AnimatedTapBox
-                        viewModel.onIntent(DetailResultScheduleIntent.ExceptionButtonTap(firstDestination))
-                    },
-                    modifier = Modifier.padding(Dimens.paddingLR).padding(bottom = Dimens.tabBarBottomPadding),
-                ) {
-                    Text(
-                        text = "제외 행 설정",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                }
+                Spacer(modifier = Modifier.height(Dimens.tabBarBottomPadding))
             }
         }
     }
@@ -128,12 +157,109 @@ fun DetailResultScheduleScreen(
     }
 }
 
+@Composable
+private fun StickyScheduleHeader(
+    stationName: String,
+    upDown: String,
+    exceptionLastStation: String,
+    isExpanded: Boolean,
+    onBack: () -> Unit,
+    onExceptionTap: () -> Unit,
+) {
+    val chipSpring = spring<Float>(dampingRatio = Spring.DampingRatioLowBouncy)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(45.dp)
+                .padding(horizontal = Dimens.paddingLR),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.size(24.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+            Text(
+                text = stationName,
+                fontSize = Dimens.fontSizeLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(start = 1.dp),
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(spring(dampingRatio = Spring.DampingRatioLowBouncy)) + fadeIn(chipSpring),
+            exit = shrinkVertically(spring(dampingRatio = Spring.DampingRatioLowBouncy)) + fadeOut(chipSpring),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .padding(horizontal = Dimens.paddingLR, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(Dimens.cornerRadius))
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = upDown,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+
+                val hasException = exceptionLastStation.isNotEmpty()
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(Dimens.cornerRadius))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .then(if (hasException) Modifier.clickable { onExceptionTap() } else Modifier),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = if (hasException) "${exceptionLastStation}행 제외" else "제외 행 없음",
+                        color = if (hasException) Color.Red else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview(name = "DetailResultScheduleScreen - Light", showBackground = true)
 @Composable
 private fun DetailResultScheduleScreenLightPreview() {
     SubwayWhenTheme(darkTheme = false) {
-        Column {
-            CommonTopBar(title = "시간표", isSubTitleVisible = true, onBack = {})
-        }
+        StickyScheduleHeader(
+            stationName = "불광",
+            upDown = "상행",
+            exceptionLastStation = "노원",
+            isExpanded = true,
+            onBack = {},
+            onExceptionTap = {},
+        )
     }
 }

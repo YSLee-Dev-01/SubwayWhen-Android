@@ -11,6 +11,7 @@ import com.yslee.subwaywhen.feature.detail.mapper.filterFromNow
 import com.yslee.subwaywhen.feature.detail.mapper.isUnownedLine
 import com.yslee.subwaywhen.feature.detail.mapper.toDetailArrivalItem
 import com.yslee.subwaywhen.feature.detail.mapper.toDetailScheduleItem
+import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleSendModel
 import com.yslee.subwaywhen.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -80,7 +81,17 @@ class DetailViewModel @Inject constructor(
             DetailIntent.Refresh -> handleRefresh()
             DetailIntent.ScheduleMoreTap -> {
                 viewModelScope.launch {
-                    _effect.emit(DetailEffect.NavigateToResultSchedule(_uiState.value.scheduleItems))
+                    val state = _uiState.value
+                    _effect.emit(
+                        DetailEffect.NavigateToResultSchedule(
+                            DetailResultScheduleSendModel(
+                                stationName = state.sendModel.stationName,
+                                upDown = state.sendModel.upDown,
+                                exceptionLastStation = state.sendModel.exceptionLastStation,
+                                scheduleItems = state.scheduleItems,
+                            )
+                        )
+                    )
                 }
             }
             DetailIntent.RealtimeTap -> { /* TODO: Realtime 화면 연결 */ }

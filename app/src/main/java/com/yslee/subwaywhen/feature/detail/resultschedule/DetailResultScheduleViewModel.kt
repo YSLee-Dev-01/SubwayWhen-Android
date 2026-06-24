@@ -23,7 +23,7 @@ class DetailResultScheduleViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val scheduleItems: List<DetailScheduleItem> = run {
+    private val sendModel: DetailResultScheduleSendModel = run {
         val encoded = requireNotNull(savedStateHandle.get<String>(NavRoutes.ARG_RESULT_SCHEDULE_MODEL))
         Json.decodeFromString(encoded)
     }
@@ -56,7 +56,7 @@ class DetailResultScheduleViewModel @Inject constructor(
     }
 
     private fun buildSections() {
-        val grouped = scheduleItems.groupBy { item ->
+        val grouped = sendModel.scheduleItems.groupBy { item ->
             item.timeLabel.split(":").firstOrNull()?.toIntOrNull() ?: 0
         }
         val sections = grouped.entries
@@ -66,6 +66,14 @@ class DetailResultScheduleViewModel @Inject constructor(
         val nowHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val currentIndex = sections.indexOfFirst { it.hour >= nowHour }.coerceAtLeast(0)
 
-        _uiState.update { it.copy(hourSections = sections, currentHourIndex = currentIndex) }
+        _uiState.update {
+            it.copy(
+                stationName = sendModel.stationName,
+                upDown = sendModel.upDown,
+                exceptionLastStation = sendModel.exceptionLastStation,
+                hourSections = sections,
+                currentHourIndex = currentIndex,
+            )
+        }
     }
 }

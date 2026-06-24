@@ -3,6 +3,9 @@ package com.yslee.subwaywhen.feature.detail.resultschedule
 import com.yslee.subwaywhen.feature.detail.DetailScheduleItem
 
 data class DetailResultScheduleUiState(
+    val stationName: String = "",
+    val upDown: String = "",
+    val exceptionLastStation: String = "",
     val hourSections: List<HourSection> = emptyList(),
     val currentHourIndex: Int = 0,
     val isExceptionModalVisible: Boolean = false,

@@ -48,6 +48,7 @@ import com.yslee.subwaywhen.feature.detail.DetailScreen
 import com.yslee.subwaywhen.feature.detail.DetailSendModel
 import com.yslee.subwaywhen.feature.detail.toDetailSendModel
 import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleScreen
+import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleSendModel
 import com.yslee.subwaywhen.feature.edit.EditScreen
 import com.yslee.subwaywhen.feature.home.HomeScreen
 import com.yslee.subwaywhen.feature.search.SearchScreen
@@ -126,9 +127,9 @@ fun RootScaffold() {
                 DetailScreen(
                     sendModel = sendModel,
                     onBack = { childNavController.popBackStack() },
-                    onScheduleMoreTap = { scheduleItems ->
-                        val encodedItems = Uri.encode(Json.encodeToString(scheduleItems))
-                        childNavController.navigate(NavRoutes.detailResultScheduleRoute(encodedItems))
+                    onScheduleMoreTap = { sendModel ->
+                        val encodedModel = Uri.encode(Json.encodeToString(sendModel))
+                        childNavController.navigate(NavRoutes.detailResultScheduleRoute(encodedModel))
                     },
                     onTabBarVisibilityChange = { isTabBarVisible = it },
                 )

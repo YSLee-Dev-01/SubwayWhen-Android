@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleSendModel
 import com.yslee.subwaywhen.feature.detail.component.DetailArrivalSection
 import com.yslee.subwaywhen.feature.detail.component.DetailScheduleSection
 import com.yslee.subwaywhen.feature.detail.component.DetailStationHeaderView
@@ -36,7 +37,7 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 fun DetailScreen(
     sendModel: DetailSendModel,
     onBack: () -> Unit,
-    onScheduleMoreTap: (List<DetailScheduleItem>) -> Unit,
+    onScheduleMoreTap: (DetailResultScheduleSendModel) -> Unit,
     onTabBarVisibilityChange: (Boolean) -> Unit,
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
@@ -58,7 +59,7 @@ fun DetailScreen(
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is DetailEffect.NavigateToResultSchedule -> onScheduleMoreTap(effect.scheduleItems)
+                is DetailEffect.NavigateToResultSchedule -> onScheduleMoreTap(effect.sendModel)
                 DetailEffect.NavigateBack -> onBack()
             }
         }

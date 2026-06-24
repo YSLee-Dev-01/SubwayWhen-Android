@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.feature.detail
 
+import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleSendModel
 import kotlinx.serialization.Serializable
 
 data class DetailUiState(
@@ -50,6 +51,6 @@ sealed interface DetailIntent {
 }
 
 sealed interface DetailEffect {
-    data class NavigateToResultSchedule(val scheduleItems: List<DetailScheduleItem>) : DetailEffect
+    data class NavigateToResultSchedule(val sendModel: DetailResultScheduleSendModel) : DetailEffect
     data object NavigateBack : DetailEffect
 }
