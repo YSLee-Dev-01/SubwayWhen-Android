@@ -14,6 +14,7 @@ import com.yslee.subwaywhen.feature.detail.mapper.toDetailScheduleItem
 import com.yslee.subwaywhen.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,7 +100,9 @@ class DetailViewModel @Inject constructor(
         val model = overrideModel ?: _uiState.value.sendModel
         viewModelScope.launch {
             _uiState.update { it.copy(isArrivalLoading = true, arrivalError = false) }
-            val (upList, downList) = totalLoadModel.liveArrivalSplit(model.stationName, model.lineNumber)
+            val deferred = async { totalLoadModel.liveArrivalSplit(model.stationName, model.lineNumber) }
+            delay(250L)
+            val (upList, downList) = deferred.await()
             val isUp = model.upDown.contains("상행") || model.upDown.contains("내선")
             val arrivals = if (isUp) upList else downList
 
@@ -141,26 +144,30 @@ class DetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isScheduleLoading = true, scheduleError = false) }
-            val items = when {
-                model.lineNumber == "신분당선" -> {
-                    when (val result = totalLoadModel.shinbundangScheduleLoad(station, weekDay, isDisposable = false)) {
-                        is NetworkResult.Success -> result.data.map { it.toDetailScheduleItem() }
-                        is NetworkResult.Failure -> null
+            val deferred = async {
+                when {
+                    model.lineNumber == "신분당선" -> {
+                        when (val result = totalLoadModel.shinbundangScheduleLoad(station, weekDay, isDisposable = false)) {
+                            is NetworkResult.Success -> result.data.map { it.toDetailScheduleItem() }
+                            is NetworkResult.Failure -> null
+                        }
                     }
-                }
-                model.korailCode.isNotEmpty() -> {
-                    when (val result = totalLoadModel.korailScheduleLoad(station, weekDay)) {
-                        is NetworkResult.Success -> result.data.map { it.toDetailScheduleItem() }
-                        is NetworkResult.Failure -> null
+                    model.korailCode.isNotEmpty() -> {
+                        when (val result = totalLoadModel.korailScheduleLoad(station, weekDay)) {
+                            is NetworkResult.Success -> result.data.map { it.toDetailScheduleItem() }
+                            is NetworkResult.Failure -> null
+                        }
                     }
-                }
-                else -> {
-                    when (val result = totalLoadModel.seoulScheduleLoad(station, weekDay)) {
-                        is NetworkResult.Success -> result.data.SearchSTNTimeTableByFRCodeService.row.map { it.toDetailScheduleItem() }
-                        is NetworkResult.Failure -> null
+                    else -> {
+                        when (val result = totalLoadModel.seoulScheduleLoad(station, weekDay)) {
+                            is NetworkResult.Success -> result.data.SearchSTNTimeTableByFRCodeService.row.map { it.toDetailScheduleItem() }
+                            is NetworkResult.Failure -> null
+                        }
                     }
                 }
             }
+            delay(250L)
+            val items = deferred.await()
 
             if (items == null) {
                 _uiState.update { it.copy(isScheduleLoading = false, scheduleError = true) }
