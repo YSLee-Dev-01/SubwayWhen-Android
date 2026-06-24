@@ -102,41 +102,49 @@ fun DetailScheduleSection(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
-                        .alpha(contentAlpha),
+                        .height(200.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    when {
-                        isScheduleLoading -> {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
-                        isUnowned -> {
-                            ScheduleEmptyText("이 노선은 시간표 정보를 제공하지 않아요.")
-                        }
-                        scheduleError -> {
-                            ScheduleEmptyText("시간표 정보를 불러오지 못했어요.")
-                        }
-                        scheduleItems.isEmpty() -> {
-                            ScheduleEmptyText("운행 중인 열차가 없어요.")
-                        }
-                        else -> {
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                items(scheduleItems.chunked(2)) { rowItems ->
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                    ) {
-                                        rowItems.forEach { item ->
-                                            Box(modifier = Modifier.weight(1f)) {
-                                                ScheduleItemCell(item, lineNumber)
+                    if (isScheduleLoading) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .alpha(contentAlpha),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            when {
+                                isUnowned -> {
+                                    ScheduleEmptyText("이 노선은 시간표 정보를 제공하지 않아요.")
+                                }
+                                scheduleError -> {
+                                    ScheduleEmptyText("시간표 정보를 불러오지 못했어요.")
+                                }
+                                scheduleItems.isEmpty() -> {
+                                    ScheduleEmptyText("운행 중인 열차가 없어요.")
+                                }
+                                else -> {
+                                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                        items(scheduleItems.chunked(2)) { rowItems ->
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 4.dp),
+                                            ) {
+                                                rowItems.forEach { item ->
+                                                    Box(modifier = Modifier.weight(1f)) {
+                                                        ScheduleItemCell(item, lineNumber)
+                                                    }
+                                                }
+                                                if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
                                             }
                                         }
-                                        if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
                                     }
                                 }
                             }
