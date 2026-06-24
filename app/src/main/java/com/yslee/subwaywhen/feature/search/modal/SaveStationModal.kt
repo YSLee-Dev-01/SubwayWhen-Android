@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.data.model.SaveStationGroup
@@ -123,12 +124,12 @@ private fun SaveStationModalContent(
                     lineColor = subwayLineColor(station.line),
                     size = Dimens.stationLineCircleSize,
                     isFilled = true,
-                    fontSize = Dimens.fontSizeMedium,
+                    fontSize = (Dimens.fontSizeMedium.value * 1.15f).sp,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = station.stationName,
-                    fontSize = Dimens.fontSizeLarge,
+                    fontSize = (Dimens.fontSizeLarge.value * 1.15f).sp,
                     fontWeight = FontWeight.ExtraBold,
                 )
             }
