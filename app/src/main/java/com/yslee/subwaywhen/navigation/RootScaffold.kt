@@ -1,6 +1,8 @@
 package com.yslee.subwaywhen.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -81,7 +83,17 @@ fun RootScaffold() {
             startDestination = TabRoute.Home.route,
             modifier = Modifier.fillMaxSize(),
         ) {
-            composable(TabRoute.Home.route) {
+            composable(
+                route = TabRoute.Home.route,
+                exitTransition = {
+                    val isTab = TabRoute.all.any { it.route == targetState.destination.route }
+                    if (isTab) ExitTransition.None else fadeOut(tween(Dimens.animationDurationMs))
+                },
+                popEnterTransition = {
+                    val isTab = TabRoute.all.any { it.route == initialState.destination.route }
+                    if (isTab) EnterTransition.None else fadeIn(tween(Dimens.animationDurationMs))
+                },
+            ) {
                 HomeScreen(
                     onNavigateToSearch = {
                         childNavController.navigate(TabRoute.Search.route) {
@@ -100,10 +112,30 @@ fun RootScaffold() {
                     onEditTap = { childNavController.navigate(NavRoutes.Edit) },
                 )
             }
-            composable(TabRoute.Search.route) {
+            composable(
+                route = TabRoute.Search.route,
+                exitTransition = {
+                    val isTab = TabRoute.all.any { it.route == targetState.destination.route }
+                    if (isTab) ExitTransition.None else fadeOut(tween(Dimens.animationDurationMs))
+                },
+                popEnterTransition = {
+                    val isTab = TabRoute.all.any { it.route == initialState.destination.route }
+                    if (isTab) EnterTransition.None else fadeIn(tween(Dimens.animationDurationMs))
+                },
+            ) {
                 SearchScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
             }
-            composable(TabRoute.Setting.route) {
+            composable(
+                route = TabRoute.Setting.route,
+                exitTransition = {
+                    val isTab = TabRoute.all.any { it.route == targetState.destination.route }
+                    if (isTab) ExitTransition.None else fadeOut(tween(Dimens.animationDurationMs))
+                },
+                popEnterTransition = {
+                    val isTab = TabRoute.all.any { it.route == initialState.destination.route }
+                    if (isTab) EnterTransition.None else fadeIn(tween(Dimens.animationDurationMs))
+                },
+            ) {
                 SettingScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
             }
             composable(
