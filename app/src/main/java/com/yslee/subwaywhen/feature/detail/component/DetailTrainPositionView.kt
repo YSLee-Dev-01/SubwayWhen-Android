@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.yslee.subwaywhen.ui.common.subwayLineColor
 import com.yslee.subwaywhen.ui.theme.Dimens
 import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun DetailTrainPositionView(
@@ -56,7 +55,7 @@ fun DetailTrainPositionView(
     var isTrainVisible by remember { mutableStateOf(false) }
     val trainAlpha by animateFloatAsState(
         targetValue = if (isTrainVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 125),
+        animationSpec = tween(durationMillis = 325),
         label = "trainFade",
     )
 
@@ -64,7 +63,6 @@ fun DetailTrainPositionView(
         if (isLoading) {
             isTrainVisible = false
         } else {
-            delay(350)
             if (statusCode.toIntOrNull() != null) isTrainVisible = true
         }
     }
@@ -84,7 +82,7 @@ fun DetailTrainPositionView(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .fillMaxWidth()
-                .padding(horizontal = Dimens.paddingLR)
+                .padding(start = Dimens.paddingLR + 7.5.dp, end = Dimens.paddingLR + 7.5.dp)
                 .height(5.dp)
                 .offset(y = 27.dp)
                 .background(lineColor, RoundedCornerShape(50)),

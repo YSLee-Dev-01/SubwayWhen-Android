@@ -9,4 +9,5 @@ data class DetailResultScheduleSendModel(
     val upDown: String,
     val exceptionLastStation: String,
     val scheduleItems: List<DetailScheduleItem>,
+    val lineNumber: String,
 )

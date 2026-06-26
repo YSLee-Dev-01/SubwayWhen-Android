@@ -90,6 +90,7 @@ class DetailViewModel @Inject constructor(
                                 upDown = state.sendModel.upDown,
                                 exceptionLastStation = state.sendModel.exceptionLastStation,
                                 scheduleItems = rawScheduleItems,
+                                lineNumber = state.sendModel.lineNumber,
                             )
                         )
                     )

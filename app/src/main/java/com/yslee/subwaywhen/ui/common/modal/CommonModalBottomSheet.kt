@@ -44,12 +44,19 @@ fun CommonModalBottomSheet(
     subTitle: String? = null,
     topDecoration: (@Composable () -> Unit)? = null,
     sheetHeight: Dp? = null,
+    // 외부에서 animated dismiss(슬라이드 다운) 액션을 받아 저장하기 위한 콜백
+    onAnimatedDismissReady: ((suspend () -> Unit) -> Unit)? = null,
     // dismiss: animatedDismiss 콜백. sheetState.hide() 후 onDismiss() 순서로 호출해 슬라이드-다운 애니메이션을 보장한다.
     confirmButton: (@Composable (() -> Unit) -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val animatedDismissSuspend: suspend () -> Unit = { sheetState.hide(); onDismiss() }
+    // 외부로 animated dismiss 액션 전달 (SideEffect로 composition 완료 후 실행)
+    if (onAnimatedDismissReady != null) {
+        androidx.compose.runtime.SideEffect { onAnimatedDismissReady(animatedDismissSuspend) }
+    }
     val animatedDismiss: () -> Unit = { scope.launch { sheetState.hide(); onDismiss() } }
 
     ModalBottomSheet(

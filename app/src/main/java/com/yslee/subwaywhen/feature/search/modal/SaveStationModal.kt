@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,10 +33,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.data.model.SaveStationGroup
 import com.yslee.subwaywhen.data.remote.dto.stationSearch.SearchStationInfo
+import com.yslee.subwaywhen.feature.detail.DetailSendModel
 import com.yslee.subwaywhen.feature.search.modal.component.DisposableView
 import com.yslee.subwaywhen.ui.common.StationLineCircle
 import com.yslee.subwaywhen.ui.common.modal.CommonModalBottomSheet
 import com.yslee.subwaywhen.ui.common.modal.ModalSubButton
+import com.yslee.subwaywhen.ui.common.subwayLineCode
 import com.yslee.subwaywhen.ui.common.subwayLineColor
 import com.yslee.subwaywhen.ui.common.subwayLineDisplayName
 import com.yslee.subwaywhen.ui.common.subwayLineIsService
@@ -52,10 +53,13 @@ fun SaveStationModal(
     station: SearchStationInfo,
     onDismiss: () -> Unit,
     onSaveCompleted: () -> Unit,
+    onNavigateToDetail: (DetailSendModel) -> Unit = {},
 ) {
     val viewModel: SaveStationModalViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAlreadyExistsDialog by remember { mutableStateOf(false) }
+    // Non-state mutable ref: SideEffect에서 설정해도 recomposition을 유발하지 않음
+    val animatedDismissRef = remember { object { var value: (suspend () -> Unit)? = null } }
 
     LaunchedEffect(station) {
         viewModel.onIntent(SaveStationModalIntent.InitStation(station))
@@ -75,8 +79,18 @@ fun SaveStationModal(
                     onDismiss()
                 }
                 is SaveStationModalEffect.DisposableDetailNavigate -> {
-                    // TODO: Detail 연동은 다음 spec에서 구현
-                    onDismiss()
+                    val model = DetailSendModel(
+                        upDown = subwayLineUpDownText(effect.station.line, effect.isUp),
+                        stationName = effect.station.stationName,
+                        lineNumber = effect.station.line,
+                        stationCode = effect.station.stationCode,
+                        lineCode = subwayLineCode(effect.station.line),
+                        exceptionLastStation = "",
+                        korailCode = "",
+                    )
+                    // 모달 슬라이드 다운 완료 후 상세 화면 진입
+                    animatedDismissRef.value?.invoke()
+                    onNavigateToDetail(model)
                 }
             }
         }
@@ -85,17 +99,18 @@ fun SaveStationModal(
     SaveStationModalContent(
         uiState = uiState,
         station = station,
+        onAnimatedDismissReady = { animatedDismissRef.value = it },
         showAlreadyExistsDialog = showAlreadyExistsDialog,
         onIntent = viewModel::onIntent,
         onAlreadyExistsDismiss = { showAlreadyExistsDialog = false },
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SaveStationModalContent(
     uiState: SaveStationModalUiState,
     station: SearchStationInfo,
+    onAnimatedDismissReady: ((suspend () -> Unit) -> Unit)?,
     showAlreadyExistsDialog: Boolean,
     onIntent: (SaveStationModalIntent) -> Unit,
     onAlreadyExistsDismiss: () -> Unit,
@@ -106,6 +121,7 @@ private fun SaveStationModalContent(
         mainTitle = "지하철 역 추가",
         subTitle = "그룹, 제외 행을 선택 후 상/하행 버튼을 누르면 저장할 수 있어요.",
         onDismiss = { onIntent(SaveStationModalIntent.Dismissed) },
+        onAnimatedDismissReady = onAnimatedDismissReady,
         topDecoration = if (!isNotService) {
             {
                 DisposableView(
@@ -222,6 +238,7 @@ private fun SaveStationModal1LinePreview() {
         SaveStationModalContent(
             uiState = SaveStationModalUiState(),
             station = SearchStationInfo(stationName = "종각", line = "01호선", stationCode = "157"),
+            onAnimatedDismissReady = null,
             showAlreadyExistsDialog = false,
             onIntent = {},
             onAlreadyExistsDismiss = {},
@@ -236,6 +253,7 @@ private fun SaveStationModal2LinePreview() {
         SaveStationModalContent(
             uiState = SaveStationModalUiState(),
             station = SearchStationInfo(stationName = "강남", line = "02호선", stationCode = "222"),
+            onAnimatedDismissReady = null,
             showAlreadyExistsDialog = false,
             onIntent = {},
             onAlreadyExistsDismiss = {},
@@ -250,6 +268,7 @@ private fun SaveStationModalNotServicePreview() {
         SaveStationModalContent(
             uiState = SaveStationModalUiState(),
             station = SearchStationInfo(stationName = "고촌", line = "김포도시철도", stationCode = ""),
+            onAnimatedDismissReady = null,
             showAlreadyExistsDialog = false,
             onIntent = {},
             onAlreadyExistsDismiss = {},

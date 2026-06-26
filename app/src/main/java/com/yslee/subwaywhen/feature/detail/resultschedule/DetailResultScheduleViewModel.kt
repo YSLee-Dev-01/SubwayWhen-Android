@@ -71,6 +71,7 @@ class DetailResultScheduleViewModel @Inject constructor(
                 stationName = sendModel.stationName,
                 upDown = sendModel.upDown,
                 exceptionLastStation = sendModel.exceptionLastStation,
+                lineNumber = sendModel.lineNumber,
                 hourSections = sections,
                 currentHourIndex = currentIndex,
             )

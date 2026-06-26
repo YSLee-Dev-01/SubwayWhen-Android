@@ -1,5 +1,6 @@
 package com.yslee.subwaywhen.navigation
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
@@ -16,7 +17,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import android.net.Uri
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -43,13 +45,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import com.yslee.subwaywhen.feature.detail.DetailScreen
 import com.yslee.subwaywhen.feature.detail.DetailSendModel
-import com.yslee.subwaywhen.feature.detail.toDetailSendModel
 import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleScreen
-import com.yslee.subwaywhen.feature.detail.resultschedule.DetailResultScheduleSendModel
+import com.yslee.subwaywhen.feature.detail.toDetailSendModel
 import com.yslee.subwaywhen.feature.edit.EditScreen
 import com.yslee.subwaywhen.feature.home.HomeScreen
 import com.yslee.subwaywhen.feature.search.SearchScreen
@@ -60,6 +59,8 @@ import com.yslee.subwaywhen.ui.theme.TabIconUnselectedDark
 import com.yslee.subwaywhen.ui.theme.TabIconUnselectedLight
 import com.yslee.subwaywhen.ui.theme.TabIndicatorDark
 import com.yslee.subwaywhen.ui.theme.TabIndicatorLight
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 private val TabBarShape = RoundedCornerShape(28.dp)
 private val TabItemShape = RoundedCornerShape(20.dp)
@@ -75,6 +76,12 @@ fun RootScaffold() {
     val unselectedIconColor = if (isDark) TabIconUnselectedDark else TabIconUnselectedLight
 
     var isTabBarVisible by remember { mutableStateOf(true) }
+    var disposableDetailModel: DetailSendModel? by remember { mutableStateOf(null) }
+    // exit 애니메이션 중에도 컨텐츠를 유지하기 위해 마지막 non-null 값 보존
+    var sheetDetailModel: DetailSendModel? by remember { mutableStateOf(null) }
+    if (disposableDetailModel != null) sheetDetailModel = disposableDetailModel
+
+    val effectiveTabBarVisible = isTabBarVisible && disposableDetailModel == null
 
     Box(modifier = Modifier.fillMaxSize()) {
         NavHost(
@@ -130,7 +137,12 @@ fun RootScaffold() {
                     if (isTab) EnterTransition.None else fadeIn(tween(Dimens.animationDurationMs))
                 },
             ) {
-                SearchScreen(onTabBarVisibilityChange = { isTabBarVisible = it })
+                SearchScreen(
+                    onTabBarVisibilityChange = { isTabBarVisible = it },
+                    onNavigateToDetail = { model ->
+                        disposableDetailModel = model
+                    },
+                )
             }
             composable(
                 route = TabRoute.Setting.route,
@@ -162,8 +174,20 @@ fun RootScaffold() {
             composable(
                 route = NavRoutes.Detail,
                 arguments = listOf(navArgument(NavRoutes.ARG_DETAIL_MODEL) { type = NavType.StringType }),
-                enterTransition = { slideInHorizontally(tween(Dimens.animationDurationMs)) { it } },
-                popExitTransition = { slideOutHorizontally(tween(Dimens.animationDurationMs)) { it } },
+                enterTransition = {
+                    if (initialState.destination.route == TabRoute.Search.route) {
+                        slideInVertically(tween(Dimens.animationDurationMs)) { it }
+                    } else {
+                        slideInHorizontally(tween(Dimens.animationDurationMs)) { it }
+                    }
+                },
+                popExitTransition = {
+                    if (targetState.destination.route == TabRoute.Search.route) {
+                        slideOutVertically(tween(Dimens.animationDurationMs)) { it }
+                    } else {
+                        slideOutHorizontally(tween(Dimens.animationDurationMs)) { it }
+                    }
+                },
             ) { backStackEntry ->
                 val encoded = backStackEntry.arguments?.getString(NavRoutes.ARG_DETAIL_MODEL) ?: return@composable
                 val sendModel = Json.decodeFromString<DetailSendModel>(encoded)
@@ -198,7 +222,7 @@ fun RootScaffold() {
         }
 
         AnimatedVisibility(
-            visible = isTabBarVisible,
+            visible = effectiveTabBarVisible,
             enter = slideInVertically(tween(123)) { it } + fadeIn(tween(123)),
             exit = slideOutVertically(tween(Dimens.animationDurationMs)) { it } + fadeOut(tween(Dimens.animationDurationMs)),
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -240,6 +264,93 @@ fun RootScaffold() {
                         )
                     }
                 }
+            }
+        }
+
+        // Scrim
+        AnimatedVisibility(
+            visible = disposableDetailModel != null,
+            enter = fadeIn(tween(Dimens.animationDurationMs)),
+            exit = fadeOut(tween(Dimens.animationDurationMs)),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
+        }
+
+        // 90% 시트
+        AnimatedVisibility(
+            visible = disposableDetailModel != null,
+            enter = slideInVertically(tween(Dimens.animationDurationMs)) { it },
+            exit = slideOutVertically(tween(Dimens.animationDurationMs)) { it },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            sheetDetailModel?.let { model ->
+                DisposableDetailSheet(
+                    model = model,
+                    onDismiss = { disposableDetailModel = null },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DisposableDetailSheet(
+    model: DetailSendModel,
+    onDismiss: () -> Unit,
+) {
+    val sheetNavController = rememberNavController()
+    val encodedModel = remember(model) { Uri.encode(Json.encodeToString(model)) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.9f)
+            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            .background(MaterialTheme.colorScheme.surface),
+    ) {
+        NavHost(
+            navController = sheetNavController,
+            startDestination = NavRoutes.detailRoute(encodedModel),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            composable(
+                route = NavRoutes.Detail,
+                arguments = listOf(navArgument(NavRoutes.ARG_DETAIL_MODEL) { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val sendModel = remember(backStackEntry) {
+                    Json.decodeFromString<DetailSendModel>(
+                        backStackEntry.arguments?.getString(NavRoutes.ARG_DETAIL_MODEL) ?: ""
+                    )
+                }
+                DetailScreen(
+                    sendModel = sendModel,
+                    onBack = {
+                        if (!sheetNavController.popBackStack()) onDismiss()
+                    },
+                    onScheduleMoreTap = { scheduleModel ->
+                        val encodedSchedule = Uri.encode(Json.encodeToString(scheduleModel))
+                        sheetNavController.navigate(NavRoutes.detailResultScheduleRoute(encodedSchedule))
+                    },
+                    onTabBarVisibilityChange = {},
+                )
+            }
+            composable(
+                route = NavRoutes.DetailResultSchedule,
+                arguments = listOf(navArgument(NavRoutes.ARG_RESULT_SCHEDULE_MODEL) { type = NavType.StringType }),
+                enterTransition = { slideInHorizontally(tween(Dimens.animationDurationMs)) { it } },
+                popExitTransition = { slideOutHorizontally(tween(Dimens.animationDurationMs)) { it } },
+            ) {
+                DetailResultScheduleScreen(
+                    onBack = { sheetNavController.popBackStack() },
+                    onNavigateBackWithException = { exception ->
+                        sheetNavController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("exceptionLastStation", exception)
+                        sheetNavController.popBackStack()
+                    },
+                    onTabBarVisibilityChange = {},
+                )
             }
         }
     }

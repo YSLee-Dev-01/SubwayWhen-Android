@@ -1,8 +1,7 @@
 package com.yslee.subwaywhen.feature.detail.resultschedule
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.feature.detail.resultschedule.component.DetailResultScheduleCell
 import com.yslee.subwaywhen.feature.detail.resultschedule.component.DetailResultScheduleHourHeader
 import com.yslee.subwaywhen.ui.common.CommonTopBar
+import com.yslee.subwaywhen.ui.common.subwayLineTitle
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.common.PrimaryButton
 import com.yslee.subwaywhen.ui.common.UpDownExceptionRow
@@ -98,6 +98,7 @@ fun DetailResultScheduleScreen(
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).statusBarsPadding()) {
         StickyScheduleHeader(
             stationName = uiState.stationName,
+            lineNumber = uiState.lineNumber,
             upDown = uiState.upDown,
             exceptionLastStation = uiState.exceptionLastStation,
             isSubTitleVisible = isTitleVisible,
@@ -114,7 +115,7 @@ fun DetailResultScheduleScreen(
         ) {
             item(key = "large_title") {
                 Text(
-                    text = uiState.stationName,
+                    text = "${subwayLineTitle(uiState.lineNumber)} ${uiState.stationName}",
                     fontSize = Dimens.fontSizeMainTitle,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -127,6 +128,7 @@ fun DetailResultScheduleScreen(
                     UpDownExceptionRow(
                         upDownText = uiState.upDown,
                         exceptionText = uiState.exceptionLastStation,
+                        isExceptionEnabled = uiState.exceptionLastStation.isNotEmpty(),
                         onExceptionClick = {
                             viewModel.onIntent(DetailResultScheduleIntent.ExceptionButtonTap(uiState.exceptionLastStation))
                         },
@@ -186,6 +188,7 @@ fun DetailResultScheduleScreen(
 @Composable
 private fun StickyScheduleHeader(
     stationName: String,
+    lineNumber: String,
     upDown: String,
     exceptionLastStation: String,
     isSubTitleVisible: Boolean,
@@ -193,28 +196,27 @@ private fun StickyScheduleHeader(
     onBack: () -> Unit,
     onExceptionTap: () -> Unit,
 ) {
-    val chipSpring = spring<Float>(dampingRatio = Spring.DampingRatioLowBouncy)
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface),
     ) {
         CommonTopBar(
-            title = stationName,
+            title = "${subwayLineTitle(lineNumber)} $stationName",
             isSubTitleVisible = isSubTitleVisible,
             onBack = onBack,
         )
 
         AnimatedVisibility(
             visible = isExpanded,
-            enter = expandVertically(spring(dampingRatio = Spring.DampingRatioLowBouncy)) + fadeIn(chipSpring),
-            exit = shrinkVertically(spring(dampingRatio = Spring.DampingRatioLowBouncy)) + fadeOut(chipSpring),
+            enter = expandVertically(tween(Dimens.animationDurationMs)) + fadeIn(tween(Dimens.animationDurationMs)),
+            exit = shrinkVertically(tween(Dimens.animationDurationMs)) + fadeOut(tween(Dimens.animationDurationMs)),
         ) {
             Box(modifier = Modifier.padding(horizontal = Dimens.paddingLR, vertical = 6.dp)) {
                 UpDownExceptionRow(
                     upDownText = upDown,
                     exceptionText = exceptionLastStation,
+                    isExceptionEnabled = exceptionLastStation.isNotEmpty(),
                     onExceptionClick = onExceptionTap,
                 )
             }
@@ -228,6 +230,7 @@ private fun DetailResultScheduleScreenLightPreview() {
     SubwayWhenTheme(darkTheme = false) {
         StickyScheduleHeader(
             stationName = "불광",
+            lineNumber = "06호선",
             upDown = "상행",
             exceptionLastStation = "노원",
             isSubTitleVisible = true,

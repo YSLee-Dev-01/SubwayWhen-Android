@@ -34,9 +34,10 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 fun UpDownExceptionRow(
     upDownText: String,
     exceptionText: String,
+    isExceptionEnabled: Boolean = true,
     onExceptionClick: () -> Unit,
 ) {
-    val displayException = if (exceptionText.isEmpty()) "제외 없음" else "${exceptionText}행 제외"
+    val displayException = if (exceptionText.isEmpty()) "제외 행 없음" else "${exceptionText}행 제외"
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -59,32 +60,37 @@ fun UpDownExceptionRow(
         MainBgCard(
             modifier = Modifier
                 .weight(1f)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onExceptionClick,
+                .then(
+                    if (isExceptionEnabled) {
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onExceptionClick,
+                        )
+                    } else Modifier
                 ),
         ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth().height(40.dp),
             ) {
+                val contentColor = if (isExceptionEnabled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
                         text = displayException,
-                        color = MaterialTheme.colorScheme.error,
+                        color = contentColor,
                         fontSize = Dimens.fontSizeSmall,
                         fontWeight = FontWeight.Medium,
                     )
-                    if (exceptionText.isNotEmpty()) {
+                    if (isExceptionEnabled && exceptionText.isNotEmpty()) {
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
                                 .graphicsLayer(rotationZ = 180f)
-                                .background(color = MaterialTheme.colorScheme.error, shape = TriangleShape),
+                                .background(color = contentColor, shape = TriangleShape),
                         )
                     }
                 }

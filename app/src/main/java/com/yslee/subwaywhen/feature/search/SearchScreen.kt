@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,7 @@ import com.yslee.subwaywhen.feature.search.component.SearchResultSection
 import com.yslee.subwaywhen.feature.search.component.SearchTextField
 import com.yslee.subwaywhen.feature.search.component.SearchWordRecommendSection
 import com.yslee.subwaywhen.feature.search.vicinity.SearchVicinitySection
+import com.yslee.subwaywhen.feature.detail.DetailSendModel
 import com.yslee.subwaywhen.feature.search.modal.SaveStationModal
 import com.yslee.subwaywhen.feature.search.modal.component.SaveCompletedModal
 import com.yslee.subwaywhen.ui.common.CommonTopBarScreen
@@ -40,6 +42,7 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
+    onNavigateToDetail: (DetailSendModel) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SearchScreenContent(
@@ -47,6 +50,7 @@ fun SearchScreen(
         onIntent = viewModel::onIntent,
         onSaveCompleted = { viewModel.onIntent(SearchIntent.SaveCompleted) },
         onTabBarVisibilityChange = onTabBarVisibilityChange,
+        onNavigateToDetail = onNavigateToDetail,
     )
 }
 
@@ -56,11 +60,13 @@ private fun SearchScreenContent(
     onIntent: (SearchIntent) -> Unit,
     onSaveCompleted: () -> Unit,
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
+    onNavigateToDetail: (DetailSendModel) -> Unit = {},
 ) {
     // 탭바 숨김: 어떤 모달이 열려 있든 항상 탭바를 숨긴다
     // - selectedStation: SaveStationModal
     // - isSaveCompletedModalVisible: SaveCompletedModal
     // - LocationListModal visibility는 SearchVicinitySection 내부에서 별도 콜백으로 제어
+    val keyboardController = LocalSoftwareKeyboardController.current
     val isModalVisible = uiState.selectedStation != null || uiState.isSaveCompletedModalVisible
     LaunchedEffect(isModalVisible) {
         onTabBarVisibilityChange(!isModalVisible)
@@ -94,7 +100,10 @@ private fun SearchScreenContent(
                         query = uiState.searchQuery,
                         isLoading = uiState.isSearchLoading,
                         result = uiState.searchResult,
-                        onItemClick = { onIntent(SearchIntent.ResultStationTapped(it)) },
+                        onItemClick = { item ->
+                            keyboardController?.hide()
+                            onIntent(SearchIntent.ResultStationTapped(item))
+                        },
                     )
                 }
 
@@ -134,6 +143,10 @@ private fun SearchScreenContent(
                 station = uiState.selectedStation,
                 onDismiss = { onIntent(SearchIntent.ModalDismissed) },
                 onSaveCompleted = onSaveCompleted,
+                onNavigateToDetail = { model ->
+                    onIntent(SearchIntent.ModalDismissed)
+                    onNavigateToDetail(model)
+                },
             )
         }
 
