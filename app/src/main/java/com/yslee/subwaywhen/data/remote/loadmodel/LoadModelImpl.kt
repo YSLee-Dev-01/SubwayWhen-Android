@@ -88,7 +88,7 @@ class LoadModelImpl @Inject constructor(
         val url = "https://dapi.kakao.com/v2/local/search/category.json"
         return networkManager.requestData(
             url,
-            headers = mapOf("Authorization" to "KakaoAK ${tokenProvider.token(TokenKey.KAKAO)}"),
+            headers = mapOf("Authorization" to tokenProvider.token(TokenKey.KAKAO)),
             query = mapOf(
                 "category_group_code" to "SW8",
                 "radius" to "3000",
