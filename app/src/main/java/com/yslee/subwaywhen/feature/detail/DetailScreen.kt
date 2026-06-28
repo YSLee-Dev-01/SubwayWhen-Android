@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import com.yslee.subwaywhen.ui.common.CommonTopBar
 import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
+import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.common.UpDownExceptionRow
 import com.yslee.subwaywhen.ui.common.subwayLineTitle
 import com.yslee.subwaywhen.ui.common.modal.ModalSubButton
@@ -133,19 +134,19 @@ fun DetailScreen(
 
         item {
             val first = uiState.firstArrival
-            if (first != null) {
+            MainBgCard(modifier = Modifier.fillMaxWidth()) {
                 DetailTrainPositionView(
-                    prevStationName = first.prevStationName,
+                    prevStationName = first?.prevStationName ?: "",
                     currentStationName = sendModel.stationName,
-                    nextStationName = first.nextStationName,
-                    statusCode = first.statusCode,
-                    isFast = first.isFast,
+                    nextStationName = first?.nextStationName ?: "",
+                    statusCode = first?.statusCode ?: "",
+                    isFast = first?.isFast ?: false,
                     lineNumber = sendModel.lineNumber,
                     trainIcon = uiState.trainIcon,
                     isLoading = uiState.isArrivalLoading,
                 )
-                Spacer(modifier = Modifier.height(Dimens.paddingTB))
             }
+            Spacer(modifier = Modifier.height(Dimens.paddingTB))
         }
 
         item {
