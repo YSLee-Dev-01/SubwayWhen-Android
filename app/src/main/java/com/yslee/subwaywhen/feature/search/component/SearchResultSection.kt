@@ -31,6 +31,7 @@ import com.yslee.subwaywhen.ui.common.AnimatedTapBox
 import com.yslee.subwaywhen.ui.common.AnimatedTapBoxAlignment
 import com.yslee.subwaywhen.ui.common.MainBgCard
 import com.yslee.subwaywhen.ui.common.StationLineCircle
+import com.yslee.subwaywhen.ui.theme.AppIconColor
 import com.yslee.subwaywhen.ui.theme.Dimens
 
 /**
@@ -76,7 +77,7 @@ fun SearchResultSection(
                             .padding(vertical = Dimens.paddingTB),
                     ) {
                         CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AppIconColor,
                         )
                     }
                 } else if (items.isEmpty()) {
