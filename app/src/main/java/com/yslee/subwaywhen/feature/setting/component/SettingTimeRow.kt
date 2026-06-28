@@ -158,6 +158,7 @@ private fun TimeGroupButton(label: String, time: Int, hasAlert: Boolean, modifie
                 fontSize = Dimens.fontSizeMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             ),
+            modifier = Modifier.padding(bottom = Dimens.paddingTB + 5.dp),
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -171,6 +172,7 @@ private fun TimeGroupButton(label: String, time: Int, hasAlert: Boolean, modifie
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 ),
+                modifier = Modifier.padding(bottom = Dimens.paddingTB + 5.dp),
             )
             if (hasAlert) {
                 Spacer(Modifier.width(4.dp))

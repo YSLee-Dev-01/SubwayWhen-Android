@@ -89,6 +89,7 @@ fun TrainIconModal(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 7.5.dp)
                         .height(5.dp)
                         .background(AppIconColor),
                 )

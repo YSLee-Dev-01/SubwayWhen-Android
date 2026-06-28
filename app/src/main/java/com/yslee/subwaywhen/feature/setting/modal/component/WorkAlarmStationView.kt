@@ -74,6 +74,7 @@ fun WorkAlarmStationView(
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.colorScheme.surface,
                         checkedTrackColor = AppIconColor,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.surface,
                     ),
                 )
             }
