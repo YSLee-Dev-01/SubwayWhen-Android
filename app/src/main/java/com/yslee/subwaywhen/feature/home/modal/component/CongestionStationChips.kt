@@ -48,7 +48,7 @@ fun CongestionStationChips(
                     .padding(end = 10.dp)
                     .then(
                         if (isSelected) Modifier.border(
-                            width = 2.dp,
+                            width = 1.dp,
                             color = borderColor,
                             shape = RoundedCornerShape(Dimens.cornerRadius),
                         ) else Modifier
