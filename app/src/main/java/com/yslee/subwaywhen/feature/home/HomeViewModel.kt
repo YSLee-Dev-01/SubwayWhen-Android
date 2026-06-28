@@ -56,6 +56,8 @@ class HomeViewModel @Inject constructor(
             var prevStations: List<SaveStation>? = null
             var prevOneTime: Int? = null
             var prevTwoTime: Int? = null
+            var prevCongestionStation: String? = null
+            var prevCongestionLabel: String? = null
             combine(
                 localDataRepository.saveStations,
                 localDataRepository.saveSetting,
@@ -75,10 +77,24 @@ class HomeViewModel @Inject constructor(
                         setting.mainGroupTwoTime != prevTwoTime
                     if (stationsChanged || groupTimeChanged) {
                         loadGroupData(stations)
+                    } else {
+                        val congestionStationChanged = setting.mainCongestionBaseStation != prevCongestionStation
+                        val congestionLabelChanged = setting.mainCongestionLabel != prevCongestionLabel
+                        if (congestionStationChanged || congestionLabelChanged) {
+                            launch {
+                                val level = congestionManager.getLevel(
+                                    station = setting.mainCongestionBaseStation,
+                                    hour = nowHour,
+                                ) ?: 0
+                                _uiState.update { it.copy(congestionEmoji = buildCongestionEmoji(level, setting.mainCongestionLabel)) }
+                            }
+                        }
                     }
                     prevStations = stations
                     prevOneTime = setting.mainGroupOneTime
                     prevTwoTime = setting.mainGroupTwoTime
+                    prevCongestionStation = setting.mainCongestionBaseStation
+                    prevCongestionLabel = setting.mainCongestionLabel
                 }
         }
     }
