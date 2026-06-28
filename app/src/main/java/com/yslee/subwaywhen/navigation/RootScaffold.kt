@@ -181,6 +181,7 @@ fun RootScaffold() {
                         slideInHorizontally(tween(Dimens.animationDurationMs)) { it }
                     }
                 },
+                popEnterTransition = { EnterTransition.None },
                 popExitTransition = {
                     if (targetState.destination.route == TabRoute.Search.route) {
                         slideOutVertically(tween(Dimens.animationDurationMs)) { it }
@@ -326,6 +327,7 @@ private fun DisposableDetailSheet(
             composable(
                 route = NavRoutes.Detail,
                 arguments = listOf(navArgument(NavRoutes.ARG_DETAIL_MODEL) { type = NavType.StringType }),
+                popEnterTransition = { EnterTransition.None },
             ) { backStackEntry ->
                 val sendModel = remember(backStackEntry) {
                     Json.decodeFromString<DetailSendModel>(
