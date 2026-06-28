@@ -50,6 +50,7 @@ fun DetailArrivalSection(
     timerCount: Int,
     isRefreshCooldown: Boolean,
     isArrivalLoading: Boolean,
+    isAutoReloadEnabled: Boolean,
     onRealtimeTap: () -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
@@ -57,7 +58,8 @@ fun DetailArrivalSection(
     val titleText = when {
         isArrivalLoading -> "📡 열차 정보를 가져오고 있어요."
         arrivalError || firstArrival == null -> "⚠️ 실시간 정보가 없어요."
-        else -> firstArrival.statusMessage
+        firstArrival.subPrevious.isEmpty() -> "⚠️ 실시간 정보가 없어요."
+        else -> firstArrival.subPrevious
     }
     val contentAlpha by animateFloatAsState(
         targetValue = if (isArrivalLoading) 0f else 1f,
@@ -114,11 +116,13 @@ fun DetailArrivalSection(
                                     .size(22.dp)
                                     .rotate(rotation),
                             )
-                            Text(
-                                text = "$timerCount",
-                                fontSize = Dimens.fontSizeSuperSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            if (isAutoReloadEnabled) {
+                                Text(
+                                    text = "$timerCount",
+                                    fontSize = Dimens.fontSizeSuperSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
 
                         Text(
@@ -157,10 +161,12 @@ fun DetailArrivalSection(
                             ) {
                                 firstArrival?.let { ArrivalBubble(it, isFirst = true, lineNumber = lineNumber) }
                                 if (exceptionLastStation.isNotEmpty()) {
-                                    Text(
-                                        text = "⛔ 제외 행을 설정하면 두 번째 열차 정보가 표시되지 않아요.",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ArrivalBubble(
+                                        item = null,
+                                        isFirst = false,
+                                        lineNumber = lineNumber,
+                                        bgColorOverride = Color.Gray,
+                                        overrideText = "⛔ 제외 행을 설정하면\n두 번째 열차를 볼 수 없어요.",
                                     )
                                 } else {
                                     secondArrival?.let { ArrivalBubble(it, isFirst = false, lineNumber = lineNumber) }
@@ -174,8 +180,21 @@ fun DetailArrivalSection(
 }
 
 @Composable
-private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber: String) {
-    val bgColor = subwayLineColor(lineNumber) ?: MaterialTheme.colorScheme.primary
+private fun ArrivalBubble(
+    item: DetailArrivalItem?,
+    isFirst: Boolean,
+    lineNumber: String,
+    bgColorOverride: Color? = null,
+    overrideText: String? = null,
+) {
+    val bgColor = bgColorOverride ?: (subwayLineColor(lineNumber) ?: MaterialTheme.colorScheme.primary)
+    val bubbleText = overrideText ?: run {
+        if (item != null && item.subPrevious.isNotEmpty() && item.statusCode.isNotEmpty()) {
+            "🚇 ${item.trainNo} 열차(${if (item.isFast) "(급)" else ""}${item.destination}행)\n${item.subPrevious}"
+        } else {
+            "⚠️ 실시간 정보없음"
+        }
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isFirst) Arrangement.Start else Arrangement.End,
@@ -184,22 +203,14 @@ private fun ArrivalBubble(item: DetailArrivalItem, isFirst: Boolean, lineNumber:
             modifier = Modifier
                 .fillMaxWidth(0.65f)
                 .background(color = bgColor, shape = RoundedCornerShape(15.dp))
-                .padding(horizontal = 12.dp, vertical = 2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+                .padding(horizontal = 12.dp, vertical = 6.dp),
         ) {
             Text(
-                text = "${if (item.isFast) "🚄" else "🚇"} ${item.trainNo}열차(${item.destination}행)",
+                text = bubbleText,
                 color = Color.White,
                 fontSize = Dimens.fontSizeSmall,
                 fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = item.statusMessage,
-                color = Color.White,
-                fontSize = Dimens.fontSizeSmall,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
         }
@@ -221,13 +232,14 @@ private fun DetailArrivalSectionLightPreview() {
     SubwayWhenTheme(darkTheme = false) {
         DetailArrivalSection(
             exceptionLastStation = "",
-            firstArrival = DetailArrivalItem("3분", "전역 출발", "구파발", "1234", false, "3"),
-            secondArrival = DetailArrivalItem("7분", "전역 진입", "구파발", "5678", true, "4"),
+            firstArrival = DetailArrivalItem("3분", "전역 출발", "전역 출발", "구파발", "1234", false, "3"),
+            secondArrival = DetailArrivalItem("7분", "전역 진입", "전역 진입", "구파발", "5678", true, "4"),
             arrivalError = false,
             lineNumber = "03호선",
             timerCount = 10,
             isRefreshCooldown = false,
             isArrivalLoading = false,
+            isAutoReloadEnabled = true,
             onRealtimeTap = {},
             onRefresh = {},
             modifier = Modifier.padding(16.dp),
@@ -248,6 +260,7 @@ private fun DetailArrivalSectionLoadingPreview() {
             timerCount = 15,
             isRefreshCooldown = false,
             isArrivalLoading = true,
+            isAutoReloadEnabled = true,
             onRealtimeTap = {},
             onRefresh = {},
             modifier = Modifier.padding(16.dp),
@@ -261,13 +274,14 @@ private fun DetailArrivalSectionDarkPreview() {
     SubwayWhenTheme(darkTheme = true) {
         DetailArrivalSection(
             exceptionLastStation = "노원",
-            firstArrival = DetailArrivalItem("1분", "도착", "노원", "9999", false, "1"),
+            firstArrival = DetailArrivalItem("1분", "도착", "노원역 도착", "노원", "9999", false, "1"),
             secondArrival = null,
             arrivalError = false,
             lineNumber = "07호선",
             timerCount = 5,
             isRefreshCooldown = true,
             isArrivalLoading = false,
+            isAutoReloadEnabled = false,
             onRealtimeTap = {},
             onRefresh = {},
             modifier = Modifier.padding(16.dp),

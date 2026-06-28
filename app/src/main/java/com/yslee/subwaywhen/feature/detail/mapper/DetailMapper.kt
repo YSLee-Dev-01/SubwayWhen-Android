@@ -16,6 +16,7 @@ fun isUnownedLine(lineNumber: String): Boolean =
 fun RealtimeStationArrival.toDetailArrivalItem() = DetailArrivalItem(
     useTime = resolveUseTime(),
     statusMessage = useState,
+    subPrevious = subPrevious,
     destination = lastStation,
     trainNo = trainCode,
     isFast = isFast == "급행" || isFast == "ITX",

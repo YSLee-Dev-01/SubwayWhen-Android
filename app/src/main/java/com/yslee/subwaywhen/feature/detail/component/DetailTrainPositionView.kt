@@ -97,7 +97,7 @@ fun DetailTrainPositionView(
             horizontalArrangement = Arrangement.spacedBy(30.dp),
             verticalAlignment = Alignment.Top,
         ) {
-            StationMarkerColumn(name = currentStationName, lineColor = lineColor, align = Alignment.CenterHorizontally)
+            StationMarkerColumn(name = currentStationName, lineColor = lineColor, align = Alignment.CenterHorizontally, isBold = true)
             val showSecondMarker = statusCode.toIntOrNull()?.let { it >= 6 } ?: true
             if (prevStationName.isNotEmpty() && showSecondMarker) {
                 StationMarkerColumn(name = prevStationName, lineColor = lineColor, align = Alignment.CenterHorizontally)
@@ -138,6 +138,7 @@ private fun StationMarkerColumn(
     name: String,
     lineColor: Color,
     align: Alignment.Horizontal,
+    isBold: Boolean = false,
 ) {
     Column(
         horizontalAlignment = align,
@@ -152,7 +153,7 @@ private fun StationMarkerColumn(
         Text(
             text = name,
             style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 1,
