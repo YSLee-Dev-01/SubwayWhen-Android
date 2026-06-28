@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,6 +62,26 @@ fun DetailScreen(
     }
 
     BackHandler { viewModel.onIntent(DetailIntent.Back) }
+
+    if (uiState.showExceptionReloadDialog) {
+        val exceptionStation = uiState.sendModel.exceptionLastStation
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(DetailIntent.DialogDismissed) },
+            text = {
+                Text("${exceptionStation}행을 포함해서 재로딩 하시겠어요?\n재로딩은 일회성으로, 저장하지 않아요")
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onIntent(DetailIntent.ExceptionReloadConfirmed) }) {
+                    Text("재로딩")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onIntent(DetailIntent.DialogDismissed) }) {
+                    Text("취소")
+                }
+            },
+        )
+    }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
@@ -136,6 +158,7 @@ fun DetailScreen(
                 timerCount = uiState.timerCount,
                 isRefreshCooldown = uiState.isRefreshCooldown,
                 isArrivalLoading = uiState.isArrivalLoading,
+                isAutoReloadEnabled = uiState.detailAutoReload,
                 onRealtimeTap = { viewModel.onIntent(DetailIntent.RealtimeTap) },
                 onRefresh = { viewModel.onIntent(DetailIntent.Refresh) },
             )

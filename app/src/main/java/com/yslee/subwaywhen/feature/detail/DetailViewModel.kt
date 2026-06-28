@@ -50,12 +50,40 @@ class DetailViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var cooldownJob: Job? = null
     private var rawScheduleItems: List<DetailScheduleItem> = emptyList()
+    private var ignoreExceptionOnce: Boolean = false
 
     init {
         viewModelScope.launch {
             settingLocalDataSource.getSaveSetting()
                 .collect { setting ->
-                    _uiState.update { it.copy(trainIcon = setting.detailVcTrainIcon) }
+                    val prevAutoReload = _uiState.value.detailAutoReload
+                    _uiState.update {
+                        it.copy(
+                            trainIcon = setting.detailVcTrainIcon,
+                            detailAutoReload = setting.detailAutoReload,
+                            detailScheduleAutoTime = setting.detailScheduleAutoTime,
+                        )
+                    }
+                    // autoReload 설정 변경 시 타이머 재조정
+                    if (setting.detailAutoReload != prevAutoReload) {
+                        if (setting.detailAutoReload) {
+                            if (timerJob?.isActive == true) startTimer()
+                        } else {
+                            stopTimer()
+                        }
+                    }
+                    // scheduleAutoTime 변경 시 보유 중인 시간표 재정렬
+                    if (rawScheduleItems.isNotEmpty()) {
+                        _uiState.update {
+                            it.copy(
+                                scheduleItems = if (setting.detailScheduleAutoTime) {
+                                    rawScheduleItems.filterFromNow()
+                                } else {
+                                    rawScheduleItems
+                                }
+                            )
+                        }
+                    }
                 }
         }
 
@@ -76,7 +104,7 @@ class DetailViewModel @Inject constructor(
             DetailIntent.OnAppear -> {
                 loadArrival()
                 loadSchedule()
-                startTimer()
+                if (_uiState.value.detailAutoReload) startTimer()
             }
             DetailIntent.OnDisappear -> stopTimer()
             DetailIntent.Refresh -> handleRefresh()
@@ -97,7 +125,20 @@ class DetailViewModel @Inject constructor(
                 }
             }
             DetailIntent.RealtimeTap -> { /* TODO: Realtime 화면 연결 */ }
-            DetailIntent.ExceptionRowTap -> { /* 제외 행 설정은 DetailResultSchedule에서 처리 */ }
+            DetailIntent.ExceptionRowTap -> {
+                val exception = _uiState.value.sendModel.exceptionLastStation
+                if (exception.isNotEmpty()) {
+                    _uiState.update { it.copy(showExceptionReloadDialog = true) }
+                }
+            }
+            DetailIntent.ExceptionReloadConfirmed -> {
+                _uiState.update { it.copy(showExceptionReloadDialog = false) }
+                ignoreExceptionOnce = true
+                loadArrival()
+            }
+            DetailIntent.DialogDismissed -> {
+                _uiState.update { it.copy(showExceptionReloadDialog = false) }
+            }
             DetailIntent.ReportTap -> { /* TODO: 민원 접수 연결 */ }
             DetailIntent.Back -> viewModelScope.launch { _effect.emit(DetailEffect.NavigateBack) }
         }
@@ -119,7 +160,10 @@ class DetailViewModel @Inject constructor(
             val isUp = model.upDown.contains("상행") || model.upDown.contains("내선")
             val arrivals = if (isUp) upList else downList
 
-            val filtered = if (model.exceptionLastStation.isNotEmpty()) {
+            val shouldIgnore = ignoreExceptionOnce
+            if (ignoreExceptionOnce) ignoreExceptionOnce = false
+
+            val filtered = if (!shouldIgnore && model.exceptionLastStation.isNotEmpty()) {
                 arrivals.filter { it.lastStation != model.exceptionLastStation }
             } else arrivals
 
@@ -186,7 +230,13 @@ class DetailViewModel @Inject constructor(
                 _uiState.update { it.copy(isScheduleLoading = false, scheduleError = true) }
             } else {
                 rawScheduleItems = items
-                _uiState.update { it.copy(isScheduleLoading = false, scheduleItems = items.filterFromNow()) }
+                val autoTime = _uiState.value.detailScheduleAutoTime
+                _uiState.update {
+                    it.copy(
+                        isScheduleLoading = false,
+                        scheduleItems = if (autoTime) items.filterFromNow() else items,
+                    )
+                }
             }
         }
     }
@@ -217,7 +267,12 @@ class DetailViewModel @Inject constructor(
         if (_uiState.value.isRefreshCooldown) return
         _uiState.update { it.copy(timerCount = 15, isRefreshCooldown = true) }
         loadArrival()
-        sortSchedule()
+        val state = _uiState.value
+        if (rawScheduleItems.isEmpty() && !state.isUnowned && !state.scheduleError) {
+            loadSchedule()
+        } else {
+            sortSchedule()
+        }
         cooldownJob?.cancel()
         cooldownJob = viewModelScope.launch {
             delay(1200)
@@ -226,7 +281,10 @@ class DetailViewModel @Inject constructor(
     }
 
     private fun sortSchedule() {
-        _uiState.update { it.copy(scheduleItems = it.scheduleItems.filterFromNow()) }
+        val autoTime = _uiState.value.detailScheduleAutoTime
+        _uiState.update {
+            it.copy(scheduleItems = if (autoTime) rawScheduleItems.filterFromNow() else rawScheduleItems)
+        }
     }
 
     private fun DetailSendModel.toSaveStation() = SaveStation(
