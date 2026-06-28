@@ -126,6 +126,8 @@ private fun SearchScreenContent(
                     SearchVicinitySection(
                         onStationSearch = { name -> onIntent(SearchIntent.VicinityStationSelected(name)) },
                         onTabBarVisibilityChange = onTabBarVisibilityChange,
+                        onListStationSearch = { name -> onIntent(SearchIntent.VicinityListStationSelected(name)) },
+                        onNavigateToDisposableDetail = onNavigateToDetail,
                     )
                 }
 

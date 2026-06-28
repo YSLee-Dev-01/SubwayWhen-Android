@@ -2,6 +2,7 @@ package com.yslee.subwaywhen.feature.search.vicinity
 
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
+import com.yslee.subwaywhen.feature.detail.DetailSendModel
 
 enum class VicinityAuthStatus {
     Unknown, Denied, Granted
@@ -23,6 +24,7 @@ data class VicinityUiState(
     val errorDialog: String? = null,
     val isLocationModalVisible: Boolean = false,
     val trainIcon: String = "🚃",
+    val showDisposableDirectionDialog: Boolean = false,
 )
 
 sealed interface VicinityIntent {
@@ -37,9 +39,13 @@ sealed interface VicinityIntent {
     data class ListStationTapped(val index: Int) : VicinityIntent
     data object DialogDismissed : VicinityIntent
     data class AddStationTapped(val index: Int) : VicinityIntent
+    data object DisposableDetailTapped : VicinityIntent
+    data class DisposableDirectionSelected(val isUp: Boolean) : VicinityIntent
 }
 
 sealed interface VicinityEffect {
     data class SearchStation(val name: String) : VicinityEffect
     data object NoLiveDataError : VicinityEffect
+    data class SearchStationOnly(val name: String) : VicinityEffect
+    data class NavigateToDisposableDetail(val model: DetailSendModel) : VicinityEffect
 }

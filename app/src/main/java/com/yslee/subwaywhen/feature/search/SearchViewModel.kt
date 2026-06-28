@@ -125,6 +125,18 @@ class SearchViewModel @Inject constructor(
                 }
                 _searchQuery.value = intent.stationName
             }
+
+            is SearchIntent.VicinityListStationSelected -> {
+                _uiState.update {
+                    it.copy(
+                        isSearchMode = true,
+                        vicinityAutoOpen = false,
+                        isSearchLoading = true,
+                        searchQuery = intent.stationName,
+                    )
+                }
+                _searchQuery.value = intent.stationName
+            }
         }
     }
 

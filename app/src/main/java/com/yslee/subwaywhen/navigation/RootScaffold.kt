@@ -274,7 +274,16 @@ fun RootScaffold() {
             exit = fadeOut(tween(Dimens.animationDurationMs)),
             modifier = Modifier.fillMaxSize(),
         ) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { disposableDetailModel = null },
+                    ),
+            )
         }
 
         // 90% 시트
@@ -333,6 +342,7 @@ private fun DisposableDetailSheet(
                         sheetNavController.navigate(NavRoutes.detailResultScheduleRoute(encodedSchedule))
                     },
                     onTabBarVisibilityChange = {},
+                    isDisposable = true,
                 )
             }
             composable(

@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yslee.subwaywhen.R
 import com.yslee.subwaywhen.data.remote.dto.liveArrival.RealtimeStationArrival
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
+import com.yslee.subwaywhen.feature.detail.DetailSendModel
 import com.yslee.subwaywhen.feature.search.vicinity.component.VicinityEmptyState
 import com.yslee.subwaywhen.feature.search.vicinity.component.VicinityLoading
 import com.yslee.subwaywhen.feature.search.vicinity.component.VicinityStationDetailCard
@@ -72,6 +73,8 @@ import com.yslee.subwaywhen.ui.theme.SubwayWhenTheme
 fun SearchVicinitySection(
     onStationSearch: (String) -> Unit,
     onTabBarVisibilityChange: (Boolean) -> Unit = {},
+    onListStationSearch: (String) -> Unit = {},
+    onNavigateToDisposableDetail: (DetailSendModel) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val viewModel: SearchVicinityViewModel = hiltViewModel()
@@ -95,6 +98,8 @@ fun SearchVicinitySection(
             when (effect) {
                 is VicinityEffect.SearchStation -> onStationSearch(effect.name)
                 is VicinityEffect.NoLiveDataError -> showNoLiveDataError = true
+                is VicinityEffect.SearchStationOnly -> onListStationSearch(effect.name)
+                is VicinityEffect.NavigateToDisposableDetail -> onNavigateToDisposableDetail(effect.model)
             }
         }
     }
@@ -136,6 +141,24 @@ fun SearchVicinitySection(
             confirmButton = {
                 TextButton(onClick = { viewModel.onIntent(VicinityIntent.DialogDismissed) }) {
                     Text(stringResource(R.string.common_confirm))
+                }
+            },
+        )
+    }
+
+    if (state.showDisposableDirectionDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(VicinityIntent.DialogDismissed) },
+            title = { Text("방향 선택") },
+            text = { Text("조회할 방향을 선택하세요.") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onIntent(VicinityIntent.DisposableDirectionSelected(isUp = true)) }) {
+                    Text("상행")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onIntent(VicinityIntent.DisposableDirectionSelected(isUp = false)) }) {
+                    Text("하행")
                 }
             },
         )
@@ -329,6 +352,7 @@ private fun SearchVicinitySectionContent(
                                 trainIcon = state.trainIcon,
                                 onClose = { onIntent(VicinityIntent.StationTapped(null)) },
                                 onRefresh = { onIntent(VicinityIntent.LiveRefreshTapped) },
+                                onDisposableTapped = { onIntent(VicinityIntent.DisposableDetailTapped) },
                                 onAddStation = { onIntent(VicinityIntent.AddStationTapped(lastSelectedIdx)) },
                             )
                         }

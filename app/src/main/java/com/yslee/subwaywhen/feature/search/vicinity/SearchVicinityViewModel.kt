@@ -7,8 +7,12 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.yslee.subwaywhen.core.location.LocationManager
 import com.yslee.subwaywhen.data.remote.dto.vicinityStation.VicinityTransformData
 import com.yslee.subwaywhen.data.repository.LocalDataRepository
+import com.yslee.subwaywhen.data.repository.SearchRepository
 import com.yslee.subwaywhen.data.repository.VicinityRepository
+import com.yslee.subwaywhen.feature.detail.DetailSendModel
+import com.yslee.subwaywhen.ui.common.subwayLineCode
 import com.yslee.subwaywhen.ui.common.subwayLineIsService
+import com.yslee.subwaywhen.ui.common.subwayLineUpDownText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +29,7 @@ class SearchVicinityViewModel @Inject constructor(
     private val locationManager: LocationManager,
     private val vicinityRepository: VicinityRepository,
     private val localDataRepository: LocalDataRepository,
+    private val searchRepository: SearchRepository,
     private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
@@ -136,13 +141,19 @@ class SearchVicinityViewModel @Inject constructor(
             is VicinityIntent.ListStationTapped -> {
                 val name = _uiState.value.vicinityStations.getOrNull(intent.index)?.name ?: return
                 viewModelScope.launch {
-                    _effect.emit(VicinityEffect.SearchStation(name))
+                    _effect.emit(VicinityEffect.SearchStationOnly(name))
                 }
                 _uiState.update { it.copy(isLocationModalVisible = false) }
             }
 
             is VicinityIntent.DialogDismissed -> {
-                _uiState.update { it.copy(showRefreshCooldownDialog = false, errorDialog = null) }
+                _uiState.update {
+                    it.copy(
+                        showRefreshCooldownDialog = false,
+                        errorDialog = null,
+                        showDisposableDirectionDialog = false,
+                    )
+                }
             }
 
             is VicinityIntent.AddStationTapped -> {
@@ -155,6 +166,31 @@ class SearchVicinityViewModel @Inject constructor(
                     } else {
                         _effect.emit(VicinityEffect.NoLiveDataError)
                     }
+                }
+            }
+
+            is VicinityIntent.DisposableDetailTapped -> {
+                _uiState.update { it.copy(showDisposableDirectionDialog = true) }
+            }
+
+            is VicinityIntent.DisposableDirectionSelected -> {
+                val index = _uiState.value.tappedIndex ?: return
+                val station = _uiState.value.vicinityStations.getOrNull(index) ?: return
+                _uiState.update { it.copy(showDisposableDirectionDialog = false) }
+                viewModelScope.launch {
+                    val results = searchRepository.searchStations(station.name)
+                    val matched = results.find { it.line == station.lineColorName }
+                    val stationCode = matched?.stationCode ?: return@launch
+                    val model = DetailSendModel(
+                        upDown = subwayLineUpDownText(station.lineColorName, intent.isUp),
+                        stationName = station.name,
+                        lineNumber = station.lineColorName,
+                        stationCode = stationCode,
+                        lineCode = subwayLineCode(station.lineColorName),
+                        exceptionLastStation = "",
+                        korailCode = "",
+                    )
+                    _effect.emit(VicinityEffect.NavigateToDisposableDetail(model))
                 }
             }
         }

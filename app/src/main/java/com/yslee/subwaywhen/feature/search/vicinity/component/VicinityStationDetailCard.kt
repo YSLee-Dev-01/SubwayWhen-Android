@@ -72,6 +72,7 @@ fun VicinityStationDetailCard(
     trainIcon: String,
     onClose: () -> Unit,
     onRefresh: () -> Unit,
+    onDisposableTapped: () -> Unit,
     onAddStation: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -151,17 +152,17 @@ fun VicinityStationDetailCard(
                                         .graphicsLayer { scaleY = upBarScaleY },
                                 )
                             }
-                            // 열차 아이콘 (로딩 중 숨김, code 기반 위치)
-                            if (!liveLoading.up) {
-                                val code = upArrival.firstOrNull()?.code ?: "99"
-                                if (code != "99" && code.isNotEmpty()) {
-                                    TrainIcon(
-                                        code = code,
-                                        isUp = true,
-                                        icon = trainIcon,
-                                        modifier = Modifier.matchParentSize(),
-                                    )
-                                }
+                            // 열차 아이콘 (로딩 중 alpha 0, code 기반 위치)
+                            val upCode = upArrival.firstOrNull()?.code ?: "99"
+                            if (upCode != "99" && upCode.isNotEmpty()) {
+                                TrainIcon(
+                                    code = upCode,
+                                    isUp = true,
+                                    icon = trainIcon,
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .graphicsLayer { alpha = upCircleAlpha },
+                                )
                             }
                         }
 
@@ -219,16 +220,16 @@ fun VicinityStationDetailCard(
                                         .graphicsLayer { alpha = downCircleAlpha },
                                 )
                             }
-                            if (!liveLoading.down) {
-                                val code = downArrival.firstOrNull()?.code ?: "99"
-                                if (code != "99" && code.isNotEmpty()) {
-                                    TrainIcon(
-                                        code = code,
-                                        isUp = false,
-                                        icon = trainIcon,
-                                        modifier = Modifier.matchParentSize(),
-                                    )
-                                }
+                            val downCode = downArrival.firstOrNull()?.code ?: "99"
+                            if (downCode != "99" && downCode.isNotEmpty()) {
+                                TrainIcon(
+                                    code = downCode,
+                                    isUp = false,
+                                    icon = trainIcon,
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .graphicsLayer { alpha = downCircleAlpha },
+                                )
                             }
                         }
 
@@ -259,16 +260,17 @@ fun VicinityStationDetailCard(
                     ) {
                         // 상행/내선
                         Column(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .graphicsLayer { alpha = upCircleAlpha },
                             verticalArrangement = Arrangement.spacedBy(5.dp),
                         ) {
                             val upData = upArrival.firstOrNull()
                             val upDirection = when {
-                                liveLoading.up || upData == null -> "-"
+                                upData == null -> "-"
                                 else -> "${if (upData.isFast == "급행") "(급)" else ""}${upData.lastStation}행 (${subwayLineUpDownText(station.lineColorName, isUp = true)})"
                             }
                             val upStatus = when {
-                                liveLoading.up -> "🔄 로딩 중"
                                 upData == null -> "⚠️ 정보없음"
                                 else -> upData.useState
                             }
@@ -299,17 +301,18 @@ fun VicinityStationDetailCard(
 
                         // 하행/외선
                         Column(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .graphicsLayer { alpha = downCircleAlpha },
                             horizontalAlignment = Alignment.End,
                             verticalArrangement = Arrangement.spacedBy(5.dp),
                         ) {
                             val downData = downArrival.firstOrNull()
                             val downDirection = when {
-                                liveLoading.down || downData == null -> "-"
+                                downData == null -> "-"
                                 else -> "${if (downData.isFast == "급행") "(급)" else ""}${downData.lastStation}행 (${subwayLineUpDownText(station.lineColorName, isUp = false)})"
                             }
                             val downStatus = when {
-                                liveLoading.down -> "🔄 로딩 중"
                                 downData == null -> "⚠️ 정보없음"
                                 else -> downData.useState
                             }
@@ -346,7 +349,7 @@ fun VicinityStationDetailCard(
         ) {
             ActionIcon(icon = Icons.Default.Close,   onClick = onClose)
             ActionIcon(icon = Icons.Default.Refresh, onClick = onRefresh)
-            ActionIcon(icon = Icons.Default.Info,    onClick = { /* TODO: 임시보기 */ })
+            ActionIcon(icon = Icons.Default.Info,    onClick = onDisposableTapped)
             ActionIcon(icon = Icons.Default.Add,     onClick = onAddStation)
             ActionIcon(icon = Icons.Default.Warning, onClick = { /* TODO: 신고하기 */ })
         }
@@ -456,6 +459,7 @@ private fun VicinityStationDetailCardLightPreview() {
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
+            onDisposableTapped = {},
             onAddStation = {},
         )
     }
@@ -503,6 +507,7 @@ private fun VicinityStationDetailCardDarkPreview() {
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
+            onDisposableTapped = {},
             onAddStation = {},
         )
     }
@@ -520,6 +525,7 @@ private fun VicinityStationDetailCardLoadingPreview() {
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
+            onDisposableTapped = {},
             onAddStation = {},
         )
     }
@@ -537,6 +543,7 @@ private fun VicinityStationDetailCardEmptyPreview() {
             trainIcon = "🚃",
             onClose = {},
             onRefresh = {},
+            onDisposableTapped = {},
             onAddStation = {},
         )
     }

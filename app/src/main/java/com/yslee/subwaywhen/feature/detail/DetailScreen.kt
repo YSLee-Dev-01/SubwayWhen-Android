@@ -24,6 +24,8 @@ import com.yslee.subwaywhen.feature.detail.component.DetailArrivalSection
 import com.yslee.subwaywhen.feature.detail.component.DetailScheduleSection
 import com.yslee.subwaywhen.feature.detail.component.DetailStationHeaderView
 import com.yslee.subwaywhen.feature.detail.component.DetailTrainPositionView
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import com.yslee.subwaywhen.ui.common.CommonTopBar
 import com.yslee.subwaywhen.ui.common.CommonTopBarLazyScreen
 import com.yslee.subwaywhen.ui.common.UpDownExceptionRow
@@ -40,6 +42,7 @@ fun DetailScreen(
     onBack: () -> Unit,
     onScheduleMoreTap: (DetailResultScheduleSendModel) -> Unit,
     onTabBarVisibilityChange: (Boolean) -> Unit,
+    isDisposable: Boolean = false,
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
     SideEffect { onTabBarVisibilityChange(false) }
@@ -74,6 +77,7 @@ fun DetailScreen(
         title = "${subwayLineTitle(sendModel.lineNumber)} ${sendModel.stationName}",
         isLargeTitleHidden = true,
         onBack = { viewModel.onIntent(DetailIntent.Back) },
+        backIcon = if (isDisposable) Icons.Default.Close else null,
         bottomPadding = Dimens.tabBarBottomPadding,
     ) {
         item {
