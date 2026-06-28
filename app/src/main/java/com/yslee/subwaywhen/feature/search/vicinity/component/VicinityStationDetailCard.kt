@@ -35,7 +35,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -100,6 +102,17 @@ fun VicinityStationDetailCard(
         animationSpec = tween(durationMillis = 300),
         label = "downCircleAlpha",
     )
+    // 텍스트·열차 아이콘 전용 fade (Detail식 325ms, 로딩 종료 시 부드러운 fade-in)
+    val upTextAlpha by animateFloatAsState(
+        targetValue = if (liveLoading.up) 0f else 1f,
+        animationSpec = tween(durationMillis = 325),
+        label = "upTextAlpha",
+    )
+    val downTextAlpha by animateFloatAsState(
+        targetValue = if (liveLoading.down) 0f else 1f,
+        animationSpec = tween(durationMillis = 325),
+        label = "downTextAlpha",
+    )
 
     Column(modifier = modifier.fillMaxWidth()) {
         // ── 회색 둥근 카드 ───────────────────────────────────────────────
@@ -107,7 +120,7 @@ fun VicinityStationDetailCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(Dimens.cornerRadius))
-                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                .background(Color.Gray.copy(alpha = 0.1f))
                 .padding(horizontal = 7.5.dp, vertical = 15.dp),
         ) {
             Column {
@@ -161,7 +174,7 @@ fun VicinityStationDetailCard(
                                     icon = trainIcon,
                                     modifier = Modifier
                                         .matchParentSize()
-                                        .graphicsLayer { alpha = upCircleAlpha },
+                                        .graphicsLayer { alpha = upTextAlpha },
                                 )
                             }
                         }
@@ -228,7 +241,7 @@ fun VicinityStationDetailCard(
                                     icon = trainIcon,
                                     modifier = Modifier
                                         .matchParentSize()
-                                        .graphicsLayer { alpha = downCircleAlpha },
+                                        .graphicsLayer { alpha = downTextAlpha },
                                 )
                             }
                         }
@@ -262,7 +275,7 @@ fun VicinityStationDetailCard(
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .graphicsLayer { alpha = upCircleAlpha },
+                                .alpha(upTextAlpha),
                             verticalArrangement = Arrangement.spacedBy(5.dp),
                         ) {
                             val upData = upArrival.firstOrNull()
@@ -303,7 +316,7 @@ fun VicinityStationDetailCard(
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .graphicsLayer { alpha = downCircleAlpha },
+                                .alpha(downTextAlpha),
                             horizontalAlignment = Alignment.End,
                             verticalArrangement = Arrangement.spacedBy(5.dp),
                         ) {

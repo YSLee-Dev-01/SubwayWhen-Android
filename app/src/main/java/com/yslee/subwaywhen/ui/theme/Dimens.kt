@@ -27,7 +27,7 @@ object Dimens {
     val modalButtonHeight = 50.dp
     val modalHorizontalMargin = 10.dp
     val disposableViewGap = 10.dp
-    val vicinityListButtonHeight = 40.dp   // 목록으로 확인하기 버튼 (iOS AnimationButtonInSUI 자연 높이 대응)
+    val vicinityListButtonHeight = 32.dp   // 목록으로 확인하기 버튼 (iOS AnimationButtonInSUI 자연 높이 20% 축소)
     val vicinityMiniBarWidth = 45.dp       // mini-row 가로 바 너비 (iOS minWidth: 45)
     val vicinityMiniBarHeight = 7.5.dp     // mini-row 가로 바 높이 (iOS height: 7.5)
     val vicinityActionIconSize = 18.dp     // 상세 카드 버튼 아이콘 (22dp의 ~80%)

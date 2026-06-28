@@ -147,18 +147,22 @@ fun SearchVicinitySection(
     }
 
     if (state.showDisposableDirectionDialog) {
+        val tappedStation = state.tappedIndex?.let { state.vicinityStations.getOrNull(it) }
+        val isLine2 = tappedStation?.lineColorName == "02호선"
+        val upLabel = if (isLine2) "내선" else "상행"
+        val downLabel = if (isLine2) "외선" else "하행"
+        val guideText = if (isLine2) "내선/외선 정보를 확인해주세요" else "상행/하행 정보를 확인해주세요"
         AlertDialog(
             onDismissRequest = { viewModel.onIntent(VicinityIntent.DialogDismissed) },
-            title = { Text("방향 선택") },
-            text = { Text("조회할 방향을 선택하세요.") },
-            confirmButton = {
+            text = { Text(guideText) },
+            dismissButton = {
                 TextButton(onClick = { viewModel.onIntent(VicinityIntent.DisposableDirectionSelected(isUp = true)) }) {
-                    Text("상행")
+                    Text(upLabel)
                 }
             },
-            dismissButton = {
+            confirmButton = {
                 TextButton(onClick = { viewModel.onIntent(VicinityIntent.DisposableDirectionSelected(isUp = false)) }) {
-                    Text("하행")
+                    Text(downLabel)
                 }
             },
         )
@@ -326,6 +330,7 @@ private fun SearchVicinitySectionContent(
                                 onClick = { onIntent(VicinityIntent.ListModalOpenTapped) },
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
                                     .height(Dimens.vicinityListButtonHeight),
                             )
                         }
