@@ -18,7 +18,7 @@ fun SettingSectionHeader(title: String, modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.bodySmall.copy(
             fontSize = Dimens.fontSizeSmall,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
         ),
         modifier = modifier
             .fillMaxWidth()

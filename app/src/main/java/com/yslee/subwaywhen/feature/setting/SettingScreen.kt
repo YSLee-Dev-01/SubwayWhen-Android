@@ -88,6 +88,7 @@ private fun SettingScreenContent(
         title = stringResource(R.string.setting_title),
         bottomPadding = Dimens.tabBarBottomPadding,
     ) {
+        Spacer(Modifier.height(10.dp))
         // 섹션 1. 홈 화면
         SettingSectionHeader(title = stringResource(R.string.setting_section_home))
         Spacer(Modifier.height(7.5.dp))

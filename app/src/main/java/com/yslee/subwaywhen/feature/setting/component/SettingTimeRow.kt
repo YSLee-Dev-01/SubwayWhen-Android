@@ -81,7 +81,7 @@ fun SettingTimeRow(
                 modifier = Modifier.weight(1f),
             ) {
                 TimeGroupButton(
-                    label = "출근 시간",
+                    label = "출근",
                     time = if (expandedGroup == TimeGroup.Work) stepperValue else workTime,
                     hasAlert = workHasAlert,
                     modifier = Modifier.padding(horizontal = Dimens.paddingInner, vertical = 20.dp),
@@ -96,7 +96,7 @@ fun SettingTimeRow(
                 modifier = Modifier.weight(1f),
             ) {
                 TimeGroupButton(
-                    label = "퇴근 시간",
+                    label = "퇴근",
                     time = if (expandedGroup == TimeGroup.Leave) stepperValue else leaveTime,
                     hasAlert = leaveHasAlert,
                     modifier = Modifier.padding(horizontal = Dimens.paddingInner, vertical = 20.dp),
@@ -181,11 +181,14 @@ private fun TimeGroupButton(label: String, time: Int, hasAlert: Boolean, modifie
                         imageVector = Icons.Filled.Warning,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(15.dp),
+                        modifier = Modifier
+                            .padding(bottom = Dimens.paddingTB + 5.dp)
+                            .size(15.dp),
                     )
                 } else {
                     Box(
                         modifier = Modifier
+                            .padding(bottom = Dimens.paddingTB + 5.dp)
                             .size(8.dp)
                             .background(AppIconColor, CircleShape),
                     )
