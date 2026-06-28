@@ -80,29 +80,8 @@ fun VicinityStationDetailCard(
 ) {
     val lineColor = subwayLineColor(station.lineColorName) ?: MaterialTheme.colorScheme.primary
 
-    // iOS: .scaleEffect(y: loading ? 0.2 : 1) / .opacity(loading ? 0 : 1) 대응
-    // .animation(.easeInOut(duration: 0.3), value: nowLiveDataLoading)
-    val upBarScaleY by animateFloatAsState(
-        targetValue = if (liveLoading.up) 0.2f else 1f,
-        animationSpec = tween(durationMillis = 300),
-        label = "upBarScaleY",
-    )
-    val upCircleAlpha by animateFloatAsState(
-        targetValue = if (liveLoading.up) 0f else 1f,
-        animationSpec = tween(durationMillis = 300),
-        label = "upCircleAlpha",
-    )
-    val downBarScaleY by animateFloatAsState(
-        targetValue = if (liveLoading.down) 0.2f else 1f,
-        animationSpec = tween(durationMillis = 300),
-        label = "downBarScaleY",
-    )
-    val downCircleAlpha by animateFloatAsState(
-        targetValue = if (liveLoading.down) 0f else 1f,
-        animationSpec = tween(durationMillis = 300),
-        label = "downCircleAlpha",
-    )
-    // 텍스트·열차 아이콘 전용 fade (Detail식 325ms, 로딩 종료 시 부드러운 fade-in)
+    // 빈 원·열차 아이콘·텍스트 전용 fade (Detail식 325ms, 로딩 종료 시 부드러운 fade-in)
+    // 트랙 바는 정적으로 유지 (squish 없음)
     val upTextAlpha by animateFloatAsState(
         targetValue = if (liveLoading.up) 0f else 1f,
         animationSpec = tween(durationMillis = 325),
@@ -149,20 +128,19 @@ fun VicinityStationDetailCard(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                // 빈 원: 로딩 중 fadeout (iOS: .opacity(0))
+                                // 빈 원: 로딩 중 fadeout
                                 Box(
                                     modifier = Modifier
                                         .size(12.5.dp)
                                         .border(1.5.dp, lineColor, CircleShape)
-                                        .graphicsLayer { alpha = upCircleAlpha },
+                                        .graphicsLayer { alpha = upTextAlpha },
                                 )
-                                // 트랙 바: 로딩 중 vertically flatten (iOS: .scaleEffect(y: 0.2))
+                                // 트랙 바: 정적 (squish 없음)
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(5.dp)
-                                        .background(lineColor)
-                                        .graphicsLayer { scaleY = upBarScaleY },
+                                        .background(lineColor),
                                 )
                             }
                             // 열차 아이콘 (로딩 중 alpha 0, code 기반 위치)
@@ -217,20 +195,19 @@ fun VicinityStationDetailCard(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                // 트랙 바: 로딩 중 vertically flatten
+                                // 트랙 바: 정적 (squish 없음)
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(5.dp)
-                                        .background(lineColor)
-                                        .graphicsLayer { scaleY = downBarScaleY },
+                                        .background(lineColor),
                                 )
                                 // 빈 원: 로딩 중 fadeout
                                 Box(
                                     modifier = Modifier
                                         .size(12.5.dp)
                                         .border(1.5.dp, lineColor, CircleShape)
-                                        .graphicsLayer { alpha = downCircleAlpha },
+                                        .graphicsLayer { alpha = downTextAlpha },
                                 )
                             }
                             val downCode = downArrival.firstOrNull()?.code ?: "99"

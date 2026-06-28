@@ -7,8 +7,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -83,6 +86,7 @@ private fun SearchScreenContent(
                     .fillMaxSize()
                     .padding(bottom = Dimens.searchSectionGap),
             ) {
+                Spacer(modifier = Modifier.height(10.dp))
                 SearchTextField(
                     isSearchMode = uiState.isSearchMode,
                     query = uiState.searchQuery,
