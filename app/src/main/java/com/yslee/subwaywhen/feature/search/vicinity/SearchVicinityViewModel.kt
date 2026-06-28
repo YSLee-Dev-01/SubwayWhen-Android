@@ -152,6 +152,7 @@ class SearchVicinityViewModel @Inject constructor(
                         showRefreshCooldownDialog = false,
                         errorDialog = null,
                         showDisposableDirectionDialog = false,
+                        disposableStationCode = null,
                     )
                 }
             }
@@ -170,26 +171,39 @@ class SearchVicinityViewModel @Inject constructor(
             }
 
             is VicinityIntent.DisposableDetailTapped -> {
-                _uiState.update { it.copy(showDisposableDirectionDialog = true) }
+                val index = _uiState.value.tappedIndex ?: return
+                val station = _uiState.value.vicinityStations.getOrNull(index) ?: return
+                viewModelScope.launch {
+                    val results = searchRepository.searchStations(station.name)
+                    val matched = results.find { it.line == station.lineColorName }
+                    if (matched == null) {
+                        _uiState.update { it.copy(errorDialog = "역 정보를 찾을 수 없어요.") }
+                        return@launch
+                    }
+                    _uiState.update {
+                        it.copy(
+                            showDisposableDirectionDialog = true,
+                            disposableStationCode = matched.stationCode,
+                        )
+                    }
+                }
             }
 
             is VicinityIntent.DisposableDirectionSelected -> {
                 val index = _uiState.value.tappedIndex ?: return
                 val station = _uiState.value.vicinityStations.getOrNull(index) ?: return
-                _uiState.update { it.copy(showDisposableDirectionDialog = false) }
+                val stationCode = _uiState.value.disposableStationCode ?: return
+                _uiState.update { it.copy(showDisposableDirectionDialog = false, disposableStationCode = null) }
+                val model = DetailSendModel(
+                    upDown = subwayLineUpDownText(station.lineColorName, intent.isUp),
+                    stationName = station.name,
+                    lineNumber = station.lineColorName,
+                    stationCode = stationCode,
+                    lineCode = subwayLineCode(station.lineColorName),
+                    exceptionLastStation = "",
+                    korailCode = "",
+                )
                 viewModelScope.launch {
-                    val results = searchRepository.searchStations(station.name)
-                    val matched = results.find { it.line == station.lineColorName }
-                    val stationCode = matched?.stationCode ?: return@launch
-                    val model = DetailSendModel(
-                        upDown = subwayLineUpDownText(station.lineColorName, intent.isUp),
-                        stationName = station.name,
-                        lineNumber = station.lineColorName,
-                        stationCode = stationCode,
-                        lineCode = subwayLineCode(station.lineColorName),
-                        exceptionLastStation = "",
-                        korailCode = "",
-                    )
                     _effect.emit(VicinityEffect.NavigateToDisposableDetail(model))
                 }
             }

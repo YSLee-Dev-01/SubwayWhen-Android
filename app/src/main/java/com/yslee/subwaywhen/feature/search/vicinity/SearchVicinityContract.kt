@@ -25,6 +25,7 @@ data class VicinityUiState(
     val isLocationModalVisible: Boolean = false,
     val trainIcon: String = "🚃",
     val showDisposableDirectionDialog: Boolean = false,
+    val disposableStationCode: String? = null,
 )
 
 sealed interface VicinityIntent {
