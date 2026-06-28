@@ -73,10 +73,17 @@ fun HomeStationCard(
     val lineColor = subwayLineColor(cell.line) ?: MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
     val lineDisplayName = subwayLineDisplayName(cell.line)
 
-    val statusText = buildString {
-        if (cell.type == HomeCellType.Schedule) append("⏱️")
-        append(cell.useFast)
-        append(cell.stateMSG)
+    val isLoading = cell.type == HomeCellType.Loading
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (isLoading) 0f else 1f,
+        animationSpec = tween(durationMillis = 325),
+        label = "contentAlpha",
+    )
+
+    val statusText = when {
+        isLoading -> "📡 열차 정보를 가져오고 있어요."
+        cell.type == HomeCellType.Schedule -> "⏱️${cell.useFast}${cell.stateMSG}"
+        else -> "${cell.useFast}${cell.stateMSG}"
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -122,7 +129,11 @@ fun HomeStationCard(
 
                 Spacer(modifier = Modifier.width(15.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .graphicsLayer { alpha = contentAlpha },
+                ) {
                     Text(
                         text = if (cell.lastStation.isNotEmpty()) "${cell.stationName} | ${cell.lastStation}"
                                else cell.stationName,
