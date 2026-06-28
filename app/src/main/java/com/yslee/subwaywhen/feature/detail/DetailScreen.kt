@@ -127,7 +127,7 @@ fun DetailScreen(
                 text = "실시간 현황",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
             Spacer(modifier = Modifier.height(Dimens.paddingTB))
         }
@@ -187,7 +187,7 @@ fun DetailScreen(
                     text = "기타",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
                 ModalSubButton(
                     text = "${subwayLineTitle(sendModel.lineNumber)} 민원접수",

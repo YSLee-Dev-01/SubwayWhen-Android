@@ -35,7 +35,7 @@ fun DetailStationHeaderView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(45.dp)
                 .background(color = lineColor, shape = RoundedCornerShape(20.dp)),
             contentAlignment = Alignment.Center,
         ) {
